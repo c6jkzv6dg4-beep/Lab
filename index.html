@@ -6,801 +6,1737 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="مختبر القفز">
+<meta name="apple-mobile-web-app-title" content="المجهر">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
-<title>مختبر القفز</title>
+<title>المجهر • تحليل الحركة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--a:#ff6b2c;--c:#3df5ff;--g:#b6ff3d;--r:#ff4d5e;--y:#ffd23d;--p:#c38bff}
+:root{--c:#3df5ff;--m:#ff4fd8;--g:#b6ff3d;--y:#ffd23d;--r:#ff4d5e;--o:#ffb020;--bg:#03070c;--card:#0a131bcc;--line:#3df5ff2e;--tx:#e6fbff;--mu:#8fb3c4}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#000;color:#fff;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
-#stage{position:fixed;inset:0}
-#view{position:absolute;inset:0;width:100%;height:100%}
-video{position:absolute;top:0;left:0;width:2px;height:2px;opacity:0;pointer-events:none}
-.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.6))}
-#top{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 16px;background:linear-gradient(#000d,transparent);pointer-events:none;display:flex;flex-direction:column;gap:8px}
-.row{display:flex;justify-content:space-between;align-items:center}
-.brand{font-weight:700;font-size:17px;color:var(--a);text-shadow:0 0 14px #ff6b2c88}
-.brand small{color:#fc9;font-weight:400;font-size:10px;margin-inline-start:6px;letter-spacing:1px}
-#who{font-size:12.5px;color:#ffe2d0;background:#1a0c06cc;border:1px solid #ff6b2c55;border-radius:14px;padding:3px 10px}
-.chips{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.chip{border:1px solid #ff6b2c33;background:#140a06cc;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:10px;padding:4px 4px 3px;text-align:center}
-.chip b{display:block;font-family:'JetBrains Mono',monospace;font-size:19px;line-height:1.2}
-.chip span{font-size:10px;color:#fc9}
-#status{align-self:center;background:#140a06e6;border:1px solid #ff6b2c77;border-radius:20px;padding:7px 16px;font-size:14px;text-align:center;max-width:94%;transition:.2s}
-#status.ready{border-color:var(--g);color:#e9ffcc;box-shadow:0 0 18px #b6ff3d55}
-#status.air{border-color:var(--c);color:#d4fbff;box-shadow:0 0 22px #3df5ff77;font-size:17px;font-weight:700}
-#toasts{display:flex;flex-direction:column;gap:5px;align-items:center}
-.toast{background:#140a06e6;border:1px solid #ffd23d;color:#ffe9a6;border-radius:18px;padding:4px 12px;font-size:12.5px;animation:tin .25s;transition:opacity .4s;text-align:center;max-width:92%}
+html,body{height:100%;background:#000;color:var(--tx);font-family:'IBM Plex Sans Arabic',system-ui,-apple-system,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;direction:ltr;unicode-bidi:isolate}
+button{font:inherit;color:inherit}
+/* ---------- live ---------- */
+#live{position:fixed;inset:0}
+#video{position:absolute;top:0;left:0;width:2px;height:2px;opacity:0;pointer-events:none}
+#lv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+#lTop{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 6px) 10px 14px;background:linear-gradient(#000e,#0000);pointer-events:none;display:flex;flex-direction:column;gap:7px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.brand{font-weight:700;font-size:18px;letter-spacing:.3px;color:#fff;text-shadow:0 0 14px #3df5ff99}
+.brand b{color:var(--c)}
+.brand small{font-size:9.5px;color:var(--mu);font-weight:500;margin-inline-start:6px;letter-spacing:1.5px}
+#recInd{display:none;align-items:center;gap:6px;background:#3a0710e6;border:1px solid var(--r);border-radius:14px;padding:3px 10px;font-size:12px;color:#ffd0d5}
+#recInd.on{display:flex}
+#recInd i{width:8px;height:8px;border-radius:50%;background:var(--r);animation:blink .8s infinite}
+@keyframes blink{50%{opacity:.15}}
+#actChip{display:flex;align-items:center;gap:10px;background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:6px 10px}
+#actIcon{font-size:26px;line-height:1}
+#actName{font-size:19px;font-weight:700}
+#actTime{font-size:12px;color:var(--mu)}
+#actChip .grow{flex:1}
+.mini{text-align:center;min-width:62px}
+.mini b{display:block;font-family:'JetBrains Mono',monospace;font-size:16px;line-height:1.15}
+.mini span{font-size:9.5px;color:var(--mu)}
+.ebar{height:5px;border-radius:3px;background:#ffffff14;overflow:hidden;margin-top:3px}
+.ebar i{display:block;height:100%;width:0;border-radius:3px;transition:width .25s}
+#actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;min-height:0}
+.badge{background:#0a131bdd;border:1px solid #ffd23d88;color:#ffe9a6;border-radius:12px;padding:2px 9px;font-size:12px}
+#toasts{display:flex;flex-direction:column;align-items:center;gap:5px}
+.toast{background:#0a131bf0;border:1px solid #3df5ff66;border-radius:16px;padding:5px 13px;font-size:12.5px;animation:tin .25s;transition:opacity .4s;max-width:92%;text-align:center}
+.toast.warn{border-color:var(--y);color:#ffe9a6}
 @keyframes tin{from{opacity:0;transform:translateY(-6px)}}
-#big{position:absolute;left:0;right:0;top:36%;text-align:center;pointer-events:none;opacity:0;transform:scale(.6);transition:all .35s cubic-bezier(.2,1.4,.4,1)}
-#big.on{opacity:1;transform:scale(1)}
-#big b{font-family:'JetBrains Mono',monospace;font-size:96px;color:#fff;text-shadow:0 0 30px var(--a),0 0 60px var(--a);line-height:1}
-#big span{display:block;font-size:20px;color:#ffd9c4;font-weight:700}
-#bottom{position:absolute;left:0;right:0;bottom:0;padding:22px 8px calc(env(safe-area-inset-bottom) + 10px);background:linear-gradient(transparent,#000e)}
-#tele{font-family:'JetBrains Mono',monospace;font-size:10px;color:#ff9b6b99;direction:ltr;text-align:left;padding:0 4px 6px}
-.btns{display:flex;gap:6px}
-.btn{flex:1;background:#140a06cc;border:1px solid #ff6b2c55;color:#ffe2d0;border-radius:12px;padding:7px 2px;font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
-.btn .ic{font-size:18px;line-height:1.25}
-.btn:disabled{opacity:.35}
-.sheet{position:fixed;left:0;right:0;bottom:0;background:#0b0604f7;border-top:1px solid #ff6b2c77;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:5;display:flex;flex-direction:column}
+#hint{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);background:#0a131bee;border:1px solid var(--line);border-radius:16px;padding:12px 18px;font-size:14px;text-align:center;pointer-events:none;width:min(300px,86%);line-height:1.7;display:none}
+#dash{position:absolute;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 84px);display:grid;grid-template-columns:repeat(3,1fr);gap:6px;pointer-events:none;transition:opacity .25s}
+#dash.hide{opacity:0}
+.tile{background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:12px;padding:6px 7px;min-height:58px}
+.tile .k{font-size:10px;color:var(--mu);display:flex;justify-content:space-between}
+.tile .v{font-size:12.5px;font-weight:600;line-height:1.35;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .s{font-size:10px;color:#b9d6e2;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wbar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:4px 0 2px;background:#ffffff12}
+.wbar i{display:block;height:100%}
+#lBot{position:absolute;left:0;right:0;bottom:0;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#0000,#000d)}
+.cbtn{width:54px;height:54px;border-radius:50%;background:#0a131bdd;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:19px;gap:0}
+.cbtn small{font-size:9px;color:var(--mu)}
+.cbtn:disabled{opacity:.3}
+#recBtn{width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:transparent;display:flex;align-items:center;justify-content:center;position:relative}
+#recBtn i{width:56px;height:56px;border-radius:50%;background:var(--r);transition:all .25s;box-shadow:0 0 22px #ff4d5e99}
+#recBtn.on i{width:28px;height:28px;border-radius:7px}
+#recBtn span{position:absolute;bottom:-16px;font-size:10px;color:#fff;white-space:nowrap}
+#tele{position:absolute;left:10px;bottom:calc(env(safe-area-inset-bottom) + 232px);font-family:'JetBrains Mono',monospace;font-size:9px;color:#3df5ff88;direction:ltr;pointer-events:none;white-space:pre}
+/* ---------- processing overlay ---------- */
+#proc{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20}
+#proc.on{display:flex}
+.spin{width:60px;height:60px;border-radius:50%;border:3px solid #3df5ff22;border-top-color:var(--c);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#procTxt{font-size:15px}
+#procSub{font-size:12px;color:var(--mu)}
+/* ---------- black box ---------- */
+#bb{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;z-index:10}
+#bb.on{display:flex}
+#bbHead{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;border-bottom:1px solid #ffffff10}
+#bbHead .t{flex:1;min-width:0}
+#bbHead .t b{display:block;font-size:15px}
+#bbHead .t small{font-size:11px;color:var(--mu)}
+.hbtn{background:#0a131b;border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:13px}
+#stage3d{position:relative;flex:0 0 auto;height:44vh;min-height:250px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#0b2230,#02060a 75%)}
+#c3{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#hud3{position:absolute;top:8px;right:10px;pointer-events:none;text-align:right}
+#hud3 .tm{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#fff;text-shadow:0 0 10px #3df5ff;direction:ltr}
+#hud3 .ac{font-size:13px;font-weight:600;margin-top:2px}
+#hud3 .fr{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mu);direction:ltr}
+#views{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:5px}
+#views button{background:#0a131bcc;border:1px solid var(--line);border-radius:9px;padding:4px 8px;font-size:11px;color:#cfefff}
+#views button.on{background:var(--c);color:#012;border-color:var(--c)}
+#pip{position:absolute;left:8px;bottom:8px;width:26%;max-width:150px;border-radius:10px;border:1px solid #3df5ff55;background:#000;transition:width .25s}
+#pip.big{width:58%;max-width:340px}
+#tl{position:relative;height:50px;flex:0 0 auto;background:#050c12;border-top:1px solid #ffffff0d}
+#tlc{width:100%;height:100%;display:block;touch-action:none}
+#ctl{display:flex;align-items:center;gap:6px;padding:6px 10px;flex:0 0 auto;border-bottom:1px solid #ffffff0d;direction:ltr}
+#ctl button{background:#0a131b;border:1px solid var(--line);border-radius:10px;min-width:38px;height:34px;padding:0 8px;font-size:14px}
+#ctl button.on{background:#3df5ff22;border-color:var(--c)}
+#ctl #play{background:var(--c);color:#012;border-color:var(--c);min-width:48px;font-size:16px}
+#ctl .tm{flex:1;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mu);direction:ltr}
+.tabs{display:flex;gap:3px;padding:6px 8px 0;flex:0 0 auto;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1;white-space:nowrap;background:none;border:1px solid transparent;border-bottom:none;border-radius:10px 10px 0 0;padding:7px 9px;font-size:12.5px;color:var(--mu)}
+.tabs button.on{background:#0a131b;border-color:#ffffff14;color:#fff}
+#panel{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0a131b;padding:10px 10px calc(env(safe-area-inset-bottom) + 20px)}
+.pane{display:none}.pane.on{display:block}
+.jchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.jchips::-webkit-scrollbar{display:none}
+.jchips button{flex:0 0 auto;background:#0f1d27;border:1px solid #ffffff14;border-radius:14px;padding:4px 10px;font-size:12px}
+.jchips button.on{background:var(--c);color:#012;border-color:var(--c);font-weight:700}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.card{background:#0f1d27;border:1px solid #ffffff10;border-radius:12px;padding:8px 10px;min-width:0}
+.card .k{font-size:10.5px;color:var(--mu)}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .v small{font-size:10.5px;color:var(--mu);font-weight:500;font-family:'IBM Plex Sans Arabic',sans-serif}
+.card .v span{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;direction:rtl;unicode-bidi:isolate;font-size:17px}
+.card .s{font-size:10.5px;color:#a9c8d6;line-height:1.35}
+.card.w{grid-column:1/-1}
+.card.hl{border-color:#3df5ff55}
+.sec{font-size:12.5px;font-weight:700;color:var(--c);margin:14px 2px 7px}
+.gt{display:flex;justify-content:space-between;font-size:12px;margin:12px 2px 4px}
+.gt small{color:var(--mu);font-size:10.5px}
+canvas.plot{width:100%;display:block;background:#071018;border:1px solid #ffffff0f;border-radius:10px;touch-action:none}
+.dist{display:flex;height:22px;border-radius:7px;overflow:hidden;margin:4px 0}
+.dist i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:#b9d6e2}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--cc);margin-inline-end:4px;vertical-align:-1px}
+table.rom{width:100%;border-collapse:collapse;font-size:12px}
+table.rom th{color:var(--mu);font-weight:500;font-size:10.5px;text-align:right;padding:5px 4px;border-bottom:1px solid #ffffff14}
+table.rom td{padding:6px 4px;border-bottom:1px solid #ffffff0a}
+table.rom td.n{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right}
+.rbar{position:relative;height:6px;border-radius:3px;background:#ffffff10;min-width:60px}
+.rbar i{position:absolute;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--c),var(--m))}
+.ev{display:flex;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid #ffffff0a;border-radius:8px}
+.ev:active{background:#ffffff0a}
+.ev .i{font-size:20px;width:28px;text-align:center}
+.ev .x{flex:1;font-size:13.5px}
+.ev .tt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c);direction:ltr}
+.ev.cur{background:#3df5ff14}
+.sym{display:flex;align-items:center;gap:8px;font-size:12px;margin:5px 0}
+.sym .b{flex:1;display:flex;height:9px;border-radius:5px;overflow:hidden;background:#ffffff10}
+.sym .b i:first-child{background:var(--c)}.sym .b i:last-child{background:var(--m)}
+.note{font-size:11.5px;color:#9dbccb;line-height:1.7;margin-top:8px}
+.empty{color:var(--mu);text-align:center;padding:24px 10px;font-size:13px;line-height:1.8}
+.rec{display:flex;align-items:center;gap:10px;background:#0f1d27;border:1px solid #ffffff10;border-radius:12px;padding:9px 10px;margin-bottom:7px}
+.rec .x{flex:1;min-width:0}
+.rec .x b{font-size:13.5px;display:block}
+.rec .x small{font-size:11px;color:var(--mu)}
+.rec button{background:#0a131b;border:1px solid var(--line);border-radius:9px;padding:5px 10px;font-size:12px}
+.rec button.pr{background:var(--c);color:#012;border-color:var(--c);font-weight:700}
+.rec button.dl{color:#ff8a95;border-color:#ff4d5e55}
+.seg{display:flex;gap:4px;background:#071018;border-radius:10px;padding:3px;margin:8px 0}
+.seg button{flex:1;background:none;border:none;border-radius:8px;padding:6px 4px;font-size:12px;color:var(--mu)}
+.seg button.on{background:var(--o);color:#201000;font-weight:700}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+table.cmp th{font-size:10.5px;color:var(--mu);font-weight:500;padding:5px 4px;text-align:right;border-bottom:1px solid #ffffff14}
+table.cmp td{padding:6px 4px;border-bottom:1px solid #ffffff0a}
+table.cmp td.n{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right}
+/* ---------- sheet ---------- */
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:80%;background:#071018f8;border-top:1px solid #3df5ff55;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:30;display:flex;flex-direction:column;padding:14px 12px calc(env(safe-area-inset-bottom) + 12px)}
 .sheet.open{transform:none}
-.sheet h3{font-size:16px;color:var(--a);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.xbtn{background:none;border:1px solid #ff6b2c66;color:#ffe2d0;border-radius:9px;padding:4px 12px;font:inherit;font-size:12px}
-#pSheet{padding:16px 14px calc(env(safe-area-inset-bottom) + 14px);max-height:85%}
-#pList{overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:40vh}
-.pItem{display:flex;align-items:center;gap:10px;background:#1a0d07;border:1px solid #ff6b2c33;border-radius:12px;padding:9px 11px;font-size:14px}
-.pItem.on{border-color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
-.pItem .nm{flex:1}.pItem small{color:#fc9;font-size:11px;display:block}
-.pItem .best{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--a)}
-.pItem .del{background:none;border:none;color:#ff8a95;font-size:16px;padding:2px 6px}
-.form{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:6px;align-items:end}
-.form label{font-size:11px;color:#fc9}
-.form input{width:100%;margin-top:3px;background:#1a0d07;border:1px solid #ff6b2c44;border-radius:9px;color:#fff;padding:8px 6px;font:inherit;font-size:15px;text-align:center}
-.form button{background:var(--a);color:#200;border:none;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700}
-#res{height:92%;padding-top:12px}
-#res header{display:flex;justify-content:space-between;align-items:center;padding:0 14px 8px}
-#res header b{font-size:17px;color:var(--a)}
-.tabs{display:flex;gap:4px;padding:0 10px 8px;border-bottom:1px solid #ffffff12}
-.tabs button{flex:1;background:none;border:1px solid transparent;color:#fc9;border-radius:10px;padding:7px 2px;font:inherit;font-size:12.5px}
-.tabs button.on{background:#ff6b2c1f;border-color:#ff6b2c77;color:#fff}
-.tabBody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom) + 20px)}
-.tab{display:none}.tab.on{display:block}
-.hero{border:1px solid #ff6b2c66;border-radius:16px;padding:14px;background:radial-gradient(ellipse at top,#3a1606,#0d0603);text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
-.hero .lbl{font-size:12px;color:#fc9}
-.hero .val{font-family:'JetBrains Mono',monospace;font-size:58px;font-weight:700;line-height:1.05;text-shadow:0 0 22px #ff6b2caa;direction:ltr}
-.hero .val small{font-size:20px;color:#fc9}
-.hero .lvl{display:inline-block;margin-top:6px;padding:4px 14px;border-radius:14px;background:#ff6b2c;color:#200;font-weight:700;font-size:14px}
-.hero .rec{position:absolute;top:10px;left:10px;background:var(--y);color:#210;font-weight:700;font-size:11px;padding:3px 9px;border-radius:10px;animation:pulse 1s infinite alternate}
-@keyframes pulse{to{transform:scale(1.08)}}
-.hero .cmp{font-size:12px;color:#ffd9c4;margin-top:8px;line-height:1.6}
-.meter{position:relative;height:10px;border-radius:6px;background:linear-gradient(90deg,#555,#3df5ff,#b6ff3d,#ffd23d,#ff6b2c,#ff4d5e);margin:12px 4px 4px}
-.meter i{position:absolute;top:-5px;width:4px;height:20px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff;transition:left 1.2s cubic-bezier(.2,.8,.2,1)}
-.mlabels{display:flex;justify-content:space-between;font-size:9.5px;color:#a87;padding:0 2px;direction:ltr}
-.sec{font-size:13px;color:var(--a);margin:16px 0 8px;font-weight:700}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.card{background:#170c07;border:1px solid #ff6b2c26;border-radius:13px;padding:9px 10px}
-.card .k{font-size:11px;color:#fc9}
-.card .v{font-family:'JetBrains Mono',monospace;font-size:21px;direction:ltr;text-align:right}
-.card .v small{font-size:11px;color:#fc9}
-.card .s{font-size:10.5px;color:#b98}
-.card.wide{grid-column:1/-1}
-.card.good{border-color:#b6ff3d88;background:#0f1a06}
-.card.warn{border-color:#ffd23d99;background:#1f1806}
-.card.bad{border-color:#ff4d5e99;background:#200809}
-.phases{display:flex;height:34px;border-radius:10px;overflow:hidden;margin-top:4px;font-size:10.5px}
-.phases div{display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;min-width:0;overflow:hidden;white-space:nowrap}
-.gtitle{font-size:13px;color:#ffe2d0;margin:14px 0 4px;display:flex;justify-content:space-between}
-.gtitle small{color:#fc9;font-size:11px}
-canvas.plot{width:100%;display:block;background:#120905;border:1px solid #ff6b2c22;border-radius:12px}
-.explain{font-size:11.5px;color:#d9b8a5;line-height:1.75;margin-top:6px}
-#rp{width:100%;display:block;background:#000;border-radius:12px;border:1px solid #ff6b2c33}
-.rpc{display:flex;gap:6px;margin-top:8px;align-items:center}
-.rpc button{background:#170c07;border:1px solid #ff6b2c66;color:#ffe2d0;border-radius:10px;padding:7px 10px;font:inherit;font-size:12px}
-.rpc button.on{background:var(--a);color:#200}
-.rpc input{flex:1;accent-color:#ff6b2c}
-.lb{display:flex;flex-direction:column;gap:7px}
-.lbi{display:flex;align-items:center;gap:10px;background:#170c07;border:1px solid #ff6b2c26;border-radius:12px;padding:10px 12px}
-.lbi .rk{font-size:22px;width:30px;text-align:center}
-.lbi .nm{flex:1;font-size:14.5px}.lbi .nm small{display:block;color:#fc9;font-size:11px}
-.lbi .sc{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--a)}
-.spark{display:block;width:70px;height:26px}
-#boot{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 25%,#3a1404,#000 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;z-index:9;transition:opacity .5s;overflow-y:auto}
+.sheet h3{display:flex;justify-content:space-between;align-items:center;font-size:16px;margin-bottom:10px}
+.sheet .list{overflow-y:auto}
+/* ---------- boot ---------- */
+#boot{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at 50% 22%,#0d2a3a,#000 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;transition:opacity .5s;overflow-y:auto}
 #boot.hide{opacity:0;pointer-events:none}
-#boot h1{font-size:38px;text-shadow:0 0 22px var(--a)}
-#boot .sub{color:#fc9;font-size:13.5px;margin:4px 0 14px}
-.feats{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:350px;width:100%;margin-bottom:14px}
-.feats div{border:1px solid #ff6b2c2a;background:#140a06aa;border-radius:10px;padding:7px;font-size:12px;color:#ffe2d0}
-.bootForm{max-width:350px;width:100%;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px;margin-bottom:14px}
-.bootForm label{font-size:11px;color:#fc9;text-align:right}
-.bootForm input{width:100%;margin-top:3px;background:#1a0d07;border:1px solid #ff6b2c55;border-radius:10px;color:#fff;padding:10px 6px;font:inherit;font-size:16px;text-align:center}
-.tips{max-width:350px;width:100%;font-size:12px;color:#ffd9c4;text-align:right;background:#140a06aa;border:1px solid #ff6b2c2a;border-radius:12px;padding:9px 11px;line-height:1.8;margin-bottom:14px}
-#go{background:var(--a);color:#200;border:none;border-radius:14px;padding:14px 44px;font:inherit;font-weight:700;font-size:18px;box-shadow:0 0 30px #ff6b2c88}
+#bootArt{width:150px;height:150px;margin-bottom:6px}
+#boot h1{font-size:42px;letter-spacing:1px;text-shadow:0 0 26px #3df5ffaa}
+#boot .sub{font-size:14px;color:var(--mu);margin:2px 0 16px}
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:360px;margin-bottom:18px}
+.feats div{background:#0a131bcc;border:1px solid var(--line);border-radius:11px;padding:8px;font-size:12px;text-align:right;line-height:1.5}
+.feats b{display:block;font-size:12.5px;color:#fff}
+.feats span{color:var(--mu);font-size:10.5px}
+#go{background:var(--c);color:#012;border:none;border-radius:16px;padding:15px 52px;font-weight:700;font-size:18px;box-shadow:0 0 34px #3df5ff77}
 #go:disabled{opacity:.5}
-#bootMsg{margin-top:10px;font-size:12.5px;color:#ff9aa5;min-height:18px;max-width:340px}
+#bootMsg{margin-top:12px;font-size:12.5px;color:var(--mu);min-height:20px;max-width:340px;line-height:1.7}
+#bootMsg.err{color:#ff8a95}
+.privacy{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 12px);left:0;right:0;font-size:11px;color:#5f8a9c}
 </style>
 </head>
 <body>
-<div id="stage">
+<div id="live">
   <video id="video" playsinline muted autoplay></video>
-  <canvas id="view"></canvas>
+  <canvas id="lv"></canvas>
   <div class="vig"></div>
-  <div id="top">
+  <div id="lTop">
     <div class="row">
-      <div class="brand">مختبر القفز<small>JUMP LAB</small></div>
-      <div id="who">👤 —</div>
+      <div class="brand"><b>المِجهر</b><small>MOTION · 3D</small></div>
+      <div id="recInd"><i></i><span id="recTxt">00:00</span></div>
     </div>
-    <div class="chips">
-      <div class="chip"><b id="cLive">—</b><span>الارتفاع الحي سم</span></div>
-      <div class="chip"><b id="cLast">—</b><span>آخر قفزة سم</span></div>
-      <div class="chip"><b id="cBest">—</b><span>أفضل قفزة سم</span></div>
+    <div id="actChip">
+      <div id="actIcon">❔</div>
+      <div class="grow"><div id="actName">—</div><div id="actTime">بانتظار شخص</div></div>
+      <div class="mini"><b id="mSpeed">0.00</b><span>سرعة الجسم م/ث</span></div>
+      <div class="mini"><b id="mEnergy" style="font-size:13px">—</b><span>النشاط</span><div class="ebar"><i id="eBar"></i></div></div>
     </div>
-    <div id="status">جاري التشغيل…</div>
+    <div id="actions"></div>
     <div id="toasts"></div>
   </div>
-  <div id="big"><b id="bigN">0</b><span>سنتيمتر</span></div>
-  <div id="bottom">
-    <div id="tele">INIT</div>
-    <div class="btns">
-      <button class="btn" id="bWho"><span class="ic">👤</span>القافز</button>
-      <button class="btn" id="bRank"><span class="ic">🏆</span>الترتيب</button>
-      <button class="btn" id="bCam"><span class="ic">🔄</span>الكاميرا</button>
-      <button class="btn" id="bLast" disabled><span class="ic">📊</span>آخر نتيجة</button>
-    </div>
+  <div id="hint">🧍 وجّه الكاميرا على شخص<br><small style="color:var(--mu)">لازم يبان جسمه كامل من الراس للرجول</small></div>
+  <div id="tele"></div>
+  <div id="dash">
+    <div class="tile"><div class="k">الجذع</div><div class="v" id="dTrunk">—</div><div class="s" id="dTrunkS"></div></div>
+    <div class="tile"><div class="k">الكتفين والحوض</div><div class="v" id="dSh">—</div><div class="s" id="dShS"></div></div>
+    <div class="tile"><div class="k">الراس</div><div class="v" id="dHead">—</div><div class="s" id="dHeadS"></div></div>
+    <div class="tile"><div class="k"><span>التوازن</span><span id="dBalIn"></span></div><div class="wbar"><i id="wL" style="background:var(--c);width:50%"></i><i id="wR" style="background:var(--m);width:50%"></i></div><div class="s" id="dBal">—</div></div>
+    <div class="tile"><div class="k">الركب والورك</div><div class="v" id="dKnee">—</div><div class="s" id="dKneeS"></div></div>
+    <div class="tile"><div class="k">اليدين</div><div class="v" id="dHands">—</div><div class="s" id="dHandsS"></div></div>
+  </div>
+  <div id="lBot">
+    <button class="cbtn" id="bArch"><span>📁</span><small>التسجيلات</small></button>
+    <button class="cbtn" id="bLayer"><span>🏷️</span><small>الطبقات</small></button>
+    <button id="recBtn"><i></i><span id="recLbl">سجّل</span></button>
+    <button class="cbtn" id="bCam"><span>🔄</span><small>الكاميرا</small></button>
+    <button class="cbtn" id="bLast" disabled><span>🎬</span><small>آخر تسجيل</small></button>
   </div>
 </div>
 
-<div class="sheet" id="pSheet">
-  <h3><span>مين بيقفز؟</span><button class="xbtn" id="pClose">تم</button></h3>
-  <div id="pList"></div>
-  <div class="form">
-    <label>الاسم<input id="nName" placeholder="أمي"></label>
-    <label>الطول سم<input id="nH" type="number" inputmode="numeric" placeholder="165"></label>
-    <label>الوزن كجم<input id="nW" type="number" inputmode="numeric" placeholder="70"></label>
-    <button id="nAdd">إضافة</button>
+<div id="proc"><div class="spin"></div><div id="procTxt">أحلل الحركة…</div><div id="procSub"></div></div>
+
+<div id="bb">
+  <div id="bbHead">
+    <button class="hbtn" id="bbClose">✕</button>
+    <div class="t"><b id="bbTitle">الصندوق الأسود</b><small id="bbSub"></small></div>
+    <button class="hbtn" id="bbArch">📁</button>
+  </div>
+  <div id="stage3d">
+    <canvas id="c3"></canvas>
+    <div id="hud3"><div class="tm" id="h3t">0.000 s</div><div class="ac" id="h3a"></div><div class="fr" id="h3f"></div></div>
+    <div id="views">
+      <button data-v="cam">📱 الكاميرا</button>
+      <button data-v="front">أمام</button>
+      <button data-v="side">جنب</button>
+      <button data-v="top">فوق</button>
+      <button data-v="orbit">↻ دوران</button>
+    </div>
+    <canvas id="pip"></canvas>
+  </div>
+  <div id="tl"><canvas id="tlc"></canvas></div>
+  <div id="ctl">
+    <button id="prevF">⏮</button>
+    <button id="play">▶</button>
+    <button id="nextF">⏭</button>
+    <button id="spd">×1</button>
+    <button id="lbl" class="on">°</button>
+    <div class="tm" id="ctlT"></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-p="joint" class="on">المفصل</button>
+    <button data-p="body">الجسم</button>
+    <button data-p="sum">الملخص</button>
+    <button data-p="ev">الأحداث</button>
+    <button data-p="cmp">المقارنة</button>
+  </div>
+  <div id="panel">
+    <div class="pane on" id="p-joint"></div>
+    <div class="pane" id="p-body"></div>
+    <div class="pane" id="p-sum"></div>
+    <div class="pane" id="p-ev"></div>
+    <div class="pane" id="p-cmp"></div>
   </div>
 </div>
 
-<div class="sheet" id="res">
-  <header><b id="resTitle">نتيجة القفزة</b><button class="xbtn" id="again">قفزة جديدة ↺</button></header>
-  <div class="tabs">
-    <button data-t="sum" class="on">التحليل</button>
-    <button data-t="graph">الرسوم</button>
-    <button data-t="replay">الإعادة</button>
-    <button data-t="rank">الترتيب</button>
-  </div>
-  <div class="tabBody">
-    <div class="tab on" id="t-sum"></div>
-    <div class="tab" id="t-graph"></div>
-    <div class="tab" id="t-replay">
-      <canvas id="rp"></canvas>
-      <div class="rpc">
-        <button id="rpPlay">⏸</button>
-        <button id="rpSpd">×0.25</button>
-        <button id="rpStrobe">ستروب</button>
-        <input type="range" id="rpSeek" min="0" max="1000" value="0">
-      </div>
-      <p class="explain" id="rpInfo"></p>
-    </div>
-    <div class="tab" id="t-rank"></div>
-  </div>
+<div class="sheet" id="arch">
+  <h3><span>📁 التسجيلات</span><button class="hbtn" id="archClose">إغلاق</button></h3>
+  <div class="list" id="archList"></div>
 </div>
 
 <div id="boot">
-  <h1>🦘 مختبر القفز</h1>
-  <p class="sub">مختبر علوم رياضة كامل في كاميرا جوالك</p>
+  <svg id="bootArt" viewBox="0 0 150 150">
+    <defs><radialGradient id="rg"><stop offset="0" stop-color="#3df5ff" stop-opacity=".35"/><stop offset="1" stop-color="#3df5ff" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="75" cy="75" r="70" fill="url(#rg)"/>
+    <ellipse cx="75" cy="128" rx="40" ry="8" fill="none" stroke="#3df5ff55" stroke-dasharray="3 4"/>
+    <g stroke-linecap="round" stroke-width="5" fill="none">
+      <path d="M75 40 L75 82" stroke="#e6fbff"/>
+      <path d="M75 50 L56 70 L50 92" stroke="#3df5ff"/><path d="M75 50 L96 64 L108 44" stroke="#ff4fd8"/>
+      <path d="M75 82 L64 104 L62 126" stroke="#3df5ff"/><path d="M75 82 L88 104 L94 126" stroke="#ff4fd8"/>
+    </g>
+    <circle cx="75" cy="30" r="9" fill="none" stroke="#e6fbff" stroke-width="4"/>
+    <g fill="#fff"><circle cx="56" cy="70" r="3"/><circle cx="96" cy="64" r="3"/><circle cx="64" cy="104" r="3"/><circle cx="88" cy="104" r="3"/></g>
+    <circle cx="75" cy="75" r="62" fill="none" stroke="#3df5ff" stroke-opacity=".5" stroke-dasharray="2 6"><animateTransform attributeName="transform" type="rotate" from="0 75 75" to="360 75 75" dur="16s" repeatCount="indefinite"/></circle>
+  </svg>
+  <h1>المِجهر</h1>
+  <p class="sub">تحليل ثلاثي الأبعاد للجسم والحركة</p>
   <div class="feats">
-    <div>📏 الارتفاع بطريقتين علميتين</div><div>💪 القوة بالنيوتن</div>
-    <div>⚡ القدرة بالواط</div><div>⏱️ مراحل القفزة بالملي ثانية</div>
-    <div>🦵 تحليل الركب والهبوط</div><div>⚠️ كشف الهبوط الخطر</div>
-    <div>🎥 إعادة بطيئة وستروب</div><div>🏆 ترتيب العائلة</div>
+    <div><b>📐 كل المفاصل</b><span>زوايا ثلاثية الأبعاد وسرعة وتسارع</span></div>
+    <div><b>🧍 الوضعية</b><span>ميلان الجذع والكتفين والراس</span></div>
+    <div><b>⚖️ التوازن</b><span>مركز الثقل وتوزيع الوزن</span></div>
+    <div><b>🧠 النشاط</b><span>يعرف وش تسوي لحظة بلحظة</span></div>
+    <div><b>🎬 الصندوق الأسود</b><span>إعادة ثلاثية الأبعاد بالملي ثانية</span></div>
+    <div><b>🆚 المقارنة</b><span>حركتين فوق بعض أو جنب بعض</span></div>
   </div>
-  <div class="bootForm">
-    <label>اسم القافز<input id="bName" placeholder="أنا"></label>
-    <label>الطول سم<input id="bH" type="number" inputmode="numeric" placeholder="170"></label>
-    <label>الوزن كجم<input id="bW" type="number" inputmode="numeric" placeholder="70"></label>
-  </div>
-  <div class="tips">📱 <b>واحد يمسك الجوال</b> ويبعد ٣ إلى ٤ أمتار، بحيث يبان القافز <b>كامل من راسه لرجوله</b>.<br>🧍 القافز يوقف ثابت ثانية لين يطلع «جاهز»، وبعدها يقفز لفوق بأقصى قوته.<br>✋ يد اللي ماسك الجوال لو اهتزت شوي عادي، المختبر يعوّض الاهتزاز.</div>
-  <button id="go">تشغيل المختبر</button>
+  <button id="go">تشغيل</button>
   <div id="bootMsg"></div>
+  <div class="privacy">🔒 كل التحليل داخل جوالك • ما ينرسل أي شي لأي مكان</div>
 </div>
 
 <script>
-/*CORE-START*/
-const G0 = 9.80665;
-const KP = { nose:0, lsh:11, rsh:12, lhip:23, rhip:24, lknee:25, rknee:26, lank:27, rank:28, lheel:29, rheel:30, lfoot:31, rfoot:32 };
-function median(a){ const b = [...a].sort((x, y) => x - y); const n = b.length; return n ? (n % 2 ? b[n >> 1] : (b[n/2 - 1] + b[n/2])/2) : NaN; }
-function std(a){ if (!a.length) return 0; const m = a.reduce((s, v) => s + v, 0)/a.length; return Math.sqrt(a.reduce((s, v) => s + (v - m)**2, 0)/a.length); }
-function footLow(f){ const L = Math.max(f.lheel[1], f.lfoot[1], f.lank[1]), R = Math.max(f.rheel[1], f.rfoot[1], f.rank[1]); return { L, R, F:Math.max(L, R) }; }
-function hipY(f){ return (f.lhip[1] + f.rhip[1])/2; }
-function angle3(a, b, c){
-  const v1x = a[0] - b[0], v1y = a[1] - b[1], v2x = c[0] - b[0], v2y = c[1] - b[1];
-  const d = Math.hypot(v1x, v1y)*Math.hypot(v2x, v2y) || 1;
-  return Math.acos(Math.max(-1, Math.min(1, (v1x*v2x + v1y*v2y)/d)))*180/Math.PI;
+/* ================= CORE: pure biomechanics engine (no DOM) ================= */
+const NJ = 33, DEG = 180/Math.PI;
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const v3 = {
+  sub:(a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]],
+  add:(a, b) => [a[0]+b[0], a[1]+b[1], a[2]+b[2]],
+  mul:(a, s) => [a[0]*s, a[1]*s, a[2]*s],
+  dot:(a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2],
+  cross:(a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]],
+  len:a => Math.hypot(a[0], a[1], a[2]),
+  norm:a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0]/l, a[1]/l, a[2]/l]; },
+  mid:(a, b) => [(a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2],
+  lerp:(a, b, k) => [a[0]+(b[0]-a[0])*k, a[1]+(b[1]-a[1])*k, a[2]+(b[2]-a[2])*k]
+};
+const horiz = a => [a[0], 0, a[2]];
+function angVec(u, w){ const d = v3.len(u)*v3.len(w); if (d < 1e-9) return NaN; return Math.acos(clamp(v3.dot(u, w)/d, -1, 1))*DEG; }
+function angAt(a, b, c){ return angVec(v3.sub(a, b), v3.sub(c, b)); }
+function median(a){ const b = Array.from(a).filter(Number.isFinite).sort((x, y) => x - y); const n = b.length; if (!n) return NaN; return n % 2 ? b[n >> 1] : (b[n/2-1] + b[n/2])/2; }
+function percentile(a, p){ const b = Array.from(a).filter(Number.isFinite).sort((x, y) => x - y); if (!b.length) return NaN; const k = clamp((b.length - 1)*p, 0, b.length - 1), i = Math.floor(k); return b[i] + (b[Math.min(i + 1, b.length - 1)] - b[i])*(k - i); }
+function stdev(a){ const b = Array.from(a).filter(Number.isFinite); if (b.length < 2) return 0; const m = b.reduce((s, v) => s + v, 0)/b.length; return Math.sqrt(b.reduce((s, v) => s + (v - m)**2, 0)/b.length); }
+function mean(a){ const b = Array.from(a).filter(Number.isFinite); return b.length ? b.reduce((s, v) => s + v, 0)/b.length : NaN; }
+
+/* ---- landmark names ---- */
+const JOINT_NAMES = {
+  0:'الراس', 11:'الكتف الأيسر', 12:'الكتف الأيمن', 13:'الكوع الأيسر', 14:'الكوع الأيمن',
+  15:'اليد اليسرى', 16:'اليد اليمنى', 23:'الورك الأيسر', 24:'الورك الأيمن', 25:'الركبة اليسرى',
+  26:'الركبة اليمنى', 27:'الكاحل الأيسر', 28:'الكاحل الأيمن', 31:'القدم اليسرى', 32:'القدم اليمنى', com:'مركز الثقل'
+};
+const SEL_JOINTS = [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 31, 32];
+const JOINT_ANGLE = { 0:'neck', 11:'shL', 12:'shR', 13:'elL', 14:'elR', 23:'hipL', 24:'hipR', 25:'knL', 26:'knR', 27:'anL', 28:'anR' };
+const ANGLE_NAMES = { elL:'الكوع الأيسر', elR:'الكوع الأيمن', shL:'رفع الكتف الأيسر', shR:'رفع الكتف الأيمن', hipL:'الورك الأيسر', hipR:'الورك الأيمن', knL:'الركبة اليسرى', knR:'الركبة اليمنى', anL:'الكاحل الأيسر', anR:'الكاحل الأيمن', neck:'انحناء الرقبة' };
+const BONES = [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[27,31],[28,30],[30,32],[28,32],[15,19],[16,20]];
+const SIDE = j => (j === 0 || (j >= 1 && j <= 10) ? 0 : (j % 2 ? 1 : 2)); // 1 = left (odd), 2 = right (even)
+
+/* ---- activities ---- */
+const ACTS = {
+  standing:{ n:'واقف', i:'🧍', c:'#3df5ff' }, walking:{ n:'يمشي', i:'🚶', c:'#b6ff3d' }, running:{ n:'يركض', i:'🏃', c:'#ffd23d' },
+  sitting:{ n:'جالس', i:'🪑', c:'#c38bff' }, bending:{ n:'منحني', i:'🙇', c:'#ff9f43' }, lying:{ n:'مستلقي', i:'🛌', c:'#ff4d5e' },
+  jumping:{ n:'يقفز', i:'🦘', c:'#ff4fd8' }, none:{ n:'غير ظاهر', i:'❔', c:'#445566' }
+};
+
+/* ---- camera / gravity frames ----
+   Camera frame C: x right, y down, z forward (MediaPipe world landmarks are camera-aligned, origin at hip centre).
+   World frame W: y up (against gravity), x ≈ camera right, z toward the camera; camera sits at the origin. */
+function frameFromDown(down){
+  let Y = v3.norm(v3.mul(down, -1));
+  let X = v3.sub([1, 0, 0], v3.mul(Y, Y[0]));
+  if (v3.len(X) < 1e-3) X = [0, 0, 1];
+  X = v3.norm(X);
+  return { X, Y, Z:v3.cross(X, Y) };
 }
-function interpT(fr, val, level, i){ const a = fr[i-1], b = fr[i], va = val(a), vb = val(b); const k = (level - va)/((vb - va) || 1e-9); return a.t + (b.t - a.t)*Math.max(0, Math.min(1, k)); }
-function interpAt(fr, val, t){
-  for (let i = 1; i < fr.length; i++) if (fr[i].t >= t){ const a = fr[i-1], b = fr[i], k = (t - a.t)/((b.t - a.t) || 1e-9); return val(a) + (val(b) - val(a))*k; }
-  return val(fr[fr.length - 1]);
-}
-function smooth(a, r = 2){ return a.map((_, i) => { let s = 0, n = 0; for (let j = Math.max(0, i - r); j <= Math.min(a.length - 1, i + r); j++){ s += a[j]; n++; } return s/n; }); }
-// Compute baseline from a quiet standing window.
-function baseline(frames){
-  const F = frames.map(f => footLow(f).F), H = frames.map(hipY), N = frames.map(f => f.nose[1]);
-  const floorY = median(F), hip = median(H), bodyH = floorY - median(N);
-  return { floorY, hipY:hip, bodyH };
-}
-// Analyse a recorded session (frames in stabilised video px, y down). base: {floorY, hipY, bodyH, scale (m/px)}, mass kg.
-function analyzeSession(frames, base, mass){
-  const th = Math.max(3, .03*base.bodyH), lvl = base.floorY - th;
-  const valF = f => footLow(f).F, valL = f => footLow(f).L, valR = f => footLow(f).R;
-  const flights = []; let inAir = false, s = 0;
-  for (let i = 1; i < frames.length; i++){
-    const air = valF(frames[i]) < lvl;
-    if (air && !inAir){ inAir = true; s = i; }
-    else if (!air && inAir){ inAir = false; flights.push([s, i]); }
+const toW = (p, F) => [v3.dot(p, F.X), v3.dot(p, F.Y), v3.dot(p, F.Z)];
+const fromW = (q, F) => [q[0]*F.X[0] + q[1]*F.Y[0] + q[2]*F.Z[0], q[0]*F.X[1] + q[1]*F.Y[1] + q[2]*F.Z[1], q[0]*F.X[2] + q[1]*F.Y[2] + q[2]*F.Z[2]];
+const FOCAL = (vw, vh) => Math.max(vw, vh)/2/Math.tan(34.7/DEG);
+function project(pC, vw, vh){ const f = FOCAL(vw, vh); if (pC[2] < .05) return null; return [(f*pC[0]/pC[2] + vw/2)/vw, (f*pC[1]/pC[2] + vh/2)/vh]; }
+
+/* Hip-centre translation T (camera frame) from 2-D image landmarks + 3-D camera-aligned world landmarks.
+   Exact perspective model u = f(X+Tx)/(Z+Tz)+cx is linear in T:  f·Tx − u·Tz = u·Z − f·X  (same for y). */
+function solveRoot(img, world, vw, vh){
+  const f = FOCAL(vw, vh), cx = vw/2, cy = vh/2;
+  let a11 = 0, a13 = 0, a22 = 0, a23 = 0, a33 = 0, b1 = 0, b2 = 0, b3 = 0, n = 0;
+  for (let i = 0; i < NJ; i++){
+    if (i >= 17 && i <= 22) continue;
+    const w = img[i][2]; if (!(w >= .5)) continue;
+    const u = img[i][0]*vw - cx, v = img[i][1]*vh - cy, X = world[i][0], Y = world[i][1], Z = world[i][2];
+    // row (f, 0, -u) = u Z - f X ;  row (0, f, -v) = v Z - f Y
+    const r1 = u*Z - f*X, r2 = v*Z - f*Y;
+    a11 += w*f*f; a13 += -w*f*u; a33 += w*(u*u + v*v); a22 += w*f*f; a23 += -w*f*v;
+    b1 += w*f*r1; b2 += w*f*r2; b3 += -w*(u*r1 + v*r2); n++;
   }
-  const S = base.scale, jumps = [], gpx = G0/S;
-  // Sub-frame contact time: fit the lowest-foot trajectory near the edge of flight with a ballistic curve
-  // (known curvature g in px/s²) and solve for the moment it crosses the floor line.
-  const edgeTime = (idxs, early) => {
-    idxs = idxs.filter(i => i >= 0 && i < frames.length);
-    if (idxs.length < 3) return null;
-    const tc = frames[idxs[0]].t, ts = idxs.map(i => frames[i].t - tc);
-    const ys = idxs.map((i, k) => valF(frames[i]) - .5*gpx*ts[k]*ts[k]);
-    const n = ts.length, mt = ts.reduce((a, b) => a + b)/n, my = ys.reduce((a, b) => a + b)/n;
-    let sxy = 0, sxx = 0; for (let k = 0; k < n; k++){ sxy += (ts[k] - mt)*(ys[k] - my); sxx += (ts[k] - mt)**2; }
-    const b = sxx ? sxy/sxx : 0, a = my - b*mt, A = .5*gpx, C = a - base.floorY;
-    const disc = b*b - 4*A*C; if (disc < 0) return null;
-    const r1 = (-b - Math.sqrt(disc))/(2*A), r2 = (-b + Math.sqrt(disc))/(2*A);
-    const lo = Math.min(r1, r2), hi = Math.max(r1, r2);
-    const r = early ? lo : hi;
-    const lim = early ? [ts[0] - .08, ts[0] + .001] : [ts[n-1] - .001, ts[n-1] + .08];
-    return r >= lim[0] && r <= lim[1] ? tc + r : null;
+  if (n < 6) return null;
+  const T = solve3([[a11, 0, a13], [0, a22, a23], [a13, a23, a33]], [b1, b2, b3]);
+  if (!T || !(T[2] > .3 && T[2] < 40)) return null;
+  return xyGivenZ(img, world, vw, vh, T[2]);
+}
+function solve3(A, b){
+  const M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < 3; c++){
+    let p = c; for (let r = c + 1; r < 3; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    if (Math.abs(M[p][c]) < 1e-12) return null;
+    [M[c], M[p]] = [M[p], M[c]];
+    for (let r = 0; r < 3; r++){ if (r === c) continue; const k = M[r][c]/M[c][c]; for (let k2 = c; k2 < 4; k2++) M[r][k2] -= k*M[c][k2]; }
+  }
+  return [M[0][3]/M[0][0], M[1][3]/M[1][1], M[2][3]/M[2][2]];
+}
+// Given depth Tz, the best Tx, Ty in closed form.
+function xyGivenZ(img, world, vw, vh, Tz){
+  const f = FOCAL(vw, vh), cx = vw/2, cy = vh/2;
+  let sx = 0, sy = 0, sw = 0;
+  for (let i = 0; i < NJ; i++){
+    if (i >= 17 && i <= 22) continue;
+    const w = img[i][2]; if (!(w >= .5)) continue;
+    const u = img[i][0]*vw - cx, v = img[i][1]*vh - cy;
+    sx += w*(u*(world[i][2] + Tz)/f - world[i][0]); sy += w*(v*(world[i][2] + Tz)/f - world[i][1]); sw += w;
+  }
+  return sw ? [sx/sw, sy/sw, Tz] : null;
+}
+// Down direction estimated from the body itself (shoulders → ankles) when the person stands straight.
+function bodyDown(world){
+  const sh = v3.mid(world[11], world[12]), an = v3.mid(world[27], world[28]);
+  const kL = angAt(world[23], world[25], world[27]), kR = angAt(world[24], world[26], world[28]);
+  const hL = angAt(world[11], world[23], world[25]), hR = angAt(world[12], world[24], world[26]);
+  if (!(kL > 160 && kR > 160 && hL > 160 && hR > 160)) return null;
+  return v3.norm(v3.sub(an, sh));
+}
+
+/* ---- segment mass model (Dempster / Winter fractions) ---- */
+const SEGS = [[.028, 11, 13, .436], [.028, 12, 14, .436], [.022, 13, 15, .682], [.022, 14, 16, .682], [.100, 23, 25, .433], [.100, 24, 26, .433], [.061, 25, 27, .606], [.061, 26, 28, .606]];
+function centerOfMass(P){
+  const shM = v3.mid(P[11], P[12]), hipM = v3.mid(P[23], P[24]);
+  const head = v3.mid(P[7], P[8]);
+  let c = v3.add(v3.mul(head, .081), v3.mul(v3.lerp(shM, hipM, .5), .497));
+  for (const [m, a, b, r] of SEGS) c = v3.add(c, v3.mul(v3.lerp(P[a], P[b], r), m));
+  return c;
+}
+function hull2(pts){
+  const p = pts.map(q => q.slice()).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0]);
+  const lo = [], up = [];
+  for (const q of p){ while (lo.length >= 2 && cr(lo[lo.length-2], lo[lo.length-1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = p.length - 1; i >= 0; i--){ const q = p[i]; while (up.length >= 2 && cr(up[up.length-2], up[up.length-1], q) <= 0) up.pop(); up.push(q); }
+  up.pop(); lo.pop(); return lo.concat(up);
+}
+function insideHull(pt, poly, margin){
+  if (poly.length < 3) return false;
+  for (let i = 0; i < poly.length; i++){
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const ex = b[0] - a[0], ez = b[1] - a[1], L = Math.hypot(ex, ez) || 1;
+    const crs = (ex*(pt[1] - a[1]) - ez*(pt[0] - a[0]))/L;   // >0 → left of edge (inside for CCW)
+    if (crs < -margin) return false;
+  }
+  return true;
+}
+
+/* ---- full per-frame body analysis on world-frame points (metres, y up) ---- */
+function bodyMetrics(P, floorY){
+  const shM = v3.mid(P[11], P[12]), hipM = v3.mid(P[23], P[24]);
+  const trunk = v3.sub(shM, hipM), Y = [0, 1, 0];
+  let r = v3.add(horiz(v3.sub(P[24], P[23])), horiz(v3.sub(P[12], P[11])));
+  if (v3.len(r) < 1e-4) r = [1, 0, 0];
+  r = v3.norm(r);
+  const f = v3.norm(v3.cross(Y, r));            // forward (direction the chest faces)
+  const trunkTotal = angVec(trunk, Y);
+  const sag = Math.atan2(v3.dot(trunk, f), trunk[1])*DEG;      // + = leaning forward
+  const lat = Math.atan2(v3.dot(trunk, r), trunk[1])*DEG;      // + = leaning to own right
+  const tilt = (L, R) => { const d = v3.sub(P[L], P[R]); return Math.atan2(d[1], Math.hypot(d[0], d[2]))*DEG; }; // + = left side higher
+  const earM = v3.mid(P[7], P[8]), neckV = v3.sub(earM, shM), tU = v3.norm(trunk);
+  const neck = Math.atan2(v3.dot(neckV, f), v3.dot(neckV, tU))*DEG; // + = head pushed forward
+  const hf = horiz(v3.sub(P[0], earM));
+  let headYaw = 0;
+  if (v3.len(hf) > 1e-3){ const hn = v3.norm(hf); headYaw = Math.atan2(v3.dot(hn, r), v3.dot(hn, f))*DEG; } // + = head turned to own right
+  const toCam = v3.norm(horiz(v3.mul(hipM, -1)));
+  const facing = Math.atan2(v3.dot(v3.cross(toCam, f), Y), v3.dot(toCam, f))*DEG; // 0 = facing camera
+  const A = {
+    elL:angAt(P[11], P[13], P[15]), elR:angAt(P[12], P[14], P[16]),
+    shL:angVec(v3.sub(P[13], P[11]), v3.sub(P[23], P[11])), shR:angVec(v3.sub(P[14], P[12]), v3.sub(P[24], P[12])),
+    hipL:angAt(P[11], P[23], P[25]), hipR:angAt(P[12], P[24], P[26]),
+    knL:angAt(P[23], P[25], P[27]), knR:angAt(P[24], P[26], P[28]),
+    anL:angAt(P[25], P[27], P[31]), anR:angAt(P[26], P[28], P[32]), neck
   };
-  const knL = frames.map(f => angle3(f.lhip, f.lknee, f.lank)), knR = frames.map(f => angle3(f.rhip, f.rknee, f.rank));
-  const hipS = smooth(frames.map(hipY), 1);
-  for (const [s0, e0] of flights){
-    if (s0 < 1) continue;
-    const tTOe = edgeTime([s0, s0 + 1, s0 + 2, s0 + 3].filter(i => i < e0), true);
-    const tLDe = edgeTime([e0 - 4, e0 - 3, e0 - 2, e0 - 1].filter(i => i > s0 - 1), false);
-    const tTO = tTOe != null ? tTOe : interpT(frames, valF, lvl, s0), tLD = tLDe != null ? tLDe : interpT(frames, valF, lvl, e0), T = tLD - tTO;
-    if (T < .12 || T > 1.3) continue;
-    const hFlight = G0*T*T/8, vTO = G0*T/2;
-    // per-foot timings (asymmetry)
-    const footCross = (val, from, to, up) => { for (let j = from; j <= to; j++){ if (j < 1 || j >= frames.length) continue; const a = val(frames[j-1]), b = val(frames[j]); if (up ? (a >= lvl && b < lvl) : (a < lvl && b >= lvl)) return interpT(frames, val, lvl, j); } return null; };
-    const toL = footCross(valL, s0 - 8, s0, true), toR = footCross(valR, s0 - 8, s0, true);
-    const ldL = footCross(valL, e0 - 3, e0 + 8, false), ldR = footCross(valR, e0 - 3, e0 + 8, false);
-    // countermovement: lowest hip in the 1.5 s before take-off
-    let iLow = s0, tStart = tTO - 1.5;
-    for (let i = s0; i >= 0 && frames[i].t >= tStart; i--) if (hipS[i] > hipS[iLow]) iLow = i;
-    // movement onset: last time hip was within 1.5% bodyH of baseline before iLow
-    let iOn = iLow;
-    for (let i = iLow; i >= 0 && frames[i].t >= tStart; i--){ iOn = i; if (hipS[i] - base.hipY < .015*base.bodyH) break; }
-    const depth = Math.max(0, (hipS[iLow] - base.hipY)*S);
-    const hipTO = interpAt(frames, hipY, tTO);
-    const push = Math.max(0, (hipS[iLow] - hipTO)*S);
-    const tPush = tTO - frames[iLow].t, tLoad = frames[iLow].t - frames[iOn].t;
-    const aPush = push > .05 ? vTO*vTO/(2*push) : (tPush > .05 ? vTO/tPush : null);
-    const Favg = aPush != null ? mass*(G0 + aPush) : null;
-    let iPeak = s0; for (let i = s0; i < e0; i++) if (hipS[i] < hipS[iPeak]) iPeak = i;
-    const hDisp = Math.max(0, (hipTO - hipS[iPeak])*S);
-    const hcm = hFlight*100;
-    const Psayers = Math.max(0, 60.7*hcm + 45.3*mass - 2055);
-    const Pavg = Favg != null ? Favg*vTO/2 : null;
-    // knee: deepest bend during countermovement
-    let kneeMin = 180; for (let i = iOn; i <= s0; i++) kneeMin = Math.min(kneeMin, (knL[i] + knR[i])/2);
-    // landing absorption: knee at touchdown vs minimum in next 0.4 s
-    let kTD = (knL[e0] + knR[e0])/2, kLandMin = kTD, iLandMin = e0;
-    for (let i = e0; i < frames.length && frames[i].t <= tLD + .4; i++){ const k = (knL[i] + knR[i])/2; if (k < kLandMin){ kLandMin = k; iLandMin = i; } }
-    const haveLanding = frames[frames.length - 1].t > tLD + .25;
-    const absorb = haveLanding ? kTD - kLandMin : null;
-    // valgus (only meaningful when facing camera)
-    const f = frames[iLandMin];
-    const shW = Math.abs(f.lsh[0] - f.rsh[0]), frontal = shW > .17*base.bodyH;
-    const kneeSep = Math.abs(f.lknee[0] - f.rknee[0]), ankSep = Math.abs(f.lank[0] - f.rank[0]);
-    const valgus = frontal && ankSep > 5 ? kneeSep/ankSep : null;
-    jumps.push({
-      s0, e0, iLow, iOn, iPeak, iLandMin, tTO, tLD, T, hFlight, hDisp, vTO, depth, push, tPush, tLoad, aPush, Favg, Pavg, Psayers,
-      kneeMin, kTD, kLandMin, absorb, valgus, frontal,
-      asymTO: toL != null && toR != null ? Math.abs(toL - toR) : null,
-      asymLD: ldL != null && ldR != null ? Math.abs(ldL - ldR) : null
-    });
-  }
-  for (let i = 1; i < jumps.length; i++){ const c = jumps[i].tTO - jumps[i-1].tLD; if (c > .03 && c < .8){ jumps[i].contact = c; jumps[i].rsi = jumps[i].T/c; } }
-  return { jumps, knL, knR, hipS, th };
+  const C = centerOfMass(P);
+  const feet = [P[29], P[31], P[30], P[32]];
+  const bos = [(feet[0][0] + feet[1][0] + feet[2][0] + feet[3][0])/4, 0, (feet[0][2] + feet[1][2] + feet[2][2] + feet[3][2])/4];
+  const dC = horiz(v3.sub(C, bos));
+  const Lc = v3.mid(P[29], P[31]), Rc = v3.mid(P[30], P[32]), LR = horiz(v3.sub(Rc, Lc)), LRl = v3.len(LR);
+  let wR = .5; if (LRl > .04) wR = clamp(v3.dot(horiz(v3.sub(C, Lc)), LR)/(LRl*LRl), 0, 1);
+  const poly = hull2(feet.map(p => [p[0], p[2]]));
+  const inside = insideHull([C[0], C[2]], poly, .03);
+  const footL = Math.min(P[29][1], P[31][1], P[27][1]), footR = Math.min(P[30][1], P[32][1], P[28][1]);
+  const hipH = floorY != null ? hipM[1] - floorY : null;
+  const footH = floorY != null ? { L:footL - floorY, R:footR - floorY } : null;
+  const top = Math.max(P[0][1], earM[1]);
+  const armLen = (s, e, w) => v3.len(v3.sub(P[e], P[s])) + v3.len(v3.sub(P[w], P[e]));
+  const reach = (s, w) => v3.len(v3.sub(P[w], P[s]));
+  const upL = P[15][1] > top + .02, upR = P[16][1] > top + .02;
+  const pointL = !upL && A.elL > 150 && A.shL > 55 && A.shL < 135 && reach(11, 15) > .85*armLen(11, 13, 15);
+  const pointR = !upR && A.elR > 150 && A.shR > 55 && A.shR < 135 && reach(12, 16) > .85*armLen(12, 14, 16);
+  const crossed = v3.len(v3.sub(P[15], P[14])) < .16 && v3.len(v3.sub(P[16], P[13])) < .16;
+  const handFace = Math.min(v3.len(v3.sub(P[15], P[0])), v3.len(v3.sub(P[16], P[0]))) < .16 && !upL && !upR;
+  return { A, trunkTotal, sag, lat, shTilt:tilt(11, 12), pelTilt:tilt(23, 24), headRoll:tilt(7, 8), headYaw, facing, f, r,
+    com:C, bos, balAnt:v3.dot(dC, f), balLat:v3.dot(dC, r), wR, inside, poly, hipH, footH, footL, footR,
+    act:{ upL, upR, pointL, pointR, crossed, handFace, turned:Math.abs(headYaw) > 40 } };
 }
-/*CORE-END*/
-</script>
-
-<script>
-const $ = s => document.querySelector(s);
-const video = $('#video'), cv = $('#view'), ctx = cv.getContext('2d');
-let W = 0, H = 0, DPR = 1;
-function resize(){ DPR = Math.min(2, devicePixelRatio || 1); W = cv.width = Math.round(innerWidth*DPR); H = cv.height = Math.round(innerHeight*DPR); }
-addEventListener('resize', resize); resize();
-
-const LIB = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
-const POSE_URL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
-let pose = null, facing = 'environment', mirror = false;
-
-/* ---------- profiles ---------- */
-let P = { list:[], cur:null };
-try{ const s = JSON.parse(localStorage.getItem('jump.p')); if (s && s.list) P = s; }catch(e){}
-const saveP = () => { try{ localStorage.setItem('jump.p', JSON.stringify(P)); }catch(e){} };
-const curP = () => P.list.find(p => p.id === P.cur) || P.list[0];
-function addProfile(name, h, w){
-  const p = { id:Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name:name || 'قافز', h:h, w:w, best:0, hist:[] };
-  P.list.push(p); P.cur = p.id; saveP(); return p;
+function classifyAct(m, hSpeed, alt, hipStand){
+  const lowHips = m.hipH == null || m.hipH < .5;
+  if (m.trunkTotal > 60 && lowHips) return 'lying';
+  const kn0 = (m.A.knL + m.A.knR)/2;
+  if (m.footH && m.footH.L > .08 && m.footH.R > .08 && (!hipStand || m.hipH > hipStand + .05) && kn0 > 120) return 'jumping';
+  const kn = (m.A.knL + m.A.knR)/2, hp = (m.A.hipL + m.A.hipR)/2;
+  if (hp < 130 && kn < 135 && m.trunkTotal < 45 && hSpeed < .45) return 'sitting';
+  if (m.sag > 35 && kn > 140 && hSpeed < .6) return 'bending';
+  if (m.trunkTotal > 60) return 'bending';
+  if (hSpeed > 2.1) return 'running';
+  if (hSpeed > .3 && alt) return 'walking';
+  if (hSpeed > .55) return 'walking';
+  return 'standing';
 }
-function updWho(){ const p = curP(); $('#who').textContent = p ? `👤 ${p.name}` : '👤 —'; $('#cBest').textContent = p && p.best ? p.best.toFixed(1) : '—'; }
+// kinetic-energy proxy (J/kg) from segment speeds
+function energyOf(vCom, vJ){
+  const s = j => vJ[j] || 0;
+  return .5*(.55*vCom*vCom + .08*s(0)**2 + .03*(s(15)**2 + s(16)**2) + .03*(s(13)**2 + s(14)**2) + .05*(s(27)**2 + s(28)**2) + .05*(s(25)**2 + s(26)**2));
+}
+const ENERGY_LV = [[0, 'خامل', '#5a6b7a'], [.008, 'هادئ', '#3df5ff'], [.05, 'نشط', '#b6ff3d'], [.4, 'نشط جداً', '#ffd23d'], [1.5, 'مجهود عالي', '#ff4d5e']];
+const energyLevel = e => { let l = ENERGY_LV[0]; for (const L of ENERGY_LV) if (e >= L[0]) l = L; return l; };
 
-/* ---------- mapping ---------- */
-let vw = 1, vh = 1, sc = 1, ox = 0, oy = 0;
-function layout(){ vw = video.videoWidth || 1; vh = video.videoHeight || 1; sc = Math.max(W/vw, H/vh); ox = (W - vw*sc)/2; oy = (H - vh*sc)/2; }
-const SX = x => { const v = ox + x*sc; return mirror ? W - v : v; }, SY = y => oy + y*sc;
-
-/* ---------- audio ---------- */
-let ac = null, arVoice = null;
-function pickVoice(){ try{ const v = speechSynthesis.getVoices(); arVoice = v.find(x => /^ar[-_]SA/i.test(x.lang)) || v.find(x => /^ar/i.test(x.lang)) || null; }catch(e){} }
-if ('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); }
-function unlockAudio(){ try{ ac = new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); g.gain.value = 0; o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + .05); }catch(e){} try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){} }
-function beep(f, d = .1, t0 = 0, type = 'sine', vol = .2){ if (!ac) return; try{ const t = ac.currentTime + t0, o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d + .02); }catch(e){} }
-function speak(t){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'ar-SA'; if (arVoice) u.voice = arVoice; speechSynthesis.speak(u); }catch(e){} }
-function toast(t){ const b = $('#toasts'), e = document.createElement('div'); e.className = 'toast'; e.textContent = t; b.prepend(e); while (b.children.length > 2) b.lastChild.remove(); setTimeout(() => { e.style.opacity = 0; setTimeout(() => e.remove(), 450); }, 3500); }
-function setStatus(t, cls){ const s = $('#status'); if (s.textContent !== t) s.textContent = t; s.className = cls || ''; }
-
-/* ---------- digital stabilisation (background block matching) ---------- */
-const SW = 240; let SH = 0;
-const gc = document.createElement('canvas'), gctx = gc.getContext('2d', { willReadFrequently:true });
-let gPrev = null, camOff = { x:0, y:0 }, stabN = 0; const TBL = new Float64Array(13*13);
-function grayFrame(){ gctx.drawImage(video, 0, 0, SW, SH); const d = gctx.getImageData(0, 0, SW, SH).data, g = new Float32Array(SW*SH); for (let i = 0, j = 0; j < g.length; i += 4, j++) g[j] = d[i]*.3 + d[i+1]*.59 + d[i+2]*.11; return g; }
-function sad(A, B, ax, ay, bx, by, P){ let s = 0; for (let y = 0; y < P; y++){ let ia = (ay + y)*SW + ax, ib = (by + y)*SW + bx; for (let x = 0; x < P; x++) s += Math.abs(A[ia + x] - B[ib + x]); } return s; }
-function stabilize(box){
-  const cur = grayFrame();
-  if (!gPrev){ gPrev = cur; return; }
-  const k = SW/vw, P = 12, R = 6, dxs = [], dys = [];
-  const bx0 = box ? (box[0] - .12*(box[2] - box[0]))*k : -1, bx1 = box ? (box[2] + .12*(box[2] - box[0]))*k : -1;
-  const by0 = box ? (box[1] - .08*(box[3] - box[1]))*k : -1, by1 = box ? (box[3] + .05*(box[3] - box[1]))*k : -1;
-  for (let gy = 0; gy < 7; gy++) for (let gx = 0; gx < 5; gx++){
-    const cx = Math.round((gx + .5)*SW/5 - P/2), cy = Math.round((gy + .5)*SH/7 - P/2);
-    if (cx - R < 0 || cy - R < 0 || cx + P + R >= SW || cy + P + R >= SH) continue;
-    if (box && cx + P > bx0 && cx < bx1 && cy + P > by0 && cy < by1) continue;
-    let m = 0, v = 0; for (let y = 0; y < P; y++) for (let x = 0; x < P; x++){ const q = gPrev[(cy + y)*SW + cx + x]; m += q; v += q*q; }
-    m /= P*P; v = v/(P*P) - m*m; if (v < 60) continue;
-    let best = 1e18, bdx = 0, bdy = 0, sum = 0, cnt = 0; const D2 = 2*R + 1, tbl = TBL;
-    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++){
-      const s = sad(gPrev, cur, cx, cy, cx + dx, cy + dy, P); tbl[(dy + R)*D2 + dx + R] = s; sum += s; cnt++;
-      if (s < best){ best = s; bdx = dx; bdy = dy; }
+/* ---- local quadratic regression smoother with derivatives (handles irregular timing & gaps) ---- */
+function smoothSeries(t, y, ok, h, seg){
+  const n = t.length, pos = new Float64Array(n).fill(NaN), vel = new Float64Array(n).fill(NaN), acc = new Float64Array(n).fill(NaN);
+  let lo = 0, hi = 0;
+  for (let i = 0; i < n; i++){
+    if (!ok[i]) continue;
+    while (t[lo] < t[i] - h) lo++;
+    while (hi + 1 < n && t[hi + 1] <= t[i] + h) hi++;
+    let S0 = 0, S1 = 0, S2 = 0, S3 = 0, S4 = 0, Y0 = 0, Y1 = 0, Y2 = 0;
+    for (let j = lo; j <= hi; j++){
+      if (!ok[j] || (seg && seg[j] !== seg[i])) continue;
+      const u = t[j] - t[i], u2 = u*u, w = 1 - Math.pow(Math.abs(u)/(h*1.0001), 3), ww = w*w*w; // tricube weights
+      S0 += ww; S1 += ww*u; S2 += ww*u2; S3 += ww*u2*u; S4 += ww*u2*u2; Y0 += ww*y[j]; Y1 += ww*y[j]*u; Y2 += ww*y[j]*u2;
     }
-    if (best > .6*sum/cnt) continue;
-    const sub = (a, b, c) => { const d = a - 2*b + c; return d > 0 ? .5*(a - c)/d : 0; };
-    const at = (dx, dy) => tbl[(dy + R)*D2 + dx + R];
-    let fx = bdx, fy = bdy;
-    if (Math.abs(bdx) < R) fx += sub(at(bdx - 1, bdy), best, at(bdx + 1, bdy));
-    if (Math.abs(bdy) < R) fy += sub(at(bdx, bdy - 1), best, at(bdx, bdy + 1));
-    dxs.push(fx); dys.push(fy);
+    const det = S0*(S2*S4 - S3*S3) - S1*(S1*S4 - S3*S2) + S2*(S1*S3 - S2*S2);
+    if (Math.abs(det) < 1e-18 || S0 < 2.5){
+      // fall back to linear fit
+      const d2 = S0*S2 - S1*S1;
+      if (Math.abs(d2) > 1e-14){ pos[i] = (Y0*S2 - Y1*S1)/d2; vel[i] = (S0*Y1 - S1*Y0)/d2; acc[i] = 0; }
+      else { pos[i] = y[i]; vel[i] = 0; acc[i] = 0; }
+      continue;
+    }
+    const c0 = (Y0*(S2*S4 - S3*S3) - S1*(Y1*S4 - S3*Y2) + S2*(Y1*S3 - S2*Y2))/det;
+    const c1 = (S0*(Y1*S4 - S3*Y2) - Y0*(S1*S4 - S3*S2) + S2*(S1*Y2 - Y1*S2))/det;
+    const c2 = (S0*(S2*Y2 - Y1*S3) - S1*(S1*Y2 - Y1*S2) + Y0*(S1*S3 - S2*S2))/det;
+    pos[i] = c0; vel[i] = c1; acc[i] = 2*c2;
   }
-  gPrev = cur; stabN = dxs.length;
-  if (dxs.length >= 4){ camOff.x += median(dxs)/k; camOff.y += median(dys)/k; }
+  return { pos, vel, acc };
 }
 
-/* ---------- recording buffers ---------- */
-const IW = 144; let IH = 0;
-const ic = document.createElement('canvas'), ictx = ic.getContext('2d', { willReadFrequently:true });
-const BUF_N = 240; let buf = [];
-function kpFrom(lm, off){ const o = {}; for (const k in KP){ const p = lm[KP[k]]; o[k] = [p.x*vw - off.x, p.y*vh - off.y, p.visibility ?? 1]; } return o; }
+/* ================= full recording processing ================= */
+/* R: { n, t:Float64Array(s), img:Float32Array(n*99) [x,y,vis], world:Float32Array(n*99), grav:Float32Array(n*3) (NaN = none), vw, vh } */
+function processRecording(R){
+  const n = R.n, t = R.t, f = FOCAL(R.vw, R.vh);
+  const okRaw = new Uint8Array(n), Zr = new Float64Array(n).fill(NaN);
+  const W = i => { const o = []; for (let j = 0; j < NJ; j++){ const k = (i*NJ + j)*3; o.push([R.world[k], R.world[k+1], R.world[k+2]]); } return o; };
+  const I = i => { const o = []; for (let j = 0; j < NJ; j++){ const k = (i*NJ + j)*3; o.push([R.img[k], R.img[k+1], R.img[k+2]]); } return o; };
+  const worldF = [], imgF = [];
+  for (let i = 0; i < n; i++){
+    if (!Number.isFinite(R.world[i*NJ*3])){ worldF.push(null); imgF.push(null); continue; }
+    const w = W(i), im = I(i); worldF.push(w); imgF.push(im);
+    const T0 = solveRoot(im, w, R.vw, R.vh);
+    if (T0){ okRaw[i] = 1; Zr[i] = T0[2]; }
+  }
+  const validCount = okRaw.reduce((s, v) => s + v, 0);
+  if (validCount < 5) return { error:'few' };
+  // depth: robust median filter then smoothing
+  const Tz = new Float64Array(n).fill(NaN);
+  for (let i = 0; i < n; i++) if (okRaw[i]){ const w = []; for (let j = Math.max(0, i - 5); j <= Math.min(n - 1, i + 5); j++) if (okRaw[j]) w.push(Zr[j]); Tz[i] = median(w); }
+  const TzS = smoothSeries(t, Tz, okRaw, .35).pos;
+  // gravity
+  let gList = [];
+  for (let i = 0; i < n; i++){ const gx = R.grav ? R.grav[i*3] : NaN; if (Number.isFinite(gx)) gList.push([R.grav[i*3], R.grav[i*3+1], R.grav[i*3+2]]); }
+  let downGlobal = null, gravSource = 'body';
+  if (gList.length >= Math.max(5, validCount*.3)){ downGlobal = v3.norm([median(gList.map(g => g[0])), median(gList.map(g => g[1])), median(gList.map(g => g[2]))]); gravSource = 'sensor'; }
+  else {
+    const bl = []; for (let i = 0; i < n; i++) if (okRaw[i]){ const d = bodyDown(worldF[i]); if (d) bl.push(d); }
+    if (bl.length >= 3) downGlobal = v3.norm([median(bl.map(g => g[0])), median(bl.map(g => g[1])), median(bl.map(g => g[2]))]);
+    else { downGlobal = [0, 1, 0]; gravSource = 'assumed'; }
+  }
+  // per-frame gravity (sensor) smoothed, else global
+  const Fr = [];
+  let gxS = null;
+  if (gravSource === 'sensor'){
+    const ok3 = new Uint8Array(n), gx = new Float64Array(n), gy = new Float64Array(n), gz = new Float64Array(n);
+    for (let i = 0; i < n; i++){ const a = R.grav[i*3]; if (Number.isFinite(a)){ ok3[i] = 1; gx[i] = a; gy[i] = R.grav[i*3+1]; gz[i] = R.grav[i*3+2]; } }
+    gxS = [smoothSeries(t, gx, ok3, .4).pos, smoothSeries(t, gy, ok3, .4).pos, smoothSeries(t, gz, ok3, .4).pos];
+  }
+  for (let i = 0; i < n; i++){
+    let d = downGlobal;
+    if (gxS && Number.isFinite(gxS[0][i])) d = v3.norm([gxS[0][i], gxS[1][i], gxS[2][i]]);
+    Fr.push(frameFromDown(d));
+  }
+  // world-frame positions
+  const raw = new Float64Array(n*NJ*3).fill(NaN), ok = new Uint8Array(n);
+  for (let i = 0; i < n; i++){
+    if (!okRaw[i] || !Number.isFinite(TzS[i])) continue;
+    const T = xyGivenZ(imgF[i], worldF[i], R.vw, R.vh, TzS[i]); if (!T) continue;
+    for (let j = 0; j < NJ; j++){ const q = toW(v3.add(worldF[i][j], T), Fr[i]); const k = (i*NJ + j)*3; raw[k] = q[0]; raw[k+1] = q[1]; raw[k+2] = q[2]; }
+    ok[i] = 1;
+  }
+  // tracking glitches: a hip-centre jump faster than 6 m/s starts a new track segment (no velocity across it)
+  const seg = new Int32Array(n); let segId = 0, prevOk = -1;
+  for (let q = 0; q < n; q++){
+    if (!ok[q]){ seg[q] = segId; continue; }
+    if (prevOk >= 0){
+      const a = (prevOk*NJ + 23)*3, b = (q*NJ + 23)*3, a2 = (prevOk*NJ + 24)*3, b2 = (q*NJ + 24)*3;
+      const d = Math.hypot((raw[b] + raw[b2] - raw[a] - raw[a2])/2, (raw[b+1] + raw[b2+1] - raw[a+1] - raw[a2+1])/2, (raw[b+2] + raw[b2+2] - raw[a+2] - raw[a2+2])/2);
+      if (d > .25 && d/Math.max(1e-3, t[q] - t[prevOk]) > 6) segId++;
+    }
+    seg[q] = segId; prevOk = q;
+  }
+  // gap filling ≤ 0.35 s (never across a glitch)
+  let i = 0;
+  while (i < n){
+    if (ok[i]){ i++; continue; }
+    let j = i; while (j < n && !ok[j]) j++;
+    if (i > 0 && j < n && t[j] - t[i-1] <= .35 && seg[i-1] === seg[j]){
+      for (let q = i; q < j; q++){ const k = (t[q] - t[i-1])/(t[j] - t[i-1]); for (let c = 0; c < NJ*3; c++) raw[q*NJ*3 + c] = raw[(i-1)*NJ*3 + c] + (raw[j*NJ*3 + c] - raw[(i-1)*NJ*3 + c])*k; ok[q] = 1; }
+    }
+    i = j;
+  }
+  // smoothing + velocities
+  const pos = new Float32Array(n*NJ*3).fill(NaN), vel = new Float32Array(n*NJ*3).fill(NaN), spd = new Float32Array(n*NJ).fill(NaN), accM = new Float32Array(n*NJ).fill(NaN);
+  const tmp = new Float64Array(n);
+  for (let j = 0; j < NJ; j++){
+    const vs = [];
+    for (let c = 0; c < 3; c++){
+      for (let q = 0; q < n; q++) tmp[q] = raw[(q*NJ + j)*3 + c];
+      const s = smoothSeries(t, tmp, ok, .085, seg);
+      for (let q = 0; q < n; q++){ pos[(q*NJ + j)*3 + c] = s.pos[q]; vel[(q*NJ + j)*3 + c] = s.vel[q]; }
+      vs.push(s.vel);
+    }
+    const okv = ok, va = [new Float64Array(n), new Float64Array(n), new Float64Array(n)];
+    for (let c = 0; c < 3; c++) for (let q = 0; q < n; q++) va[c][q] = vs[c][q];
+    const a3 = [0, 1, 2].map(c => smoothSeries(t, va[c], okv, .12, seg).vel);
+    for (let q = 0; q < n; q++){ if (!ok[q]) continue; const v = Math.hypot(vs[0][q], vs[1][q], vs[2][q]); spd[q*NJ + j] = v > 20 ? NaN : v; const a = Math.hypot(a3[0][q], a3[1][q], a3[2][q]); accM[q*NJ + j] = a > 400 ? NaN : a; }
+  }
+  // robust speeds: 5-frame running median (within a track) removes single-frame tracker glitches
+  { const tmpS = new Float64Array(n), win = [];
+    for (let j = 0; j < NJ; j++){
+      for (let q = 0; q < n; q++) tmpS[q] = spd[q*NJ + j];
+      for (let q = 0; q < n; q++){
+        if (!ok[q]) continue; win.length = 0;
+        for (let k = Math.max(0, q - 2); k <= Math.min(n - 1, q + 2); k++) if (ok[k] && seg[k] === seg[q] && Number.isFinite(tmpS[k])) win.push(tmpS[k]);
+        spd[q*NJ + j] = win.length ? median(win) : NaN;
+      }
+    } }
+  const PF = q => { const o = []; for (let j = 0; j < NJ; j++){ const k = (q*NJ + j)*3; o.push([pos[k], pos[k+1], pos[k+2]]); } return o; };
+  // floor
+  const fm = []; for (let q = 0; q < n; q++) if (ok[q]){ let m = Infinity; for (const j of [27, 28, 29, 30, 31, 32]) m = Math.min(m, pos[(q*NJ + j)*3 + 1]); fm.push(m); }
+  const floorY = percentile(fm, .05);
+  // per-frame metrics
+  const M = new Array(n).fill(null), com = new Float64Array(n*3).fill(NaN);
+  for (let q = 0; q < n; q++){ if (!ok[q]) continue; const m = bodyMetrics(PF(q), floorY); M[q] = m; com[q*3] = m.com[0]; com[q*3+1] = m.com[1]; com[q*3+2] = m.com[2]; }
+  const cs = [0, 1, 2].map(c => { const a = new Float64Array(n); for (let q = 0; q < n; q++) a[q] = com[q*3 + c]; return smoothSeries(t, a, ok, .25, seg); });
+  const comS = new Float64Array(n*3).fill(NaN);
+  for (let q = 0; q < n; q++) for (let c = 0; c < 3; c++) comS[q*3 + c] = cs[c].pos[q];
+  const comV = new Float64Array(n*3).fill(NaN), hSpd = new Float64Array(n).fill(NaN), comSpd = new Float64Array(n).fill(NaN);
+  for (let q = 0; q < n; q++){ if (!ok[q]) continue; for (let c = 0; c < 3; c++) comV[q*3 + c] = cs[c].vel[q]; hSpd[q] = Math.hypot(cs[0].vel[q], cs[2].vel[q]); comSpd[q] = Math.hypot(cs[0].vel[q], cs[1].vel[q], cs[2].vel[q]); }
+  // leg alternation (walking detection)
+  const dAlt = new Float64Array(n).fill(NaN);
+  for (let q = 0; q < n; q++){
+    if (!ok[q]) continue;
+    let dir = [comV[q*3], 0, comV[q*3 + 2]]; if (Math.hypot(dir[0], dir[2]) < .15) dir = M[q].f; dir = v3.norm(dir);
+    const L = [pos[(q*NJ + 27)*3], 0, pos[(q*NJ + 27)*3 + 2]], Rr = [pos[(q*NJ + 28)*3], 0, pos[(q*NJ + 28)*3 + 2]];
+    dAlt[q] = v3.dot(v3.sub(L, Rr), dir);
+  }
+  const alt = new Uint8Array(n);
+  { let lo = 0, hi = 0; for (let q = 0; q < n; q++){ if (!ok[q]) continue; while (t[lo] < t[q] - .6) lo++; while (hi + 1 < n && t[hi + 1] <= t[q] + .6) hi++; let mn = Infinity, mx = -Infinity; for (let k = lo; k <= hi; k++) if (ok[k]){ mn = Math.min(mn, dAlt[k]); mx = Math.max(mx, dAlt[k]); } alt[q] = mx - mn > .18 ? 1 : 0; } }
+  // activity + smoothing (majority vote over ±0.25 s)
+  const hipStand = percentile(M.filter((m, q) => m && ok[q] && (m.A.knL + m.A.knR)/2 > 165 && m.trunkTotal < 15).map(m => m.hipH), .5);
+  const rawAct = new Array(n).fill('none');
+  for (let q = 0; q < n; q++) if (ok[q]) rawAct[q] = classifyAct(M[q], hSpd[q], alt[q], Number.isFinite(hipStand) ? hipStand : null);
+  const act = new Array(n).fill('none');
+  { let lo = 0, hi = 0; for (let q = 0; q < n; q++){ while (t[lo] < t[q] - .25) lo++; while (hi + 1 < n && t[hi + 1] <= t[q] + .25) hi++; const cnt = {}; for (let k = lo; k <= hi; k++) cnt[rawAct[k]] = (cnt[rawAct[k]] || 0) + 1; let b = rawAct[q], bc = -1; for (const key in cnt) if (cnt[key] > bc){ bc = cnt[key]; b = key; } act[q] = ok[q] ? b : 'none'; } }
+  // jumping is brief — keep raw detections of ≥ 3 frames
+  { let q = 0; while (q < n){ if (rawAct[q] !== 'jumping'){ q++; continue; } let e = q; while (e < n && rawAct[e] === 'jumping') e++; if (e - q >= 3) for (let k = q; k < e; k++) act[k] = 'jumping'; q = e; } }
+  const segs = segmentsOf(act, t, .3);
+  // energy
+  const energy = new Float64Array(n).fill(NaN);
+  for (let q = 0; q < n; q++){ if (!ok[q]) continue; const vj = {}; for (const j of [0, 13, 14, 15, 16, 25, 26, 27, 28]) vj[j] = spd[q*NJ + j]; energy[q] = energyOf(comSpd[q], vj); }
+  const D = { n, t, ok, seg, pos, vel, spd, acc:accM, M, com, comS, comV, hSpd, comSpd, act, segs, energy, floorY, vw:R.vw, vh:R.vh, gravSource, Fr, imgF };
+  D.events = eventsOf(D);
+  D.gait = gaitOf(D);
+  D.summary = summaryOf(D);
+  return D;
+}
+function segmentsOf(act, t, minDur){
+  const n = act.length, segs = [];
+  let s = 0;
+  for (let q = 1; q <= n; q++){ if (q === n || act[q] !== act[s]){ segs.push({ a:act[s], s, e:q - 1, t0:t[s], t1:t[q - 1] }); s = q; } }
+  // merge too-short segments (except jumps) into the previous one
+  const out = [];
+  for (const g of segs){
+    if (out.length && g.t1 - g.t0 < minDur && g.a !== 'jumping'){ out[out.length - 1].e = g.e; out[out.length - 1].t1 = g.t1; continue; }
+    if (out.length && out[out.length - 1].a === g.a){ out[out.length - 1].e = g.e; out[out.length - 1].t1 = g.t1; continue; }
+    out.push({ ...g });
+  }
+  return out;
+}
+const ACT_VERB = { standing:'وقف', walking:'بدأ يمشي', running:'بدأ يركض', sitting:'جلس', bending:'انحنى', lying:'استلقى', jumping:'قفز', none:'اختفى عن الكاميرا' };
+function eventsOf(D){
+  const ev = [], { n, t, M, ok } = D;
+  D.segs.forEach((g, k) => { if (k === 0) ev.push({ t:g.t0, i:ACTS[g.a].i, s:`البداية: ${ACTS[g.a].n}`, j:null }); else ev.push({ t:g.t0, i:ACTS[g.a].i, s:ACT_VERB[g.a], j:null }); });
+  const flag = (fn, minDur, txt, icon, joint) => {
+    let s = -1;
+    for (let q = 0; q <= n; q++){
+      const on = q < n && ok[q] && M[q] && fn(M[q], q);
+      if (on && s < 0) s = q;
+      if (!on && s >= 0){ if (t[q - 1] - t[s] >= minDur) ev.push({ t:t[s], i:icon, s:txt + ` (${(t[q - 1] - t[s]).toFixed(1)} ث)`, j:joint }); s = -1; }
+    }
+  };
+  flag(m => m.act.upR, .25, 'رفع يده اليمين', '✋', 16);
+  flag(m => m.act.upL, .25, 'رفع يده اليسار', '✋', 15);
+  flag(m => m.act.pointR, .35, 'أشّر بيده اليمين', '👉', 16);
+  flag(m => m.act.pointL, .35, 'أشّر بيده اليسار', '👈', 15);
+  flag(m => m.act.crossed, .5, 'كتّف يدينه', '🙅', null);
+  flag(m => m.act.handFace, .4, 'يده عند وجهه', '🤔', null);
+  flag(m => m.headYaw > 40, .35, 'التفت يمين', '↪️', 0);
+  flag(m => m.headYaw < -40, .35, 'التفت يسار', '↩️', 0);
+  const nearSit = new Uint8Array(n);
+  for (let q = 0; q < n; q++) if (D.act[q] === 'sitting' || D.act[q] === 'lying') for (let k = q; k >= 0 && t[k] > t[q] - .8; k--) nearSit[k] = 1;
+  for (let q = n - 1; q >= 0; q--) if (D.act[q] === 'sitting' || D.act[q] === 'lying') for (let k = q; k < n && t[k] < t[q] + .8; k++) nearSit[k] = 1;
+  flag((m, q) => D.act[q] === 'standing' && !nearSit[q] && !m.inside && m.footH && m.footH.L < .05 && m.footH.R < .05, .3, 'فقد توازنه (مركز الثقل طلع برا القدمين)', '⚠️', null);
+  // fastest moment
+  let best = 0, bq = -1, bj = -1;
+  for (let q = 0; q < n; q++){ if (!ok[q]) continue; for (const j of SEL_JOINTS){ const v = D.spd[q*NJ + j]; if (v > best){ best = v; bq = q; bj = j; } } }
+  if (bq >= 0) ev.push({ t:t[bq], i:'⚡', s:`أسرع حركة: ${JOINT_NAMES[bj]} ${best.toFixed(2)} م/ث`, j:bj });
+  ev.sort((a, b) => a.t - b.t);
+  return ev.slice(0, 60);
+}
+function gaitOf(D){
+  const { n, t, ok, pos, act } = D, fl = D.floorY;
+  const strikes = [];
+  for (const [side, he, toe] of [['L', 29, 31], ['R', 30, 32]]){
+    let swing = false, last = -1;
+    for (let q = 0; q < n; q++){
+      if (!ok[q] || (act[q] !== 'walking' && act[q] !== 'running')){ swing = false; continue; }
+      const h = Math.min(pos[(q*NJ + he)*3 + 1], pos[(q*NJ + toe)*3 + 1]) - fl;
+      if (h > .035) swing = true;
+      else if (swing && h < .018){ swing = false; if (last < 0 || t[q] - t[last] > .35){ strikes.push({ side, q, t:t[q] }); last = q; } }
+    }
+  }
+  strikes.sort((a, b) => a.t - b.t);
+  if (strikes.length < 4) return null;
+  const steps = [];
+  for (let k = 1; k < strikes.length; k++){
+    const a = strikes[k-1], b = strikes[k];
+    if (a.side === b.side || b.t - a.t > 1.2 || b.t - a.t < .2) continue;
+    const la = [pos[(b.q*NJ + 27)*3], 0, pos[(b.q*NJ + 27)*3 + 2]], ra = [pos[(b.q*NJ + 28)*3], 0, pos[(b.q*NJ + 28)*3 + 2]];
+    steps.push({ from:a.side, to:b.side, dt:b.t - a.t, len:v3.len(v3.sub(la, ra)), t:b.t });
+  }
+  if (steps.length < 3) return null;
+  const toR = steps.filter(s => s.to === 'R'), toL = steps.filter(s => s.to === 'L');
+  const mdt = median(steps.map(s => s.dt)), cadence = 60/mdt;
+  const tR = median(toR.map(s => s.dt)), tL = median(toL.map(s => s.dt));
+  const asym = Number.isFinite(tR) && Number.isFinite(tL) ? Math.abs(tR - tL)/((tR + tL)/2)*100 : null;
+  return { steps:steps.length, cadence, stepLen:median(steps.map(s => s.len)), stepTime:mdt, asym, lenR:median(toR.map(s => s.len)), lenL:median(toL.map(s => s.len)), strikes };
+}
+function summaryOf(D){
+  const { n, t, ok, M, spd } = D;
+  const idx = []; for (let q = 0; q < n; q++) if (ok[q] && M[q]) idx.push(q);
+  const dur = t[n - 1] - t[0];
+  const actDur = {}; for (const g of D.segs) actDur[g.a] = (actDur[g.a] || 0) + (g.t1 - g.t0);
+  let dist = 0, lastQ = -1;
+  for (const q of idx){ if (lastQ < 0){ lastQ = q; continue; } if (t[q] - t[lastQ] < .25) continue; const d = Math.hypot(D.comS[q*3] - D.comS[lastQ*3], D.comS[q*3+2] - D.comS[lastQ*3+2]); if (d > .06 && D.seg[q] === D.seg[lastQ]) dist += d; lastQ = q; }
+  // fastest per joint
+  const fast = {}; for (const j of SEL_JOINTS){ let b = 0, bq = -1; for (const q of idx){ const v = spd[q*NJ + j]; if (v > b){ b = v; bq = q; } } fast[j] = { v:b, t:bq >= 0 ? t[bq] : null }; }
+  let topJ = SEL_JOINTS[0]; for (const j of SEL_JOINTS) if (fast[j].v > fast[topJ].v) topJ = j;
+  // ranges of motion
+  const rom = {}; for (const k of Object.keys(ANGLE_NAMES)){ const a = idx.map(q => M[q].A[k]).filter(Number.isFinite); rom[k] = a.length ? { min:percentile(a, .02), max:percentile(a, .98) } : null; }
+  // posture averages while upright
+  const up = idx.filter(q => D.act[q] === 'standing' || D.act[q] === 'walking');
+  const P = up.length ? up : idx;
+  const posture = { sag:mean(P.map(q => M[q].sag)), lat:mean(P.map(q => M[q].lat)), sh:mean(P.map(q => M[q].shTilt)), pel:mean(P.map(q => M[q].pelTilt)), neck:mean(P.map(q => M[q].A.neck)), roll:mean(P.map(q => M[q].headRoll)) };
+  const st = idx.filter(q => D.act[q] === 'standing');
+  const sway = st.length > 10 ? { ant:stdev(st.map(q => M[q].balAnt))*100, lat:stdev(st.map(q => M[q].balLat))*100, wR:mean(st.map(q => M[q].wR)) } : null;
+  // symmetry (path length of hands / feet)
+  const path = j => { let s = 0; for (let k = 1; k < idx.length; k++){ const a = idx[k-1], b = idx[k]; if (D.seg[a] !== D.seg[b]) continue; s += Math.hypot(D.pos[(b*NJ + j)*3] - D.pos[(a*NJ + j)*3], D.pos[(b*NJ + j)*3 + 1] - D.pos[(a*NJ + j)*3 + 1], D.pos[(b*NJ + j)*3 + 2] - D.pos[(a*NJ + j)*3 + 2]); } return s; };
+  const hL = path(15), hR = path(16), fL = path(27), fR = path(28);
+  const en = idx.map(q => D.energy[q]);
+  return { dur, frames:n, valid:idx.length, fps:(n - 1)/Math.max(dur, 1e-3), actDur, dist, fast, topJ, rom, posture, sway,
+    hands:{ L:hL, R:hR }, feet:{ L:fL, R:fR }, energyMean:mean(en), energyMax:Math.max(...en.filter(Number.isFinite), 0), maxCom:Math.max(...idx.map(q => D.hSpd[q]).filter(Number.isFinite), 0) };
+}
 
-/* ---------- state machine ---------- */
-let settleDbg = '', forceCal = false;
-cv.addEventListener('pointerdown', () => { if (state === 'settle'){ forceCal = true; toast('تمت المعايرة ✓'); } });
-// lowest-foot level smoothed over the last 3 frames (reduces tracker jitter)
-const Fs = () => median(buf.slice(-3).map(q => footLow(q).F));
-let state = 'none', base = null, settleSince = 0, lastAir = 0, landT = 0, sessStart = 0, readySpoken = false, rawLm = null, lastRes = null, jumpNo = 0, fps = 0, liveH = null;
-function feetVisible(lm){ return [27, 28, 29, 30, 31, 32].filter(i => (lm[i].visibility ?? 1) > .5).length >= 4 && (lm[0].visibility ?? 1) > .5 && lm[29].y < 1.02 && lm[30].y < 1.02; }
+/* ---- One-Euro filter (live jitter removal) ---- */
+class OneEuro {
+  constructor(minCut = 1.2, beta = .02, dCut = 1){ this.mc = minCut; this.b = beta; this.dc = dCut; this.x = null; this.dx = 0; this.t = null; }
+  a(cut, dt){ const tau = 1/(2*Math.PI*cut); return 1/(1 + tau/dt); }
+  f(v, t){
+    if (this.x === null || !Number.isFinite(this.x)){ this.x = v; this.t = t; this.dx = 0; return v; }
+    const dt = Math.max(1e-3, t - this.t); this.t = t;
+    const d = (v - this.x)/dt; this.dx += this.a(this.dc, dt)*(d - this.dx);
+    const cut = this.mc + this.b*Math.abs(this.dx);
+    this.x += this.a(cut, dt)*(v - this.x); return this.x;
+  }
+}
+
+</script>
+<script>
+'use strict';
+/* ======================= APP ======================= */
+const $ = s => document.querySelector(s);
+const LIB = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+const MODELS = {
+  full:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
+  lite:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'
+};
+const fx = (v, d = 1) => (v == null || !Number.isFinite(v)) ? '—' : v.toFixed(d);
+const fmtClock = s => { s = Math.max(0, s || 0); return String(Math.floor(s/60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const dprOf = () => Math.min(2, window.devicePixelRatio || 1);
+const COL = { L:'#3df5ff', R:'#ff4fd8', C:'#e6fbff', ghost:'#ffb020', com:'#ffd23d' };
+const sideCol = j => { const s = SIDE(j); return s === 1 ? COL.L : s === 2 ? COL.R : COL.C; };
+const ISO = x => '\u2066' + x + '\u2069';           // keep numbers + units (°, %) left-to-right inside Arabic text
+const DG = (v, d = 0) => ISO(fx(v, d) + '°'), PC = v => ISO(Math.round(v) + '%');
+function dirTxt(v, pos, neg, thr = 2){ if (!Number.isFinite(v)) return '—'; if (Math.abs(v) < thr) return 'مستقيم'; return `${DG(Math.abs(v))} ${v > 0 ? pos : neg}`; }
+
+/* ---------- feedback ---------- */
+let AC = null;
+function unlockAudio(){ try{ AC = new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); g.gain.value = 0; o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + .03); }catch(e){} }
+function beep(f, d = .08, t0 = 0, vol = .15){ if (!AC) return; try{ const t = AC.currentTime + t0, o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + .02); }catch(e){} }
+function toast(text, warn){ const b = $('#toasts'); const e = document.createElement('div'); e.className = 'toast' + (warn ? ' warn' : ''); e.textContent = text; b.prepend(e); while (b.children.length > 2) b.lastChild.remove(); setTimeout(() => { e.style.opacity = 0; setTimeout(() => e.remove(), 450); }, 3200); }
+
+/* ---------- storage (IndexedDB, with in-memory fallback) ---------- */
+const Store = {
+  db:null, mem:new Map(), memMeta:new Map(), ok:true,
+  async open(){
+    if (this.db || !this.ok) return this.db;
+    try{
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('mijhar', 1);
+        r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('recs')) d.createObjectStore('recs', { keyPath:'id' }); if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath:'id' }); };
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+        setTimeout(() => rej(new Error('idb timeout')), 4000);
+      });
+    }catch(e){ this.ok = false; this.db = null; }
+    return this.db;
+  },
+  req(store, mode, fn){ return new Promise((res, rej) => { const t = this.db.transaction(store, mode); const r = fn(t.objectStore(store)); t.oncomplete = () => res(r ? r.result : undefined); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); },
+  async put(rec, meta){
+    this.mem.set(rec.id, rec); this.memMeta.set(meta.id, meta);
+    if (!(await this.open())) return false;
+    try{ await this.req('recs', 'readwrite', s => s.put(rec)); await this.req('meta', 'readwrite', s => s.put(meta)); return true; }
+    catch(e){ console.warn('save failed', e); return false; }
+  },
+  async metas(){
+    const out = new Map(this.memMeta);
+    if (await this.open()){ try{ const all = await this.req('meta', 'readonly', s => s.getAll()); for (const m of all || []) out.set(m.id, m); }catch(e){} }
+    return [...out.values()].sort((a, b) => b.date - a.date);
+  },
+  async get(id){
+    if (this.mem.has(id)) return this.mem.get(id);
+    if (!(await this.open())) return null;
+    try{ const r = await this.req('recs', 'readonly', s => s.get(id)); if (r) this.mem.set(id, r); return r || null; }catch(e){ return null; }
+  },
+  async del(id){
+    this.mem.delete(id); this.memMeta.delete(id); procCache.delete(id);
+    if (!(await this.open())) return;
+    try{ await this.req('recs', 'readwrite', s => s.delete(id)); await this.req('meta', 'readwrite', s => s.delete(id)); }catch(e){}
+  }
+};
+const procCache = new Map();
+function analysed(rec){ if (!procCache.has(rec.id)) procCache.set(rec.id, processRecording(rec)); return procCache.get(rec.id); }
+
+/* ======================= LIVE ======================= */
+const video = $('#video'), lv = $('#lv'), lctx = lv.getContext('2d');
+const Lv = {
+  vision:null, fileset:null, pose:null, model:'full', facing:'environment', mirror:false, vw:1, vh:1, sc:1, ox:0, oy:0, W:0, H:0, D:1,
+  fW:Array.from({ length:NJ*3 }, () => new OneEuro(1.0, .8)), fI:Array.from({ length:NJ*2 }, () => new OneEuro(1.4, 3)),
+  TzE:null, T:null, F:null, sensorDown:null, sensorT:0, gSign:0, bodyDownE:null, gravSrc:'—',
+  floorBuf:[], floorY:null, hipStandE:null, prevP:null, prevT:null, prevImg:null, vJ:{}, vImg:{}, vCom:0, hSpd:0,
+  altBuf:[], actBuf:[], act:'none', actSince:0, energy:0, path:{ hL:0, hR:0, fL:0, fR:0 },
+  m:null, P:null, img:null, lastSeen:-9, layer:1, rec:null, detMs:[], fps:0, errs:0, switching:false, uiT:0, lastT:0
+};
+function resizeLive(){ Lv.D = dprOf(); Lv.W = lv.width = Math.round(innerWidth*Lv.D); Lv.H = lv.height = Math.round(innerHeight*Lv.D); }
+addEventListener('resize', () => { resizeLive(); if (BB.open) resize3d(); });
+resizeLive();
+function layoutLive(){ Lv.vw = video.videoWidth || 1; Lv.vh = video.videoHeight || 1; Lv.sc = Lv.vw/Lv.vh < Lv.W/Lv.H ? Lv.H/Lv.vh : Lv.W/Lv.vw; Lv.ox = (Lv.W - Lv.vw*Lv.sc)/2; Lv.oy = (Lv.H - Lv.vh*Lv.sc)/2; }
+const LX = x => { const v = Lv.ox + x*Lv.vw*Lv.sc; return Lv.mirror ? Lv.W - v : v; };
+const LY = y => Lv.oy + y*Lv.vh*Lv.sc;
+
+/* gravity from the phone's accelerometer → camera frame (x right, y down, z forward) */
+function onMotion(e){
+  const a = e.accelerationIncludingGravity; if (!a || a.x == null) return;
+  const ang = ((typeof window.orientation === 'number' ? window.orientation : (screen.orientation && screen.orientation.angle) || 0))*Math.PI/180;
+  const sx = a.x*Math.cos(ang) - a.y*Math.sin(ang), sy = a.x*Math.sin(ang) + a.y*Math.cos(ang), sz = a.z;
+  let d = Lv.facing === 'user' ? [-sx, -sy, sz] : [sx, -sy, -sz];
+  const len = Math.hypot(d[0], d[1], d[2]); if (len < 6 || len > 14) return;
+  d = d.map(x => x/len);
+  if (!Lv.gSign){ if (Math.abs(d[1]) > .6) Lv.gSign = d[1] > 0 ? 1 : -1; else return; }
+  d = d.map(x => x*Lv.gSign);
+  Lv.sensorDown = Lv.sensorDown ? v3.norm(v3.lerp(Lv.sensorDown, d, .2)) : d; Lv.sensorT = performance.now();
+}
+function currentDown(){
+  if (Lv.sensorDown && performance.now() - Lv.sensorT < 600){ Lv.gravSrc = 'حساس الجوال'; return Lv.sensorDown; }
+  if (Lv.bodyDownE){ Lv.gravSrc = 'الجسم'; return Lv.bodyDownE; }
+  Lv.gravSrc = 'افتراضي'; return [0, 1, 0];
+}
+
+function resetFilters(){
+  Lv.fW.forEach(f => f.x = null); Lv.fI.forEach(f => f.x = null);
+  Lv.TzE = null; Lv.prevP = null; Lv.prevImg = null; Lv.floorBuf = []; Lv.floorY = null; Lv.altBuf = []; Lv.actBuf = [];
+}
 
 function onFrame(t){
-  if (!video.videoWidth) return;
-  layout();
-  if (!SH){ SH = Math.round(SW*vh/vw); gc.width = SW; gc.height = SH; IH = Math.round(IW*vh/vw); ic.width = IW; ic.height = IH; }
-  let res = null; try{ res = pose.detectForVideo(video, performance.now()); }catch(e){}
-  const lm = res && res.landmarks && res.landmarks[0];
-  rawLm = lm || null;
-  let box = null;
-  if (lm){ let x0 = 1, y0 = 1, x1 = 0, y1 = 0; for (const p of lm){ x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); } box = [x0*vw, y0*vh, x1*vw, y1*vh]; }
-  stabilize(box);
+  if (!video.videoWidth || !Lv.pose) return;
+  layoutLive();
+  let res = null; const t0 = performance.now();
+  try{ res = Lv.pose.detectForVideo(video, t0); }catch(e){ Lv.errs++; }
+  const dms = performance.now() - t0; Lv.detMs.push(dms); if (Lv.detMs.length > 45) Lv.detMs.shift();
+  maybeDowngrade();
+  const lm = res && res.landmarks && res.landmarks[0], wl = res && res.worldLandmarks && res.worldLandmarks[0];
+  const dt = Lv.lastT ? Math.min(.2, Math.max(1e-3, t - Lv.lastT)) : 1/30; Lv.lastT = t;
+  if (lm && wl){
+    Lv.lastSeen = t;
+    const img = [], world = [];
+    for (let j = 0; j < NJ; j++){
+      const p = lm[j], w = wl[j], vis = p.visibility ?? 1;
+      img.push([Lv.fI[j*2].f(p.x, t), Lv.fI[j*2 + 1].f(p.y, t), vis]);
+      world.push([Lv.fW[j*3].f(w.x, t), Lv.fW[j*3 + 1].f(w.y, t), Lv.fW[j*3 + 2].f(w.z, t)]);
+    }
+    if (Lv.rec) recordFrame(t, lm, wl);
+    analyseLive(t, dt, img, world);
+  } else {
+    if (Lv.rec) recordFrame(t, null, null);
+    if (t - Lv.lastSeen > .6){ Lv.img = null; Lv.m = null; if (t - Lv.lastSeen > 2) resetFilters(); }
+  }
+  renderLive(t);
+  if (t - Lv.uiT > .12){ Lv.uiT = t; updateDash(t); }
+}
 
-  const ok = lm && feetVisible(lm);
+function analyseLive(t, dt, img, world){
+  const Troot = solveRoot(img, world, Lv.vw, Lv.vh);
+  if (Troot){ const a = 1 - Math.exp(-dt/.3); Lv.TzE = Lv.TzE == null ? Troot[2] : Lv.TzE + a*(Troot[2] - Lv.TzE); }
+  if (Lv.TzE == null){ Lv.img = img; return; }
+  const T = xyGivenZ(img, world, Lv.vw, Lv.vh, Lv.TzE); if (!T){ Lv.img = img; return; }
+  const bd = bodyDown(world); if (bd) Lv.bodyDownE = Lv.bodyDownE ? v3.norm(v3.lerp(Lv.bodyDownE, bd, .05)) : bd;
+  const F = frameFromDown(currentDown());
+  const P = world.map(p => toW(v3.add(p, T), F));
+  // floor from recent foot minima
+  let fm = Infinity; for (const j of [27, 28, 29, 30, 31, 32]) fm = Math.min(fm, P[j][1]);
+  Lv.floorBuf.push([t, fm]); while (Lv.floorBuf.length && Lv.floorBuf[0][0] < t - 8) Lv.floorBuf.shift();
+  if (Lv.floorBuf.length > 20 && t - Lv.floorBuf[0][0] > 1.2) Lv.floorY = percentile(Lv.floorBuf.map(q => q[1]), .08);
+  const m = bodyMetrics(P, Lv.floorY);
+  if (m.hipH != null && (m.A.knL + m.A.knR)/2 > 165 && m.trunkTotal < 15) Lv.hipStandE = Lv.hipStandE == null ? m.hipH : Lv.hipStandE + .05*(m.hipH - Lv.hipStandE);
+  // velocities
+  const aJ = 1 - Math.exp(-dt/.09), aC = 1 - Math.exp(-dt/.28);
+  if (Lv.prevP){
+    for (const j of SEL_JOINTS){ const v = v3.len(v3.sub(P[j], Lv.prevP[j]))/dt; Lv.vJ[j] = (Lv.vJ[j] ?? v) + aJ*(Math.min(v, 15) - (Lv.vJ[j] ?? v)); }
+    const pc = centerOfMass(Lv.prevP), dc = v3.sub(m.com, pc);
+    const hv = Math.hypot(dc[0], dc[2])/dt, tv = v3.len(dc)/dt;
+    Lv.hSpd += aC*(Math.min(hv, 10) - Lv.hSpd); Lv.vCom += aC*(Math.min(tv, 10) - Lv.vCom);
+    // symmetry paths (decaying ≈ last 30 s)
+    const k = Math.pow(.5, dt/15), step = j => Math.min(.3, v3.len(v3.sub(P[j], Lv.prevP[j])));
+    Lv.path.hL = Lv.path.hL*k + step(15); Lv.path.hR = Lv.path.hR*k + step(16); Lv.path.fL = Lv.path.fL*k + step(27); Lv.path.fR = Lv.path.fR*k + step(28);
+  }
+  if (Lv.prevImg){ for (const j of [15, 16, 27, 28]){ const vx = (img[j][0] - Lv.prevImg[j][0])/dt, vy = (img[j][1] - Lv.prevImg[j][1])/dt, o = Lv.vImg[j] || [vx, vy]; Lv.vImg[j] = [o[0] + aJ*(vx - o[0]), o[1] + aJ*(vy - o[1])]; } }
+  Lv.prevP = P; Lv.prevImg = img;
+  // walking alternation
+  const dir = m.f;
+  Lv.altBuf.push([t, v3.dot(v3.sub(horiz(P[27]), horiz(P[28])), dir)]); while (Lv.altBuf.length && Lv.altBuf[0][0] < t - 1.2) Lv.altBuf.shift();
+  let mn = Infinity, mx = -Infinity; for (const q of Lv.altBuf){ mn = Math.min(mn, q[1]); mx = Math.max(mx, q[1]); }
+  const alt = mx - mn > .18;
+  const raw = classifyAct(m, Lv.hSpd, alt, Lv.hipStandE);
+  Lv.actBuf.push([t, raw]); while (Lv.actBuf.length && Lv.actBuf[0][0] < t - .5) Lv.actBuf.shift();
+  const cnt = {}; for (const q of Lv.actBuf) cnt[q[1]] = (cnt[q[1]] || 0) + 1;
+  let best = Lv.act, bc = 0; for (const k in cnt) if (cnt[k] > bc){ bc = cnt[k]; best = k; }
+  if (best !== Lv.act && (bc >= Lv.actBuf.length*.6 || best === 'jumping')){ Lv.act = best; Lv.actSince = t; }
+  const e = energyOf(Lv.vCom, Lv.vJ); Lv.energy += (1 - Math.exp(-dt/.4))*(e - Lv.energy);
+  Lv.m = m; Lv.P = P; Lv.img = img; Lv.T = T; Lv.F = F;
+}
+
+function maybeDowngrade(){
+  if (Lv.model !== 'full' || Lv.switching || Lv.detMs.length < 45) return;
+  const md = median(Lv.detMs);
+  if (md > 75){
+    Lv.switching = true;
+    makePose('lite').then(p => { Lv.pose = p; Lv.model = 'lite'; toast('⚡ حوّلت لنموذج أسرع عشان الحركة تكون سلسة'); }).catch(() => {}).finally(() => { Lv.switching = false; });
+  }
+}
+
+/* ---------- live drawing ---------- */
+function pill(ctx, text, x, y, col, D, size = 11){
+  ctx.font = `600 ${size*D}px "IBM Plex Sans Arabic", system-ui, sans-serif`;
+  const w = ctx.measureText(text).width + 10*D, h = (size + 7)*D;
+  ctx.fillStyle = 'rgba(3,10,16,.82)'; ctx.strokeStyle = col; ctx.lineWidth = 1*D;
+  const rx = x - w/2, ry = y - h/2, r = h/2;
+  ctx.beginPath(); ctx.moveTo(rx + r, ry); ctx.lineTo(rx + w - r, ry); ctx.arc(rx + w - r, ry + r, r, -Math.PI/2, Math.PI/2); ctx.lineTo(rx + r, ry + h); ctx.arc(rx + r, ry + r, r, Math.PI/2, Math.PI*1.5); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x, y + .5*D);
+}
+function arrow2(ctx, x0, y0, x1, y1, col, w){
+  const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 6) return;
+  const hl = Math.min(12*Lv.D, L*.4);
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(a)*hl*.6, y1 - Math.sin(a)*hl*.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - Math.cos(a - .45)*hl, y1 - Math.sin(a - .45)*hl); ctx.lineTo(x1 - Math.cos(a + .45)*hl, y1 - Math.sin(a + .45)*hl); ctx.closePath(); ctx.fill();
+}
+function renderLive(t){
+  const c = lctx, D = Lv.D, W = Lv.W, H = Lv.H;
+  c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
+  c.save(); if (Lv.mirror){ c.translate(W, 0); c.scale(-1, 1); } c.drawImage(video, Lv.ox, Lv.oy, Lv.vw*Lv.sc, Lv.vh*Lv.sc); c.restore();
+  c.fillStyle = 'rgba(2,10,16,.2)'; c.fillRect(0, 0, W, H);
+  const img = Lv.img, m = Lv.m;
+  $('#hint').style.display = (!img && t - Lv.lastSeen > .8) ? 'block' : 'none';
+  if (!img) return;
+  const pt = j => [LX(img[j][0]), LY(img[j][1])], vis = j => img[j][2] > .45;
+  // balance on the floor (projected from 3-D)
+  if (m && Lv.floorY != null && Lv.layer > 0 && Lv.F && Lv.T){
+    const toS = pW => { const pr = project(fromW(pW, Lv.F), Lv.vw, Lv.vh); return pr ? [LX(pr[0]), LY(pr[1])] : null; };
+    const poly = m.poly.map(([x, z]) => toS([x, Lv.floorY, z])).filter(Boolean);
+    const okc = m.inside ? '#b6ff3d' : '#ff4d5e';
+    if (poly.length >= 3){ c.beginPath(); poly.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); c.fillStyle = m.inside ? 'rgba(182,255,61,.16)' : 'rgba(255,77,94,.18)'; c.fill(); c.strokeStyle = okc; c.lineWidth = 1.5*D; c.stroke(); }
+    const cc = toS(m.com), cf = toS([m.com[0], Lv.floorY, m.com[2]]);
+    if (cc && cf){
+      c.setLineDash([5*D, 5*D]); c.strokeStyle = '#ffd23dcc'; c.lineWidth = 1.5*D; c.beginPath(); c.moveTo(cc[0], cc[1]); c.lineTo(cf[0], cf[1]); c.stroke(); c.setLineDash([]);
+      c.strokeStyle = okc; c.lineWidth = 2*D; c.beginPath(); c.ellipse(cf[0], cf[1], 9*D, 4*D, 0, 0, Math.PI*2); c.stroke();
+      c.fillStyle = '#ffd23d'; c.beginPath(); c.moveTo(cc[0], cc[1] - 7*D); c.lineTo(cc[0] + 7*D, cc[1]); c.lineTo(cc[0], cc[1] + 7*D); c.lineTo(cc[0] - 7*D, cc[1]); c.closePath(); c.fill();
+    }
+  }
+  // skeleton (glow + core)
+  c.lineCap = 'round';
+  for (const pass of [0, 1]){
+    for (const [a, b] of BONES){
+      if (!vis(a) || !vis(b)) continue;
+      const col = SIDE(a) === SIDE(b) ? sideCol(a) : COL.C, A = pt(a), B = pt(b);
+      c.strokeStyle = pass ? col : col + '33'; c.lineWidth = (pass ? 3 : 11)*D; c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(B[0], B[1]); c.stroke();
+    }
+  }
+  if (vis(11) && vis(12) && vis(7) && vis(8)){ const sh = [LX((img[11][0] + img[12][0])/2), LY((img[11][1] + img[12][1])/2)], he = [LX((img[7][0] + img[8][0])/2), LY((img[7][1] + img[8][1])/2)]; c.strokeStyle = COL.C; c.lineWidth = 3*D; c.beginPath(); c.moveTo(sh[0], sh[1]); c.lineTo(sh[0] + (he[0] - sh[0])*.7, sh[1] + (he[1] - sh[1])*.7); c.stroke(); }
+  if (vis(7) && vis(8) && vis(0)){ const e = [(img[7][0] + img[8][0])/2, (img[7][1] + img[8][1])/2]; const r = Math.hypot((img[7][0] - img[8][0])*Lv.vw, (img[7][1] - img[8][1])*Lv.vh)*Lv.sc*.75; c.strokeStyle = COL.C; c.lineWidth = 2.5*D; c.beginPath(); c.arc(LX(e[0]), LY(e[1]), Math.max(8*D, r), 0, Math.PI*2); c.stroke(); }
+  for (const j of [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 31, 32]){ if (!vis(j)) continue; const p = pt(j); c.fillStyle = '#fff'; c.beginPath(); c.arc(p[0], p[1], 3.5*D, 0, Math.PI*2); c.fill(); c.strokeStyle = sideCol(j); c.lineWidth = 2*D; c.stroke(); }
+  if (!m || Lv.layer === 0) return;
+  // speed vectors (full layer)
+  if (Lv.layer === 2) for (const j of [15, 16, 27, 28]){ const v = Lv.vImg[j]; if (!v || !vis(j)) continue; const p = pt(j), k = .14, ex = LX(img[j][0] + v[0]*k), ey = LY(img[j][1] + v[1]*k); arrow2(c, p[0], p[1], ex, ey, '#ffd23d', 2.5*D); }
+  // angle labels
+  const lab = (j, key, off) => { if (!vis(j)) return; const p = pt(j), a = m.A[key]; if (!Number.isFinite(a)) return; const dx = (SIDE(j) === 1 ? 1 : -1)*(Lv.mirror ? -1 : 1)*off*D; pill(c, `${a.toFixed(0)}°`, p[0] + dx, p[1], sideCol(j), D); };
+  lab(13, 'elL', 30); lab(14, 'elR', 30); lab(25, 'knL', 30); lab(26, 'knR', 30);
+  if (Lv.layer === 2){ lab(11, 'shL', 34); lab(12, 'shR', 34); lab(23, 'hipL', 34); lab(24, 'hipR', 34); }
+}
+
+/* ---------- live dashboard ---------- */
+function updateDash(t){
+  const m = Lv.m, act = ACTS[m ? Lv.act : 'none'];
+  $('#actIcon').textContent = act.i; $('#actName').textContent = act.n; $('#actName').style.color = act.c;
+  if (m){
+    const fc = Math.abs(m.facing) < 25 ? 'يواجه الكاميرا' : Math.abs(m.facing) > 150 ? 'معطي ظهره للكاميرا' : `ملتفت ${DG(Math.abs(m.facing))} ${m.facing > 0 ? 'يمين' : 'يسار'}`;
+    $('#actTime').textContent = `منذ ${fmtClock(t - Lv.actSince)} • ${fc}`;
+  } else $('#actTime').textContent = 'بانتظار شخص';
+  $('#mSpeed').textContent = m ? Lv.hSpd.toFixed(2) : '0.00';
+  const el = energyLevel(Lv.energy); $('#mEnergy').textContent = m ? el[1] : '—'; $('#mEnergy').style.color = el[2];
+  $('#eBar').style.width = (m ? Math.min(100, Math.max(4, (Math.log10(Lv.energy + 1e-4) + 3.5)/4*100)) : 0) + '%'; $('#eBar').style.background = el[2];
+  // action badges
+  const bs = [];
+  if (m){ const a = m.act;
+    if (a.upR) bs.push('✋ رافع يده اليمين'); if (a.upL) bs.push('✋ رافع يده اليسار');
+    if (a.pointR) bs.push('👉 يأشر باليمين'); if (a.pointL) bs.push('👈 يأشر باليسار');
+    if (a.crossed) bs.push('🙅 مكتّف يدينه'); if (a.handFace) bs.push('🤔 يده عند وجهه');
+    if (!m.inside && Lv.act === 'standing' && (Lv.hipStandE == null || m.hipH == null || m.hipH > .9*Lv.hipStandE)) bs.push('⚠️ خارج التوازن'); }
+  const ah = bs.map(b => `<span class="badge">${b}</span>`).join(''); if ($('#actions').innerHTML !== ah) $('#actions').innerHTML = ah;
+  $('#dash').classList.toggle('hide', Lv.layer === 0 || !m);
+  if (m){
+    $('#dTrunk').textContent = dirTxt(m.sag, 'للأمام', 'للخلف', 3); $('#dTrunkS').textContent = 'جانبي: ' + dirTxt(m.lat, 'يمين', 'يسار', 2);
+    $('#dSh').textContent = Math.abs(m.shTilt) < 2 ? 'الكتفين متساوية' : `${m.shTilt > 0 ? 'الأيسر' : 'الأيمن'} أعلى ${DG(Math.abs(m.shTilt))}`;
+    $('#dShS').textContent = 'الحوض: ' + (Math.abs(m.pelTilt) < 2 ? 'مستوي' : `${m.pelTilt > 0 ? 'الأيسر' : 'الأيمن'} أعلى ${DG(Math.abs(m.pelTilt))}`);
+    $('#dHead').textContent = Math.abs(m.headYaw) < 8 ? 'يطالع قدام' : `ملتفت ${DG(Math.abs(m.headYaw))} ${m.headYaw > 0 ? 'يمين' : 'يسار'}`;
+    $('#dHeadS').textContent = `مايل ${dirTxt(-m.headRoll, 'يسار', 'يمين', 3)} • متقدم ${DG(Math.max(0, m.A.neck))}`;
+    const wr = Math.round(m.wR*100); $('#wL').style.width = (100 - wr) + '%'; $('#wR').style.width = wr + '%';
+    $('#dBal').textContent = `يسار ${PC(100 - wr)} • يمين ${PC(wr)}`; $('#dBalIn').textContent = m.inside ? '✅' : (Lv.act === 'standing' ? '⚠️' : '');
+    $('#dKnee').textContent = `ي ${DG(m.A.knR)} · س ${DG(m.A.knL)}`; $('#dKneeS').textContent = `الورك: ي ${DG(m.A.hipR)} · س ${DG(m.A.hipL)}`;
+    $('#dHands').textContent = `ي ${ISO(fx(Lv.vJ[16], 1))} · س ${ISO(fx(Lv.vJ[15], 1))}`;
+    const tot = Lv.path.hL + Lv.path.hR; $('#dHandsS').textContent = tot > .3 ? `م/ث • اليمين ${PC(Lv.path.hR/tot*100)} من الحركة` : 'م/ث';
+  }
+  const md = median(Lv.detMs);
+  $('#tele').textContent = `${Lv.fps} FPS · ${Lv.model.toUpperCase()} ${fx(md, 0)}ms\nDEPTH ${fx(Lv.TzE, 2)} m · FLOOR ${Lv.floorY != null ? 'OK' : '…'}\nGRAVITY: ${Lv.gravSrc}`;
+  if (Lv.rec){ const d = t - Lv.rec.t0; $('#recTxt').textContent = `${fmtClock(d)} • ${Lv.rec.n} إطار`; if (d > 60) stopRecording(); }
+}
+
+/* ---------- recording ---------- */
+const thumbC = document.createElement('canvas'), thumbX = thumbC.getContext('2d');
+function startRecording(){
+  if (!Lv.pose) return;
+  const tw = 144, th = Math.round(144*Lv.vh/Lv.vw); thumbC.width = tw; thumbC.height = th;
+  Lv.rec = { t0:null, n:0, t:[], img:[], world:[], grav:[], thumbs:[], vw:Lv.vw, vh:Lv.vh, front:Lv.facing === 'user', pending:0 };
+  $('#recBtn').classList.add('on'); $('#recLbl').textContent = 'إيقاف'; $('#recInd').classList.add('on');
+  beep(880, .08); beep(1320, .1, .1);
+}
+function recordFrame(t, lm, wl){
+  const R = Lv.rec; if (R.t0 == null) R.t0 = t;
+  R.t.push(t - R.t0);
+  for (let j = 0; j < NJ; j++){
+    if (lm){ R.img.push(lm[j].x, lm[j].y, lm[j].visibility ?? 1); R.world.push(wl[j].x, wl[j].y, wl[j].z); }
+    else { R.img.push(NaN, NaN, 0); R.world.push(NaN, NaN, NaN); }
+  }
+  const g = Lv.sensorDown && performance.now() - Lv.sensorT < 600 ? Lv.sensorDown : null;
+  R.grav.push(g ? g[0] : NaN, g ? g[1] : NaN, g ? g[2] : NaN);
+  const idx = R.n; R.thumbs.push(null);
+  if (Lv.fps <= 40 || idx % 2 === 0){
+    try{ thumbX.drawImage(video, 0, 0, thumbC.width, thumbC.height); R.pending++; thumbC.toBlob(b => { R.thumbs[idx] = b; R.pending--; }, 'image/jpeg', .62); }catch(e){}
+  }
+  R.n++;
+}
+async function stopRecording(){
+  const R = Lv.rec; if (!R) return; Lv.rec = null;
+  $('#recBtn').classList.remove('on'); $('#recLbl').textContent = 'سجّل'; $('#recInd').classList.remove('on');
+  beep(1320, .08); beep(880, .1, .1);
+  if (R.n < 10){ toast('التسجيل قصير جداً', true); return; }
+  $('#proc').classList.add('on'); $('#procTxt').textContent = `أحلل ${R.n} إطار…`; $('#procSub').textContent = 'ثلاثي الأبعاد • مركز الثقل • النشاط • الأحداث';
+  for (let k = 0; k < 40 && R.pending > 0; k++) await new Promise(r => setTimeout(r, 25));
+  await new Promise(r => setTimeout(r, 30));
+  const cnt = (+localStorage.getItem('mijhar.cnt') || 0) + 1; try{ localStorage.setItem('mijhar.cnt', cnt); }catch(e){}
+  const rec = { id:'r' + Date.now().toString(36), name:`تسجيل #${cnt}`, date:Date.now(), n:R.n, t:Float64Array.from(R.t), img:Float32Array.from(R.img), world:Float32Array.from(R.world), grav:Float32Array.from(R.grav), vw:R.vw, vh:R.vh, front:R.front, thumbs:R.thumbs };
+  let D;
+  try{ D = analysed(rec); }catch(e){ console.error(e); D = { error:'crash' }; }
+  $('#proc').classList.remove('on');
+  if (D.error){ toast('ما ظهر شخص بوضوح في التسجيل. خل الجسم كامل يبان وجرب مرة ثانية', true); procCache.delete(rec.id); return; }
+  const top = Object.entries(D.summary.actDur).filter(([k]) => k !== 'none').sort((a, b) => b[1] - a[1])[0];
+  const meta = { id:rec.id, name:rec.name, date:rec.date, dur:D.summary.dur, n:rec.n, top:top ? top[0] : 'none' };
+  const saved = await Store.put(rec, meta);
+  if (!saved) toast('التسجيل متاح الحين، بس ما قدرت أحفظه بشكل دائم', true);
+  Lv.lastId = rec.id; $('#bLast').disabled = false;
+  openBB(rec);
+}
+
+/* ======================= BLACK BOX (3-D) ======================= */
+const c3 = $('#c3'), x3 = c3.getContext('2d'), tlc = $('#tlc'), xtl = tlc.getContext('2d'), pipC = $('#pip'), xpip = pipC.getContext('2d');
+const BB = { open:false, rec:null, D:null, T0:0, dur:0, tc:0, playing:false, speed:1, sel:16, labels:true, view:'cam', yaw:0, pitch:.15, dist:3.5, tgt:[0, 0, -3],
+  want:null, ghost:null, lastTs:0, uiT:0, W:0, H:0, Dp:1, bitmaps:new Map(), pending:new Set(), selSeries:null, graphs:{} };
+function resize3d(){
+  BB.Dp = dprOf(); const r = c3.getBoundingClientRect(); BB.W = c3.width = Math.round(r.width*BB.Dp); BB.H = c3.height = Math.round(r.height*BB.Dp);
+  const rt = tlc.getBoundingClientRect(); tlc.width = Math.round(rt.width*BB.Dp); tlc.height = Math.round(rt.height*BB.Dp);
+}
+function frameAtTime(D, tc){ // fractional index for time tc (relative)
+  const t = D.t, T0 = t[0]; const tt = T0 + tc;
+  let lo = 0, hi = D.n - 1; if (tt <= t[0]) return 0; if (tt >= t[hi]) return hi;
+  while (hi - lo > 1){ const mid = (lo + hi) >> 1; if (t[mid] <= tt) lo = mid; else hi = mid; }
+  return lo + (tt - t[lo])/((t[hi] - t[lo]) || 1);
+}
+function nearestValid(D, i){ i = Math.round(i); for (let k = 0; k < D.n; k++){ if (i - k >= 0 && D.ok[i - k]) return i - k; if (i + k < D.n && D.ok[i + k]) return i + k; } return -1; }
+function posesAt(D, fi){ // interpolated 33 points or null
+  const a = Math.floor(fi), b = Math.min(D.n - 1, a + 1), k = fi - a;
+  const okA = D.ok[a], okB = D.ok[b];
+  if (!okA && !okB) return null;
+  const P = [];
+  for (let j = 0; j < NJ; j++){
+    const ia = (a*NJ + j)*3, ib = (b*NJ + j)*3;
+    if (okA && okB) P.push([D.pos[ia] + (D.pos[ib] - D.pos[ia])*k, D.pos[ia+1] + (D.pos[ib+1] - D.pos[ia+1])*k, D.pos[ia+2] + (D.pos[ib+2] - D.pos[ia+2])*k]);
+    else { const i0 = okA ? ia : ib; P.push([D.pos[i0], D.pos[i0+1], D.pos[i0+2]]); }
+  }
+  return P;
+}
+
+async function openBB(rec){
+  const D = analysed(rec);
+  if (D.error){ toast('ما قدرت أحلل هالتسجيل', true); return; }
+  BB.rec = rec; BB.D = D; BB.T0 = D.t[0]; BB.dur = D.t[D.n - 1] - D.t[0]; BB.tc = 0; BB.playing = false; BB.ghost = null; BB.bitmaps.forEach(b => b.close && b.close()); BB.bitmaps.clear(); BB.pending.clear();
+  BB.sel = 16; BB.selSeries = null;
+  $('#bb').classList.add('on'); BB.open = true;
+  $('#bbTitle').textContent = `🎬 ${rec.name}`;
+  $('#bbSub').textContent = `${new Date(rec.date).toLocaleString('ar-SA-u-nu-latn', { dateStyle:'medium', timeStyle:'short' })} • ${fx(BB.dur, 1)} ث • ${D.n} إطار • ${fx(D.summary.fps, 0)} إطار/ث`;
+  pipC.style.display = rec.thumbs && rec.thumbs.some(Boolean) ? 'block' : 'none';
+  requestAnimationFrame(() => { resize3d(); setView('cam', true); buildSummary(); buildEvents(); buildCompare(); selectJoint(16); activePane(BB.pane || 'joint'); refreshUI(true); });
+}
+function closeBB(){ BB.open = false; BB.playing = false; $('#bb').classList.remove('on'); }
+
+/* ---------- camera views ---------- */
+function curFrameMetrics(){ const i = nearestValid(BB.D, frameAtTime(BB.D, BB.tc)); return i >= 0 ? BB.D.M[i] : null; }
+function curCom(){ const D = BB.D, fi = frameAtTime(D, BB.tc), i = nearestValid(D, fi); if (i < 0) return [0, D.floorY + 1, -3]; return [D.comS[i*3], D.comS[i*3 + 1], D.comS[i*3 + 2]]; }
+function setView(v, instant){
+  BB.view = v; document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  const c = curCom(), m = curFrameMetrics();
+  let w = null;
+  if (v === 'cam'){ const dx = -c[0], dz = -c[2], hd = Math.hypot(dx, dz) || 1; w = { yaw:Math.atan2(dx, dz), pitch:Math.atan2(-c[1], hd), dist:clamp(Math.hypot(dx, -c[1], dz), 1.6, 9) }; }
+  else if (v === 'front' && m){ w = { yaw:Math.atan2(m.f[0], m.f[2]), pitch:.12, dist:3.2 }; }
+  else if (v === 'side' && m){ w = { yaw:Math.atan2(m.r[0], m.r[2]), pitch:.12, dist:3.2 }; }
+  else if (v === 'top'){ w = { yaw:BB.yaw, pitch:1.42, dist:3.2 }; }
+  else if (v === 'orbit'){ w = { yaw:BB.yaw, pitch:.32, dist:3.6 }; }
+  if (!w) w = { yaw:BB.yaw, pitch:BB.pitch, dist:BB.dist };
+  // shortest yaw path
+  while (w.yaw - BB.yaw > Math.PI) w.yaw -= 2*Math.PI; while (w.yaw - BB.yaw < -Math.PI) w.yaw += 2*Math.PI;
+  if (instant){ BB.yaw = w.yaw; BB.pitch = w.pitch; BB.dist = w.dist; BB.tgt = c; BB.want = null; } else BB.want = w;
+}
+document.querySelectorAll('#views button').forEach(b => b.onclick = () => setView(b.dataset.v));
+
+/* ---------- 3-D projection ---------- */
+function camK(){
+  const cp = Math.cos(BB.pitch), cam = [BB.tgt[0] + BB.dist*cp*Math.sin(BB.yaw), BB.tgt[1] + BB.dist*Math.sin(BB.pitch), BB.tgt[2] + BB.dist*cp*Math.cos(BB.yaw)];
+  const fw = v3.norm(v3.sub(BB.tgt, cam)); let rt = v3.cross(fw, [0, 1, 0]); if (v3.len(rt) < 1e-6) rt = [1, 0, 0]; rt = v3.norm(rt);
+  const up = v3.cross(rt, fw);
+  return { cam, fw, rt, up, f:BB.H/(2*Math.tan(25*Math.PI/180)), cx:BB.W/2, cy:BB.H*.52 };
+}
+function P3(p, K){ const d = v3.sub(p, K.cam), z = v3.dot(d, K.fw); if (z < .1) return null; return [K.cx + K.f*v3.dot(d, K.rt)/z, K.cy - K.f*v3.dot(d, K.up)/z, z]; }
+function line3(K, a, b, col, w, steps = 1){
+  for (let s = 0; s < steps; s++){
+    const A = P3(v3.lerp(a, b, s/steps), K), B = P3(v3.lerp(a, b, (s + 1)/steps), K); if (!A || !B || A[2] < .35 || B[2] < .35) continue;
+    x3.strokeStyle = col; x3.lineWidth = w; x3.beginPath(); x3.moveTo(A[0], A[1]); x3.lineTo(B[0], B[1]); x3.stroke();
+  }
+}
+
+function render3d(){
+  const D = BB.D; if (!D) return;
+  const K = camK(), c = x3, Dp = BB.Dp, fl = D.floorY;
+  c.clearRect(0, 0, BB.W, BB.H); TAGS = [];
+  const fi = frameAtTime(D, BB.tc), P = posesAt(D, fi), iN = nearestValid(D, fi), m = iN >= 0 ? D.M[iN] : null;
+  // floor grid
+  const gx = Math.round(BB.tgt[0]*2)/2, gz = Math.round(BB.tgt[2]*2)/2, R = 4;
+  c.lineCap = 'butt';
+  for (let k = -R; k <= R; k += .5){
+    const al = .22*(1 - Math.abs(k)/(R + .5)), major = Math.abs((gx + k) % 1) < .01;
+    const col = `rgba(61,245,255,${(major ? al*1.6 : al).toFixed(3)})`;
+    line3(K, [gx + k, fl, gz - R], [gx + k, fl, gz + R], col, Dp, 12);
+    line3(K, [gx - R, fl, gz + k], [gx + R, fl, gz + k], col, Dp, 12);
+  }
+  // spotlight under the person
+  if (P){
+    const cc = [D.comS[iN*3], fl, D.comS[iN*3 + 2]], pts = [];
+    for (let a = 0; a < 28; a++){ const q = P3([cc[0] + Math.cos(a/28*2*Math.PI)*.9, fl, cc[2] + Math.sin(a/28*2*Math.PI)*.9], K); if (q) pts.push(q); }
+    if (pts.length > 10){ c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.closePath(); c.fillStyle = 'rgba(61,245,255,.07)'; c.fill(); }
+  }
+  // the real camera (phone) marker
+  if (v3.len(K.cam) > .9){ const Fm = D.Fr[Math.floor(D.n/2)], fwd = toW([0, 0, 1], Fm), rgt = toW([1, 0, 0], Fm), dwn = toW([0, 1, 0], Fm), o = [0, 0, 0], s = .22;
+    const corner = (a, b) => v3.add(v3.add(o, v3.mul(fwd, s*1.4)), v3.add(v3.mul(rgt, a*s*.6), v3.mul(dwn, b*s)));
+    const cs = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)];
+    for (let k = 0; k < 4; k++){ line3(K, o, cs[k], 'rgba(200,230,240,.55)', 1.2*Dp); line3(K, cs[k], cs[(k + 1) % 4], 'rgba(200,230,240,.55)', 1.2*Dp); }
+    const lp = P3(v3.add(o, [0, .18, 0]), K); if (lp){ c.font = `${11*Dp}px "IBM Plex Sans Arabic", sans-serif`; c.fillStyle = 'rgba(200,230,240,.8)'; c.textAlign = 'center'; c.fillText('📱 الكاميرا', lp[0], lp[1]); }
+    if (P) line3(K, o, v3.mid(P[23], P[24]), 'rgba(200,230,240,.12)', 1*Dp, 6);
+  }
+  // ghost (comparison)
+  if (BB.ghost && BB.ghost.mode !== 'off'){
+    const G = BB.ghost, gfi = frameAtTime(G.D, Math.min(BB.tc, G.D.t[G.D.n - 1] - G.D.t[0])), GP = posesAt(G.D, gfi);
+    if (GP){ const off = ghostOffset(); drawSkeleton(K, GP.map(p => [p[0] + off[0], p[1] - G.D.floorY + fl, p[2] + off[2]]), { ghost:true }); }
+  }
+  if (!P){ c.font = `${14*Dp}px "IBM Plex Sans Arabic", sans-serif`; c.fillStyle = '#8fb3c4'; c.textAlign = 'center'; c.fillText('الشخص ما كان ظاهر في هاللحظة', BB.W/2, BB.H/2); return; }
+  // shadow on the floor
+  c.lineCap = 'round';
+  for (const [a, b] of BONES){ const A = P3([P[a][0], fl, P[a][2]], K), B = P3([P[b][0], fl, P[b][2]], K); if (!A || !B) continue; c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = Math.max(2, .06*K.f/A[2]); c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(B[0], B[1]); c.stroke(); }
+  // balance: support polygon + plumb line
+  if (m){
+    const poly = m.poly.map(([x, z]) => P3([x, fl + .002, z], K)).filter(Boolean);
+    if (poly.length >= 3){ c.beginPath(); poly.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.closePath(); c.fillStyle = m.inside ? 'rgba(182,255,61,.18)' : 'rgba(255,77,94,.2)'; c.fill(); c.strokeStyle = m.inside ? '#b6ff3d' : '#ff4d5e'; c.lineWidth = 1.5*Dp; c.stroke(); }
+  }
+  drawSkeleton(K, P, { m });
+  // centre of mass
+  if (m){
+    const cm = centerOfMass(P), A = P3(cm, K), B = P3([cm[0], fl, cm[2]], K);
+    if (A && B){ c.setLineDash([4*Dp, 4*Dp]); c.strokeStyle = 'rgba(255,210,61,.8)'; c.lineWidth = 1.5*Dp; c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(B[0], B[1]); c.stroke(); c.setLineDash([]);
+      const r = Math.max(4*Dp, .045*K.f/A[2]); c.fillStyle = COL.com; c.beginPath(); c.moveTo(A[0], A[1] - r); c.lineTo(A[0] + r, A[1]); c.lineTo(A[0], A[1] + r); c.lineTo(A[0] - r, A[1]); c.closePath(); c.fill(); }
+  }
+  // selected joint: velocity arrow + tag
+  const sj = BB.sel, sp = sj === 'com' ? centerOfMass(P) : P[sj];
+  const S = P3(sp, K);
+  if (S){
+    const ring = Math.max(10*Dp, .07*K.f/S[2]) + 2*Dp*Math.sin(performance.now()/180);
+    c.strokeStyle = '#fff'; c.lineWidth = 2*Dp; c.beginPath(); c.arc(S[0], S[1], ring, 0, Math.PI*2); c.stroke();
+    const ia = Math.round(fi), vi = sj === 'com' ? [D.comV[ia*3], D.comV[ia*3 + 1], D.comV[ia*3 + 2]] : [D.vel[(ia*NJ + sj)*3], D.vel[(ia*NJ + sj)*3 + 1], D.vel[(ia*NJ + sj)*3 + 2]];
+    if (Number.isFinite(vi[0]) && v3.len(vi) > .05){ const E = P3(v3.add(sp, v3.mul(vi, .18)), K); if (E){ c.setLineDash([]); arrow3(c, S[0], S[1], E[0], E[1], '#ffd23d', 3*Dp); } }
+    const spdv = v3.len(vi);
+    tag(c, `${JOINT_NAMES[sj]} • ${fx(spdv, 2)} م/ث`, S[0], S[1] - ring - 14*Dp, '#ffffff', Dp);
+  }
+  // angle labels
+  if (BB.labels && m && BB.pitch < 1.15){
+    for (const [j, k] of [[13, 'elL'], [14, 'elR'], [25, 'knL'], [26, 'knR'], [11, 'shL'], [12, 'shR'], [23, 'hipL'], [24, 'hipR']]){
+      if (j === BB.sel) continue;
+      const q = P3(P[j], K); if (!q || !Number.isFinite(m.A[k])) continue;
+      tag(c, `${m.A[k].toFixed(0)}°`, q[0] + (SIDE(j) === 1 ? 1 : -1)*22*Dp, q[1], sideCol(j), Dp, 10);
+    }
+  }
+}
+function arrow3(c, x0, y0, x1, y1, col, w){
+  const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 6) return;
+  const hl = Math.min(12*BB.Dp, L*.4);
+  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - Math.cos(a)*hl*.6, y1 - Math.sin(a)*hl*.6); c.stroke();
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - Math.cos(a - .45)*hl, y1 - Math.sin(a - .45)*hl); c.lineTo(x1 - Math.cos(a + .45)*hl, y1 - Math.sin(a + .45)*hl); c.closePath(); c.fill();
+}
+let TAGS = [];
+function tag(c, text, x, y, col, Dp, size = 11){
+  c.font = `600 ${size*Dp}px "IBM Plex Sans Arabic", system-ui, sans-serif`;
+  const w = c.measureText(text).width + 10*Dp, h = (size + 7)*Dp;
+  x = clamp(x, w/2 + 2, BB.W - w/2 - 2); y = clamp(y, h/2 + 2, BB.H - h/2 - 2);
+  const box = [x - w/2 - 2*Dp, y - h/2 - 2*Dp, x + w/2 + 2*Dp, y + h/2 + 2*Dp];
+  if (TAGS.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) return false;
+  TAGS.push(box);
+  c.fillStyle = 'rgba(3,10,16,.85)'; c.strokeStyle = col; c.lineWidth = 1*Dp;
+  const rx = x - w/2, ry = y - h/2, r = h/2;
+  c.beginPath(); c.moveTo(rx + r, ry); c.lineTo(rx + w - r, ry); c.arc(rx + w - r, ry + r, r, -Math.PI/2, Math.PI/2); c.lineTo(rx + r, ry + h); c.arc(rx + r, ry + r, r, Math.PI/2, Math.PI*1.5); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x, y + .5*Dp);
+  return true;
+}
+function drawSkeleton(K, P, o = {}){
+  const c = x3, Dp = BB.Dp, items = [];
+  const ghost = !!o.ghost;
+  for (const [a, b] of BONES){
+    const A = P3(P[a], K), B = P3(P[b], K); if (!A || !B) continue;
+    const col = ghost ? COL.ghost : (SIDE(a) === SIDE(b) ? sideCol(a) : COL.C);
+    items.push({ z:(A[2] + B[2])/2, f:() => {
+      const w = Math.max(1.6*Dp, .05*K.f/((A[2] + B[2])/2));
+      c.lineCap = 'round';
+      if (!ghost){ c.strokeStyle = col + '30'; c.lineWidth = w*2.8; c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(B[0], B[1]); c.stroke(); }
+      c.strokeStyle = ghost ? 'rgba(255,176,32,.6)' : col; c.lineWidth = w; c.beginPath(); c.moveTo(A[0], A[1]); c.lineTo(B[0], B[1]); c.stroke();
+    } });
+  }
+  // torso plate
+  const tq = [11, 12, 24, 23].map(j => P3(P[j], K));
+  if (tq.every(Boolean)) items.push({ z:(tq[0][2] + tq[1][2] + tq[2][2] + tq[3][2])/4 + .02, f:() => { c.beginPath(); tq.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.closePath(); c.fillStyle = ghost ? 'rgba(255,176,32,.08)' : 'rgba(120,220,255,.1)'; c.fill(); } });
+  // head
+  const hc = v3.mid(P[7], P[8]), H = P3(hc, K);
+  if (H){ const hr = .11*K.f/H[2]; items.push({ z:H[2], f:() => {
+    const g = c.createRadialGradient(H[0] - hr*.3, H[1] - hr*.3, hr*.1, H[0], H[1], hr);
+    g.addColorStop(0, ghost ? 'rgba(255,176,32,.25)' : 'rgba(230,251,255,.35)'); g.addColorStop(1, ghost ? 'rgba(255,176,32,.05)' : 'rgba(61,245,255,.06)');
+    c.fillStyle = g; c.beginPath(); c.arc(H[0], H[1], hr, 0, Math.PI*2); c.fill(); c.strokeStyle = ghost ? 'rgba(255,176,32,.6)' : COL.C; c.lineWidth = 1.5*Dp; c.stroke();
+    const N = P3(v3.add(hc, v3.mul(v3.norm(v3.sub(P[0], hc)), .16)), K); if (N && !ghost){ c.strokeStyle = '#ffd23d'; c.lineWidth = 2*Dp; c.beginPath(); c.moveTo(H[0], H[1]); c.lineTo(N[0], N[1]); c.stroke(); }
+  } }); }
+  // joints
+  if (!ghost) for (const j of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 31, 32]){
+    const q = P3(P[j], K); if (!q) continue;
+    items.push({ z:q[2] - .01, f:() => {
+      const r = Math.max(3*Dp, .032*K.f/q[2]), col = sideCol(j);
+      const g = c.createRadialGradient(q[0] - r*.35, q[1] - r*.35, r*.1, q[0], q[1], r);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(.45, col); g.addColorStop(1, col + '44');
+      c.fillStyle = g; c.beginPath(); c.arc(q[0], q[1], r, 0, Math.PI*2); c.fill();
+    } });
+  }
+  items.sort((a, b) => b.z - a.z).forEach(it => it.f());
+}
+function ghostOffset(){
+  const G = BB.ghost, D = BB.D; if (!G) return [0, 0, 0];
+  const iA = nearestValid(D, 0), iB = nearestValid(G.D, 0);
+  const off = [D.comS[iA*3] - G.D.comS[iB*3], 0, D.comS[iA*3 + 2] - G.D.comS[iB*3 + 2]];
+  if (G.mode === 'side'){ const K = camK(); off[0] += K.rt[0]*.9; off[2] += K.rt[2]*.9; }
+  return off;
+}
+
+/* ---------- 3-D touch controls ---------- */
+{
+  const ptrs = new Map(); let pinch0 = 0, dist0 = 0, tapStart = null, lastTap = 0;
+  c3.addEventListener('pointerdown', e => { c3.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size === 1) tapStart = { x:e.clientX, y:e.clientY, t:performance.now() }; if (ptrs.size === 2){ const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); dist0 = BB.dist; tapStart = null; } });
+  c3.addEventListener('pointermove', e => {
+    if (!ptrs.has(e.pointerId)) return;
+    const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (ptrs.size === 1){
+      const dx = e.clientX - prev[0], dy = e.clientY - prev[1];
+      if (tapStart && Math.hypot(e.clientX - tapStart.x, e.clientY - tapStart.y) > 8) tapStart = null;
+      if (!tapStart){ BB.want = null; if (BB.view !== 'free'){ BB.view = 'free'; document.querySelectorAll('#views button').forEach(b => b.classList.remove('on')); } BB.yaw -= dx*.009; BB.pitch = clamp(BB.pitch + dy*.007, -.15, 1.5); }
+    } else if (ptrs.size === 2){ const [a, b] = [...ptrs.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch0 > 0){ BB.want = null; BB.dist = clamp(dist0*pinch0/d, .9, 14); } }
+  });
+  const up = e => {
+    ptrs.delete(e.pointerId);
+    if (tapStart && ptrs.size === 0 && performance.now() - tapStart.t < 350){
+      const now = performance.now();
+      if (now - lastTap < 300){ setView('cam'); lastTap = 0; } else { lastTap = now; pickJoint(e.clientX, e.clientY); }
+    }
+    if (ptrs.size < 2) pinch0 = 0;
+    tapStart = null;
+  };
+  c3.addEventListener('pointerup', up); c3.addEventListener('pointercancel', up);
+  c3.addEventListener('wheel', e => { e.preventDefault(); BB.want = null; BB.dist = clamp(BB.dist*Math.exp(e.deltaY*.001), .9, 14); }, { passive:false });
+}
+function pickJoint(cx, cy){
+  const D = BB.D, P = posesAt(D, frameAtTime(D, BB.tc)); if (!P) return;
+  const r = c3.getBoundingClientRect(), x = (cx - r.left)*BB.Dp, y = (cy - r.top)*BB.Dp, K = camK();
+  let best = null, bd = 40*BB.Dp;
+  for (const j of [...SEL_JOINTS, 'com']){ const q = P3(j === 'com' ? centerOfMass(P) : P[j], K); if (!q) continue; const d = Math.hypot(q[0] - x, q[1] - y); if (d < bd){ bd = d; best = j; } }
+  if (best != null){ selectJoint(best); activePane('joint'); }
+}
+
+/* ---------- timeline ---------- */
+function drawTimeline(){
+  const D = BB.D, c = xtl, W = tlc.width, H = tlc.height, Dp = BB.Dp; if (!D || !W) return;
+  c.clearRect(0, 0, W, H);
+  const pad = 10*Dp, X = tt => pad + (tt/(BB.dur || 1))*(W - 2*pad);
+  // activity bar
+  for (const g of D.segs){
+    const a = X(g.t0 - BB.T0), b = X(Math.max(g.t1 - BB.T0, g.t0 - BB.T0 + .03));
+    c.fillStyle = ACTS[g.a].c + 'bb'; c.fillRect(a, 6*Dp, Math.max(1.5*Dp, b - a), 16*Dp);
+    if (b - a > 46*Dp){ c.font = `600 ${10*Dp}px "IBM Plex Sans Arabic", sans-serif`; c.fillStyle = '#021'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(`${ACTS[g.a].i} ${ACTS[g.a].n}`, (a + b)/2, 14*Dp); }
+  }
+  // events
+  for (const e of D.events){ const x = X(e.t - BB.T0); c.fillStyle = '#ffffffcc'; c.beginPath(); c.moveTo(x, 25*Dp); c.lineTo(x - 3.5*Dp, 31*Dp); c.lineTo(x + 3.5*Dp, 31*Dp); c.closePath(); c.fill(); }
+  // ticks
+  c.fillStyle = '#5f8a9c'; c.font = `${9*Dp}px "JetBrains Mono", monospace`; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  const stp = BB.dur > 30 ? 5 : BB.dur > 12 ? 2 : 1;
+  for (let s = 0; s <= BB.dur + 1e-6; s += stp){ const x = X(s); c.fillRect(x - .5*Dp, 34*Dp, 1*Dp, 4*Dp); c.textAlign = s === 0 ? 'left' : 'center'; c.fillText(s + 's', s === 0 ? x - 2*Dp : x, H - 2*Dp); }
+  // ghost duration
+  if (BB.ghost){ const gd = BB.ghost.D.t[BB.ghost.D.n - 1] - BB.ghost.D.t[0]; c.fillStyle = 'rgba(255,176,32,.7)'; c.fillRect(pad, 2*Dp, Math.min(W - 2*pad, X(gd) - pad), 2*Dp); }
+  // playhead
+  const x = X(BB.tc); c.fillStyle = '#3df5ff'; c.shadowColor = '#3df5ff'; c.shadowBlur = 8*Dp; c.fillRect(x - 1*Dp, 0, 2*Dp, H); c.shadowBlur = 0;
+  c.beginPath(); c.arc(x, 4*Dp, 4*Dp, 0, Math.PI*2); c.fill();
+}
+{
+  let drag = false;
+  const seek = e => { const r = tlc.getBoundingClientRect(), pad = 10, k = clamp((e.clientX - r.left - pad)/(r.width - 2*pad), 0, 1); BB.tc = k*BB.dur; BB.playing = false; refreshUI(true); };
+  tlc.addEventListener('pointerdown', e => { drag = true; tlc.setPointerCapture(e.pointerId); seek(e); });
+  tlc.addEventListener('pointermove', e => { if (drag) seek(e); });
+  tlc.addEventListener('pointerup', () => { drag = false; }); tlc.addEventListener('pointercancel', () => { drag = false; });
+}
+function stepFrame(d){
+  const D = BB.D; BB.playing = false;
+  let i = Math.round(frameAtTime(D, BB.tc)) + d; i = clamp(i, 0, D.n - 1);
+  BB.tc = D.t[i] - BB.T0; refreshUI(true);
+}
+$('#prevF').onclick = () => stepFrame(-1);
+$('#nextF').onclick = () => stepFrame(1);
+$('#play').onclick = () => { if (!BB.playing && BB.tc >= BB.dur - 1e-3) BB.tc = 0; BB.playing = !BB.playing; refreshUI(true); };
+const SPEEDS = [1, .5, .25, .1, .05];
+$('#spd').onclick = () => { BB.speed = SPEEDS[(SPEEDS.indexOf(BB.speed) + 1) % SPEEDS.length]; $('#spd').textContent = '×' + BB.speed; };
+$('#lbl').onclick = () => { BB.labels = !BB.labels; $('#lbl').classList.toggle('on', BB.labels); };
+$('#bbClose').onclick = closeBB;
+pipC.onclick = () => pipC.classList.toggle('big');
+
+/* ---------- PIP: original footage at the same millisecond ---------- */
+function drawPip(){
+  const rec = BB.rec; if (!rec || !rec.thumbs || pipC.style.display === 'none') return;
+  const i = Math.round(frameAtTime(BB.D, BB.tc));
+  let k = -1; for (let d = 0; d < 6; d++){ if (rec.thumbs[i - d]){ k = i - d; break; } if (rec.thumbs[i + d]){ k = i + d; break; } }
+  if (k < 0) return;
+  const bm = BB.bitmaps.get(k);
+  if (!bm){
+    if (!BB.pending.has(k) && typeof createImageBitmap === 'function'){
+      BB.pending.add(k);
+      createImageBitmap(rec.thumbs[k]).then(b => { BB.bitmaps.set(k, b); BB.pending.delete(k); if (BB.bitmaps.size > 80){ const first = BB.bitmaps.keys().next().value; const ob = BB.bitmaps.get(first); ob && ob.close && ob.close(); BB.bitmaps.delete(first); } }).catch(() => BB.pending.delete(k));
+    }
+    return;
+  }
+  const w = Math.round(pipC.clientWidth*BB.Dp), h = Math.round(w*bm.height/bm.width);
+  if (pipC.width !== w || pipC.height !== h){ pipC.width = w; pipC.height = h; }
+  const c = xpip; c.save(); if (rec.front){ c.translate(w, 0); c.scale(-1, 1); }
+  c.drawImage(bm, 0, 0, w, h);
+  const base = i*NJ*3, im = rec.img, ok = Number.isFinite(im[base]);
   if (ok){
-    const f = kpFrom(lm, camOff); f.t = t;
-    ictx.drawImage(video, 0, 0, IW, IH); f.img = ictx.getImageData(0, 0, IW, IH).data; f.raw = lm.map(p => [p.x, p.y, p.visibility ?? 1]);
-    buf.push(f); if (buf.length > BUF_N) buf.shift();
+    c.lineCap = 'round';
+    for (const [a, b] of BONES){ if (im[base + a*3 + 2] < .45 || im[base + b*3 + 2] < .45) continue; c.strokeStyle = SIDE(a) === SIDE(b) ? sideCol(a) : COL.C; c.lineWidth = Math.max(1.5, w/90); c.beginPath(); c.moveTo(im[base + a*3]*w, im[base + a*3 + 1]*h); c.lineTo(im[base + b*3]*w, im[base + b*3 + 1]*h); c.stroke(); }
+    if (BB.sel !== 'com'){ const s = BB.sel; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(im[base + s*3]*w, im[base + s*3 + 1]*h, Math.max(4, w/22), 0, Math.PI*2); c.stroke(); }
   }
-  const p = curP();
-  if (!ok){
-    if (state === 'air' && t - lastAir < .4){ /* brief dropout in flight */ }
-    else if (state !== 'none'){ state = 'none'; base = null; readySpoken = false; }
-    setStatus(lm ? '🦶 خل الجسم كامل يبان… من الراس للرجول' : '🔍 وجّه الكاميرا على القافز');
-    liveH = null; render(t); hud(t); return;
-  }
-  const f = buf[buf.length - 1];
-  const F = Fs();
-  if (state === 'none'){ state = 'settle'; settleSince = t; base = null; }
-
-  if (state === 'settle'){
-    const win = buf.filter(q => t - q.t <= .6);
-    const bodyH = median(win.map(q => footLow(q).F - q.nose[1]));
-    const sH = std(win.map(hipY))/bodyH, sF = std(win.map(q => footLow(q).F))/bodyH;
-    settleDbg = `σh ${(sH*100).toFixed(1)}% σf ${(sF*100).toFixed(1)}%`;
-    const long = t - settleSince;
-    const lim = long < 2 ? 1 : long < 4 ? 1.8 : 3;   // relax progressively
-    const quiet = win.length >= 6 && win[0].t <= t - .35 && bodyH > 40 && sH < .015*lim && sF < .02*lim;
-    if (quiet || forceCal){
-      forceCal = false;
-      base = baseline(win); base.scale = (p.h/100)*.91/base.bodyH;
-      state = 'ready'; if (!readySpoken){ speak('جاهز. اقفز'); readySpoken = true; }
-      beep(880, .07); beep(1320, .1, .08);
-    }
-    else setStatus(long > 3 ? '🧍 وقف ثابت… (أو اضغط على الشاشة للمعايرة فوراً)' : '🧍 خلك ثابت… أعاير المقاسات', '');
-  }
-  if (state === 'ready'){
-    const th = Math.max(3, .035*base.bodyH);
-    if (F < base.floorY - th){ state = 'air'; lastAir = t; sessStart = t; beep(1600, .05); }
-    else {
-      setStatus('✅ جاهز! اقفز لفوق بأقصى قوتك', 'ready');
-      // slow drift re-baseline when standing still
-      const win = buf.filter(q => t - q.t <= .4);
-      if (win.length > 6 && std(win.map(hipY)) < .012*base.bodyH && Math.abs(median(win.map(q => footLow(q).F)) - base.floorY) > .01*base.bodyH){
-        const nb = baseline(win); base.floorY = nb.floorY; base.hipY = nb.hipY;
-      }
-      if (Math.abs(F - base.floorY) > .2*base.bodyH){ state = 'settle'; settleSince = t; }
-    }
-  }
-  if (state === 'air' || state === 'ground'){
-    const th = Math.max(3, .035*base.bodyH);
-    if (F < base.floorY - th){
-      if (state === 'ground'){ state = 'air'; beep(1600, .05); }
-      lastAir = t;
-      setStatus(`✈️ في الهواء  ${Math.round((t - (buf.find(q => q.t >= sessStart) || f).t)*1000)} ms`, 'air');
-      if (t - sessStart > 6) { state = 'settle'; settleSince = t; }
-    } else {
-      if (state === 'air'){ state = 'ground'; landT = t; beep(500, .08, 0, 'triangle'); }
-      setStatus('⏳ أحلل القفزة…', 'air');
-      if (t - landT > .7) finishSession(t);
-    }
-  }
-  liveH = base ? Math.max(0, (base.hipY - hipY(f))*base.scale*100) : null;
-  render(t); hud(t);
+  c.restore();
 }
 
-function finishSession(t){
-  const p = curP();
-  const frames = buf.filter(q => q.t >= sessStart - 1.8);
-  const out = analyzeSession(frames, base, p.w);
-  state = 'settle'; settleSince = t; readySpoken = true;
-  if (!out.jumps.length){ toast('ما قدرت أقيس القفزة. خل الرجول واضحة وجرب مرة ثانية'); return; }
-  const best = out.jumps.reduce((a, b) => b.hFlight > a.hFlight ? b : a);
-  const hcm = best.hFlight*100;
-  jumpNo++;
-  const isRec = hcm > (p.best || 0);
-  p.hist.push({ h:+hcm.toFixed(1), t:Date.now() }); if (p.hist.length > 30) p.hist.shift();
-  if (isRec) p.best = +hcm.toFixed(1);
-  saveP(); updWho();
-  $('#cLast').textContent = hcm.toFixed(1);
-  const R = { frames:frames.map(q => ({ ...q, img:new Uint8ClampedArray(q.img) })), out, best, hcm, isRec, p:{ ...p }, base:{ ...base }, iw:IW, ih:IH, vw, vh, mirror };
-  lastRes = R; $('#bLast').disabled = false;
-  // big reveal
-  $('#bigN').textContent = hcm.toFixed(1); $('#big').classList.add('on');
-  for (let i = 0; i < 5; i++) beep(523*Math.pow(1.26, i), .12, i*.08, 'triangle', .2);
-  speak(`${p.name}، قفزتك ${Math.round(hcm)} سنتيمتر${isRec ? '. رقم قياسي جديد!' : ''}`);
-  setTimeout(() => { $('#big').classList.remove('on'); showResults(R); }, 1700);
-}
+/* ---------- panels ---------- */
+let curPane = 'joint';
+function activePane(p){ curPane = p; BB.pane = p; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.p === p)); document.querySelectorAll('.pane').forEach(e => e.classList.toggle('on', e.id === 'p-' + p)); refreshUI(true); }
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => activePane(b.dataset.p));
+function card(k, v, u, s, cls){ if (typeof v === 'string' && /[\u0600-\u06FF]/.test(v) && !/^<span/.test(v)) v = `<span>${v}</span>`; return `<div class="card ${cls || ''}"><div class="k">${k}</div><div class="v">${v}${u ? ` <small>${u}</small>` : ''}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`; }
 
-/* ---------- live rendering ---------- */
-const CON = [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[27,31],[28,30],[30,32],[28,32]];
-function txt(s, x, y, col, size = 12, align = 'center'){ ctx.font = `700 ${size*DPR}px "IBM Plex Sans Arabic", sans-serif`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.lineWidth = 3*DPR; ctx.strokeStyle = 'rgba(0,0,0,.8)'; ctx.strokeText(s, x, y); ctx.fillStyle = col; ctx.fillText(s, x, y); }
-function render(t){
-  ctx.save(); if (mirror){ ctx.translate(W, 0); ctx.scale(-1, 1); } ctx.drawImage(video, ox, oy, vw*sc, vh*sc); ctx.restore();
-  ctx.fillStyle = 'rgba(20,6,0,.18)'; ctx.fillRect(0, 0, W, H);
-  if (base){
-    const fy = SY(base.floorY + camOff.y);
-    ctx.setLineDash([10*DPR, 8*DPR]); ctx.strokeStyle = '#ff6b2ccc'; ctx.lineWidth = 2*DPR; ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(W, fy); ctx.stroke(); ctx.setLineDash([]);
-    txt('الأرض', W - 10*DPR, fy - 12*DPR, '#ff9b6b', 11, 'right');
-    const hy = SY(base.hipY + camOff.y);
-    ctx.strokeStyle = '#ffffff44'; ctx.lineWidth = 1*DPR; ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(W, hy); ctx.stroke();
-    // height ruler (every 10 cm above hip baseline)
-    for (let cm = 10; cm <= 80; cm += 10){
-      const y = SY(base.hipY + camOff.y - cm/100/base.scale); if (y < 120*DPR) break;
-      ctx.strokeStyle = '#ff6b2c55'; ctx.beginPath(); ctx.moveTo(W - 34*DPR, y); ctx.lineTo(W - 18*DPR, y); ctx.stroke();
-      txt(String(cm), W - 42*DPR, y, '#ffb48f', 9.5, 'right');
-    }
+function seriesFor(D, j){
+  const n = D.n, sp = new Float64Array(n).fill(NaN), ang = new Float64Array(n).fill(NaN), h = new Float64Array(n).fill(NaN), key = j === 'com' ? null : JOINT_ANGLE[j];
+  for (let q = 0; q < n; q++){
+    if (!D.ok[q]) continue;
+    sp[q] = j === 'com' ? Math.hypot(D.comV[q*3], D.comV[q*3 + 1], D.comV[q*3 + 2]) : D.spd[q*NJ + j];
+    if (key && D.M[q]) ang[q] = D.M[q].A[key];
+    h[q] = (j === 'com' ? D.comS[q*3 + 1] : D.pos[(q*NJ + j)*3 + 1]) - D.floorY;
   }
-  if (rawLm){
-    const col = state === 'air' ? '#3df5ff' : state === 'ready' ? '#b6ff3d' : '#ff6b2c';
-    ctx.lineCap = 'round';
-    for (const pass of [0, 1]){
-      ctx.strokeStyle = pass ? col : col + '40'; ctx.lineWidth = (pass ? 3 : 10)*DPR; ctx.beginPath();
-      for (const [a, b] of CON){ const A = rawLm[a], B = rawLm[b]; if ((A.visibility ?? 1) < .4 || (B.visibility ?? 1) < .4) continue; ctx.moveTo(SX(A.x*vw), SY(A.y*vh)); ctx.lineTo(SX(B.x*vw), SY(B.y*vh)); }
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#fff';
-    for (const i of [0,11,12,13,14,15,16,23,24,25,26,27,28,29,30,31,32]){ const q = rawLm[i]; if ((q.visibility ?? 1) < .4) continue; ctx.beginPath(); ctx.arc(SX(q.x*vw), SY(q.y*vh), 3.2*DPR, 0, Math.PI*2); ctx.fill(); }
-    // knee angles live
-    const kA = (h, k, a) => angle3([rawLm[h].x*vw, rawLm[h].y*vh], [rawLm[k].x*vw, rawLm[k].y*vh], [rawLm[a].x*vw, rawLm[a].y*vh]);
-    if (rawLm[25].visibility > .5) txt(`${Math.round(kA(23, 25, 27))}°`, SX(rawLm[25].x*vw) + (mirror ? 1 : -1)*22*DPR, SY(rawLm[25].y*vh), '#ffd23d', 11);
-    if (rawLm[26].visibility > .5) txt(`${Math.round(kA(24, 26, 28))}°`, SX(rawLm[26].x*vw) - (mirror ? 1 : -1)*22*DPR, SY(rawLm[26].y*vh), '#ffd23d', 11);
-    // hip marker + live height
-    if (base && liveH != null){
-      const hx = SX((rawLm[23].x + rawLm[24].x)/2*vw), hy = SY((rawLm[23].y + rawLm[24].y)/2*vh);
-      ctx.strokeStyle = col; ctx.lineWidth = 2*DPR; ctx.beginPath(); ctx.arc(hx, hy, 9*DPR, 0, Math.PI*2); ctx.stroke();
-      if (state === 'air' || liveH > 3) txt(`↑ ${liveH.toFixed(0)} سم`, hx + (mirror ? -1 : 1)*48*DPR, hy, '#fff', 14);
-    }
+  let mi = -1; for (let q = 0; q < n; q++) if (Number.isFinite(sp[q]) && (mi < 0 || sp[q] > sp[mi])) mi = q;
+  return { sp, ang, h, key, maxI:mi, angMin:percentile(ang, .02), angMax:percentile(ang, .98) };
+}
+function selectJoint(j){
+  BB.sel = j; BB.selSeries = seriesFor(BB.D, j);
+  if (BB.ghost) BB.ghost.series = seriesFor(BB.ghost.D, j);
+  const chips = [...SEL_JOINTS, 'com'].map(q => `<button data-j="${q}" class="${q === j ? 'on' : ''}">${JOINT_NAMES[q]}</button>`).join('');
+  const S = BB.selSeries;
+  $('#p-joint').innerHTML = `<div class="jchips">${chips}</div>
+    <div class="cards" id="jCards"></div>
+    <div class="gt"><span>السرعة م/ث</span><small>${BB.ghost ? '🟠 = التسجيل المقارن • ' : ''}اضغط على الرسم للانتقال</small></div><canvas class="plot" id="gSp"></canvas>
+    ${S.key ? `<div class="gt"><span>زاوية ${ANGLE_NAMES[S.key]} °</span><small>المدى ${ISO(fx(S.angMin, 0) + '° → ' + fx(S.angMax, 0) + '°')}</small></div><canvas class="plot" id="gAng"></canvas>` : ''}
+    <div class="gt"><span>الارتفاع عن الأرض سم</span></div><canvas class="plot" id="gH"></canvas>
+    <p class="note">💡 اضغط على أي مفصل في المجسم ثلاثي الأبعاد عشان تختاره. السهم الأصفر يوضح اتجاه حركته وسرعتها في هاللحظة.</p>`;
+  $('#p-joint').querySelectorAll('.jchips button').forEach(b => b.onclick = () => { const v = b.dataset.j; selectJoint(v === 'com' ? 'com' : +v); });
+  const on = $('#p-joint').querySelector('.jchips button.on'); if (on) on.scrollIntoView({ inline:'center', block:'nearest' });
+  for (const id of ['gSp', 'gAng', 'gH']){ const cv = $('#' + id); if (!cv) continue; cv.onpointerdown = e => graphSeek(cv, e); cv.onpointermove = e => { if (e.buttons) graphSeek(cv, e); }; }
+  refreshUI(true);
+}
+function graphSeek(cv, e){ const r = cv.getBoundingClientRect(), L = 34, R = 8; const k = clamp((e.clientX - r.left - L)/(r.width - L - R), 0, 1); BB.tc = k*BB.dur; BB.playing = false; refreshUI(true); }
+function plotTS(cv, series, o = {}){
+  if (!cv) return;
+  const dp = dprOf(), w = cv.clientWidth || 320, h = o.h || 110;
+  if (cv.width !== Math.round(w*dp) || cv.height !== Math.round(h*dp)){ cv.width = Math.round(w*dp); cv.height = Math.round(h*dp); cv.style.height = h + 'px'; }
+  const c = cv.getContext('2d'); c.setTransform(dp, 0, 0, dp, 0, 0); c.clearRect(0, 0, w, h);
+  let y0 = Infinity, y1 = -Infinity;
+  for (const s of series) for (let q = 0; q < s.y.length; q++){ const v = s.y[q]; if (Number.isFinite(v)){ y0 = Math.min(y0, v); y1 = Math.max(y1, v); } }
+  if (!Number.isFinite(y0)) return;
+  if (o.zero) y0 = Math.min(0, y0); if (y1 - y0 < 1e-6) y1 = y0 + 1; const pp = (y1 - y0)*.1; y0 -= o.zero ? 0 : pp; y1 += pp;
+  const L = 34, R = 8, T = 8, B = 16, PW = w - L - R, PH = h - T - B, dur = BB.dur || 1;
+  const X = tt => L + tt/dur*PW, Y = v => T + PH - (v - y0)/(y1 - y0)*PH;
+  // activity background
+  for (const g of BB.D.segs){ c.fillStyle = ACTS[g.a].c + '14'; c.fillRect(X(g.t0 - BB.T0), T, Math.max(1, X(g.t1 - BB.T0) - X(g.t0 - BB.T0)), PH); }
+  c.strokeStyle = 'rgba(255,255,255,.07)'; c.lineWidth = 1; c.fillStyle = '#5f8a9c'; c.font = '9px "JetBrains Mono", monospace';
+  for (let i = 0; i <= 3; i++){ const v = y0 + (y1 - y0)*i/3, y = Y(v); c.beginPath(); c.moveTo(L, y); c.lineTo(L + PW, y); c.stroke(); c.textAlign = 'right'; c.textBaseline = 'middle'; c.fillText(Math.abs(y1 - y0) < 3 ? v.toFixed(1) : v.toFixed(0), L - 4, y); }
+  for (let s = 0; s <= dur; s += dur > 12 ? 2 : 1){ c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText(s + 's', X(s), T + PH + 3); }
+  for (const s of series){
+    c.strokeStyle = s.col; c.lineWidth = s.w || 1.8; c.beginPath(); let st = false;
+    for (let q = 0; q < s.y.length; q++){ const v = s.y[q]; if (!Number.isFinite(v)){ st = false; continue; } const x = X(s.t[q]), y = Y(v); if (x > L + PW + 1) break; st ? c.lineTo(x, y) : c.moveTo(x, y); st = true; }
+    c.stroke();
   }
+  if (o.mark != null && Number.isFinite(o.markV)){ c.fillStyle = '#ffd23d'; c.beginPath(); c.arc(X(o.mark), Y(o.markV), 3.5, 0, Math.PI*2); c.fill(); }
+  const x = X(BB.tc); c.fillStyle = '#3df5ff'; c.fillRect(x - .75, T, 1.5, PH);
 }
-let lastHud = 0;
-function hud(t){
-  if (t - lastHud < .1) return; lastHud = t;
-  $('#cLive').textContent = liveH != null ? liveH.toFixed(0) : '—';
-  $('#tele').textContent = `${vw}x${vh} · ${fps} FPS · POSE 33KP · STAB ${stabN}p (${camOff.x.toFixed(0)},${camOff.y.toFixed(0)}) · SCALE ${base ? (base.scale*1000).toFixed(2) + 'mm/px' : '—'} · ${state.toUpperCase()} ${state === 'settle' ? settleDbg : ''}`;
+function relT(D){ const a = new Float64Array(D.n); for (let q = 0; q < D.n; q++) a[q] = D.t[q] - D.t[0]; return a; }
+
+function updateJointPane(){
+  const D = BB.D, S = BB.selSeries; if (!S) return;
+  const i = nearestValid(D, frameAtTime(D, BB.tc)), j = BB.sel;
+  const tt = D._rt || (D._rt = relT(D));
+  if (i >= 0){
+    const v = S.sp[i], ac = j === 'com' ? NaN : D.acc[i*NJ + j], hh = S.h[i]*100;
+    const pos = j === 'com' ? [D.comS[i*3], D.comS[i*3 + 1], D.comS[i*3 + 2]] : [D.pos[(i*NJ + j)*3], D.pos[(i*NJ + j)*3 + 1], D.pos[(i*NJ + j)*3 + 2]];
+    const dCam = Math.hypot(pos[0], pos[1], pos[2]);
+    let html = '';
+    if (S.key) html += card(ANGLE_NAMES[S.key], fx(S.ang[i], 1), '°', `المدى في التسجيل: ${ISO(fx(S.angMin, 0) + '° – ' + fx(S.angMax, 0) + '°')}`, 'hl');
+    html += card('السرعة', fx(v, 2), 'م/ث', `${fx(v*3.6, 1)} كم/س`, S.key ? '' : 'hl');
+    html += card('التسارع', fx(ac, 1), 'م/ث²', Number.isFinite(ac) ? `${fx(ac/9.81, 2)} ضعف الجاذبية` : '');
+    html += card('الارتفاع عن الأرض', fx(hh, 1), 'سم', `البعد عن الكاميرا ${fx(dCam, 2)} م`);
+    if (S.maxI >= 0) html += card('أعلى سرعة لهالمفصل', fx(S.sp[S.maxI], 2), 'م/ث', `عند الثانية ${fx(tt[S.maxI], 3)}`);
+    $('#jCards').innerHTML = html;
+  }
+  const ser = [{ t:tt, y:S.sp, col:'#3df5ff', w:2 }], G = BB.ghost && BB.ghost.mode !== 'off' ? BB.ghost : null;
+  if (G && G.series){ const gt = G.D._rt || (G.D._rt = relT(G.D)); ser.unshift({ t:gt, y:G.series.sp, col:'rgba(255,176,32,.75)', w:1.5 }); }
+  plotTS($('#gSp'), ser, { zero:true, mark:S.maxI >= 0 ? tt[S.maxI] : null, markV:S.maxI >= 0 ? S.sp[S.maxI] : NaN });
+  if (S.key){ const sa = [{ t:tt, y:S.ang, col:sideCol(j), w:2 }]; if (G && G.series){ sa.unshift({ t:G.D._rt, y:G.series.ang, col:'rgba(255,176,32,.75)', w:1.5 }); } plotTS($('#gAng'), sa); }
+  const hs = Array.from(S.h, v => v*100); plotTS($('#gH'), [{ t:tt, y:hs, col:'#b6ff3d', w:2 }], { zero:true });
 }
 
-/* ---------- loop ---------- */
-let fpsN = 0, fpsT = performance.now(), lastMT = -1;
-function stat(){ fpsN++; const n = performance.now(); if (n - fpsT > 1000){ fps = Math.round(fpsN*1000/(n - fpsT)); fpsN = 0; fpsT = n; } }
-const paused = () => $('#res').classList.contains('open');
-function loopV(now, meta){ video.requestVideoFrameCallback(loopV); if (paused()) return; stat(); try{ onFrame(meta.mediaTime); }catch(e){ console.error(e); } }
-function loopR(){ requestAnimationFrame(loopR); if (paused() || video.currentTime === lastMT) return; lastMT = video.currentTime; stat(); try{ onFrame(performance.now()/1000); }catch(e){ console.error(e); } }
-
-/* ---------- results ---------- */
-const LEVELS = [[0,'مبتدئ'],[15,'مقبول'],[25,'متوسط'],[35,'جيد'],[45,'ممتاز'],[55,'رياضي'],[65,'محترف'],[75,'نخبة عالمية']];
-const level = h => { let l = LEVELS[0][1]; for (const [m, n] of LEVELS) if (h >= m) l = n; return l; };
-const f1 = (v, d = 1) => (v == null || !isFinite(v)) ? '—' : v.toFixed(d);
-function card(k, v, u, s, cls){ return `<div class="card ${cls || ''}"><div class="k">${k}</div><div class="v">${v} <small>${u || ''}</small></div>${s ? `<div class="s">${s}</div>` : ''}</div>`; }
-let curR = null;
-function showResults(R){
-  curR = R;
-  const j = R.best, p = R.p, m = p.w, hcm = R.hcm;
-  $('#resTitle').textContent = `${p.name} • القفزة #${jumpNo}`;
-  const agree = j.hDisp > 0 ? 100 - Math.abs(j.hDisp - j.hFlight)/j.hFlight*100 : null;
-  const bw = m*G0;
-  const absorbCls = j.absorb == null ? '' : j.absorb < 20 ? 'bad' : j.absorb < 35 ? 'warn' : 'good';
-  const absorbTxt = j.absorb == null ? 'ما انمسك الهبوط كامل' : j.absorb < 20 ? '⚠️ هبوط قاسي: اثنِ ركبك أكثر عشان تحمي مفاصلك' : j.absorb < 35 ? 'هبوط مقبول، ويقدر يكون أنعم' : '✅ هبوط ناعم يمتص الصدمة صح';
-  const valCls = j.valgus == null ? '' : j.valgus < .75 ? 'bad' : j.valgus < .9 ? 'warn' : 'good';
-  const valTxt = j.valgus == null ? 'يحتاج تصوير من الأمام' : j.valgus < .75 ? '⚠️ الركب تميل للداخل وقت الهبوط (خطر على الرباط الصليبي)' : j.valgus < .9 ? 'ميلان خفيف للداخل' : '✅ الركب على خط القدم';
-  const tot = j.tLoad + j.tPush + j.T + .4, pc = v => Math.max(4, v/tot*100);
-  let html = `<div class="hero">${R.isRec ? '<div class="rec">🏆 رقم قياسي جديد</div>' : ''}
-    <div class="lbl">ارتفاع القفزة العمودية</div>
-    <div class="val">${hcm.toFixed(1)}<small> cm</small></div>
-    <div class="lvl">${level(hcm)}</div>
-    <div class="meter"><i id="mI" style="left:0"></i></div>
-    <div class="mlabels"><span>0</span><span>20</span><span>40</span><span>60</span><span>80+</span></div>
-    <div class="cmp">متوسط البالغين تقريباً بين ٣٠ و٥٠ سم • لاعبي كرة السلة المحترفين حوالي ٧٠ سم من الثبات<br>🌙 نفس القفزة على القمر = <b>${(hcm*G0/1.62/100).toFixed(2)} متر</b></div></div>
-    <div class="sec">📏 القياس بطريقتين علميتين</div>
+function updateBodyPane(){
+  const D = BB.D, i = nearestValid(D, frameAtTime(D, BB.tc)), el = $('#p-body');
+  if (i < 0){ el.innerHTML = '<div class="empty">الشخص ما كان ظاهر في هاللحظة</div>'; return; }
+  const m = D.M[i], a = ACTS[D.act[i]] || ACTS.none, wr = Math.round(m.wR*100);
+  const acts = []; const k = m.act;
+  if (k.upR) acts.push('✋ رافع اليمين'); if (k.upL) acts.push('✋ رافع اليسار'); if (k.pointR) acts.push('👉 يأشر باليمين'); if (k.pointL) acts.push('👈 يأشر باليسار'); if (k.crossed) acts.push('🙅 مكتّف'); if (k.handFace) acts.push('🤔 يده عند وجهه');
+  const fc = Math.abs(m.facing) < 25 ? 'يواجه الكاميرا' : Math.abs(m.facing) > 150 ? 'معطي ظهره' : `ملتفت ${DG(Math.abs(m.facing))} ${m.facing > 0 ? 'يمين' : 'يسار'}`;
+  const vj = {}; for (const j of [0, 13, 14, 15, 16, 25, 26, 27, 28]) vj[j] = D.spd[i*NJ + j];
+  const en = energyLevel(D.energy[i]);
+  el.innerHTML = `
     <div class="cards">
-      ${card('طريقة زمن الطيران', f1(hcm), 'سم', `زمن الطيران ${Math.round(j.T*1000)} ms • h = g·t²/8`)}
-      ${card('طريقة إزاحة الحوض', f1(j.hDisp*100), 'سم', 'من تتبع مركز الجسم بالبكسل')}
-      ${agree != null ? card('تطابق الطريقتين', f1(Math.max(0, agree), 0), '%', agree > 85 ? 'القياسين متفقين ✅' : 'فرق بسبب ثني الرجول في الهواء أو زاوية التصوير', 'wide ' + (agree > 85 ? 'good' : 'warn')) : ''}
+      ${card('النشاط الحين', `<span style="color:${a.c}">${a.i} ${a.n}</span>`, '', `${fc}${acts.length ? ' • ' + acts.join(' • ') : ''}`, 'w hl')}
+      ${card('ميلان الجذع للأمام/الخلف', fx(m.sag, 1), '°', dirTxt(m.sag, 'للأمام', 'للخلف', 3))}
+      ${card('ميلان الجذع الجانبي', fx(m.lat, 1), '°', dirTxt(m.lat, 'لليمين', 'لليسار', 2))}
+      ${card('ميلان الكتفين', fx(m.shTilt, 1), '°', Math.abs(m.shTilt) < 2 ? 'متساوية' : `${m.shTilt > 0 ? 'الأيسر' : 'الأيمن'} أعلى`)}
+      ${card('ميلان الحوض', fx(m.pelTilt, 1), '°', Math.abs(m.pelTilt) < 2 ? 'مستوي' : `${m.pelTilt > 0 ? 'الأيسر' : 'الأيمن'} أعلى`)}
+      ${card('التفات الراس', fx(m.headYaw, 0), '°', Math.abs(m.headYaw) < 8 ? 'يطالع قدام' : (m.headYaw > 0 ? 'لليمين' : 'لليسار'))}
+      ${card('تقدّم الراس', fx(m.A.neck, 0), '°', m.A.neck > 20 ? 'الراس متقدم عن الجسم' : 'وضعية راس طبيعية')}
+      ${card('ارتفاع الحوض', fx(m.hipH*100, 0), 'سم', `سرعة الجسم ${fx(D.hSpd[i], 2)} م/ث`)}
+      ${card('مستوى النشاط', `<span style="color:${en[2]}">${en[1]}</span>`, '', `طاقة حركية ${fx(D.energy[i]*1000, 0)} ملي جول/كجم`)}
     </div>
-    <div class="sec">⚡ القوة والقدرة</div>
+    <div class="sec">⚖️ التوازن وتوزيع الوزن</div>
     <div class="cards">
-      ${card('سرعة الإقلاع', f1(j.vTO, 2), 'م/ث', `${f1(j.vTO*3.6)} كم/س لحظة ما تركت الأرض`)}
-      ${card('القدرة القصوى', f1(j.Psayers, 0), 'واط', `${f1(j.Psayers/m)} واط/كجم • معادلة Sayers`)}
-      ${card('متوسط قوة الدفع', f1(j.Favg, 0), 'نيوتن', j.Favg ? `${f1(j.Favg/bw, 2)} × وزن جسمك` : '')}
-      ${card('تسارع الدفع', f1(j.aPush, 1), 'م/ث²', j.aPush ? `${f1(j.aPush/G0, 1)} ضعف الجاذبية` : '')}
+      <div class="card w"><canvas id="balC" style="width:100%;height:150px;display:block"></canvas>
+        <div class="sym"><span>يسار ${PC(100 - wr)}</span><div class="b"><i style="width:${100 - wr}%"></i><i style="width:${wr}%"></i></div><span>يمين ${PC(wr)}</span></div>
+        <div class="s">${m.inside ? '✅ مركز الثقل داخل قاعدة الارتكاز (متوازن)' : '⚠️ مركز الثقل خارج قاعدة الارتكاز'} • إزاحة ${fx(Math.abs(m.balAnt*100), 1)} سم ${m.balAnt > 0 ? 'للأمام' : 'للخلف'} و${fx(Math.abs(m.balLat*100), 1)} سم ${m.balLat > 0 ? 'لليمين' : 'لليسار'}</div></div>
     </div>
-    <div class="sec">⏱️ مراحل القفزة</div>
-    <div class="phases">
-      <div style="width:${pc(j.tLoad)}%;background:#3df5ff">نزول</div>
-      <div style="width:${pc(j.tPush)}%;background:#ffd23d">دفع</div>
-      <div style="width:${pc(j.T)}%;background:#b6ff3d">طيران</div>
-      <div style="width:${pc(.4)}%;background:#ff4d5e">هبوط</div>
-    </div>
-    <div class="cards" style="margin-top:8px">
-      ${card('مرحلة النزول', f1(j.tLoad*1000, 0), 'ms', `نزلت ${f1(j.depth*100)} سم قبل القفز`)}
-      ${card('مرحلة الدفع', f1(j.tPush*1000, 0), 'ms', `دفعت جسمك ${f1(j.push*100)} سم لفوق`)}
-      ${card('أقصى ثني للركبة', f1(j.kneeMin, 0), '°', j.kneeMin < 90 ? 'نزول عميق' : j.kneeMin < 120 ? 'نزول متوسط (الأفضل غالباً)' : 'نزول قليل، جرب تنزل أكثر')}
-      ${card('زمن الطيران', f1(j.T*1000, 0), 'ms', 'من آخر رجل تركت الأرض لأول رجل لمستها')}
-    </div>
-    <div class="sec">🦵 تحليل الهبوط والإصابات</div>
+    <div class="sec">📐 زوايا كل المفاصل</div>
+    <table class="rom"><tr><th>المفصل</th><th>يسار</th><th>يمين</th></tr>
+      ${[['الكوع', 'elL', 'elR'], ['رفع الكتف', 'shL', 'shR'], ['الورك', 'hipL', 'hipR'], ['الركبة', 'knL', 'knR'], ['الكاحل', 'anL', 'anR']].map(([n, l, r]) => `<tr><td>${n}</td><td class="n" style="color:${COL.L}">${fx(m.A[l], 1)}°</td><td class="n" style="color:${COL.R}">${fx(m.A[r], 1)}°</td></tr>`).join('')}
+      <tr><td>سرعة اليد</td><td class="n" style="color:${COL.L}">${fx(vj[15], 2)}</td><td class="n" style="color:${COL.R}">${fx(vj[16], 2)}</td></tr>
+      <tr><td>سرعة القدم</td><td class="n" style="color:${COL.L}">${fx(vj[27], 2)}</td><td class="n" style="color:${COL.R}">${fx(vj[28], 2)}</td></tr>
+    </table>`;
+  drawBalance($('#balC'), m);
+}
+function drawBalance(cv, m){
+  if (!cv) return;
+  const dp = dprOf(), w = cv.clientWidth || 300, h = 150; cv.width = w*dp; cv.height = h*dp;
+  const c = cv.getContext('2d'); c.setTransform(dp, 0, 0, dp, 0, 0);
+  // local frame: forward = up on screen, person's right = screen right
+  const toL = p => { const d = [p[0] - m.bos[0], 0, p[1] - m.bos[2]]; return [v3.dot(d, m.r), v3.dot(d, m.f)]; };
+  const poly = m.poly.map(toL), com = toL([m.com[0], m.com[2]]);
+  let ext = .25; for (const p of [...poly, com]) ext = Math.max(ext, Math.abs(p[0]) + .08, Math.abs(p[1]) + .08);
+  const s = Math.min(w, h)/2/ext, cx = w/2, cy = h/2, X = p => cx + p[0]*s, Y = p => cy - p[1]*s;
+  c.strokeStyle = 'rgba(61,245,255,.12)'; c.lineWidth = 1;
+  for (let g = -1; g <= 1; g += .1){ c.beginPath(); c.moveTo(X([g, -ext]), 0); c.lineTo(X([g, -ext]), h); c.stroke(); c.beginPath(); c.moveTo(0, Y([0, g])); c.lineTo(w, Y([0, g])); c.stroke(); }
+  c.beginPath(); poly.forEach((p, i) => i ? c.lineTo(X(p), Y(p)) : c.moveTo(X(p), Y(p))); c.closePath(); c.fillStyle = m.inside ? 'rgba(182,255,61,.18)' : 'rgba(255,77,94,.2)'; c.fill(); c.strokeStyle = m.inside ? '#b6ff3d' : '#ff4d5e'; c.lineWidth = 2; c.stroke();
+  c.fillStyle = '#9dbccb'; c.font = '10px "IBM Plex Sans Arabic", sans-serif'; c.textAlign = 'center';
+  c.fillText('▲ الأمام', cx, 11); c.fillText('يمين ►', w - 26, cy + 4); c.fillText('◄ يسار', 26, cy + 4);
+  c.strokeStyle = '#ffd23d'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(cx, cy); c.lineTo(X(com), Y(com)); c.stroke();
+  c.fillStyle = '#ffd23d'; c.beginPath(); c.arc(X(com), Y(com), 6, 0, Math.PI*2); c.fill();
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(cx, cy, 2.5, 0, Math.PI*2); c.fill();
+}
+
+function buildSummary(){
+  const D = BB.D, S = D.summary, el = $('#p-sum');
+  const acts = Object.entries(S.actDur).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  const tot = acts.reduce((s, [, v]) => s + v, 0) || 1;
+  const fj = S.topJ, fv = S.fast[fj];
+  const hT = S.hands.L + S.hands.R, fT = S.feet.L + S.feet.R;
+  const romRows = [['الكوع', 'elL', 'elR'], ['رفع الكتف', 'shL', 'shR'], ['الورك', 'hipL', 'hipR'], ['الركبة', 'knL', 'knR'], ['الكاحل', 'anL', 'anR']];
+  const romBar = r => r ? `<div class="rbar"><i style="right:${(1 - r.max/180)*100}%;left:${r.min/180*100}%"></i></div>` : '';
+  const G = D.gait;
+  el.innerHTML = `
     <div class="cards">
-      ${card('امتصاص الصدمة', j.absorb == null ? '—' : f1(j.absorb, 0), j.absorb == null ? '' : '° ثني', absorbTxt, 'wide ' + absorbCls)}
-      ${card('محاذاة الركب', j.valgus == null ? '—' : f1(j.valgus*100, 0), j.valgus == null ? '' : '%', valTxt, 'wide ' + valCls)}
-      ${card('تزامن الإقلاع', j.asymTO == null ? '—' : f1(j.asymTO*1000, 0), 'ms', j.asymTO == null ? '' : j.asymTO > .03 ? 'رجل تركت الأرض قبل الثانية' : 'الرجلين مع بعض ✅', j.asymTO > .03 ? 'warn' : '')}
-      ${card('تزامن الهبوط', j.asymLD == null ? '—' : f1(j.asymLD*1000, 0), 'ms', j.asymLD == null ? '' : j.asymLD > .03 ? 'رجل نزلت قبل الثانية' : 'هبوط متوازن ✅', j.asymLD > .03 ? 'warn' : '')}
-    </div>`;
-  if (R.out.jumps.length > 1){
-    html += `<div class="sec">🔁 قفزات متتالية (${R.out.jumps.length})</div><div class="cards">` +
-      R.out.jumps.map((q, i) => card(`قفزة ${i + 1}`, f1(q.hFlight*100), 'سم', q.rsi ? `تلامس ${Math.round(q.contact*1000)} ms • RSI ${f1(q.rsi, 2)}` : 'الأولى')).join('') +
-      `</div><p class="explain">RSI (مؤشر القوة التفاعلية) = زمن الطيران ÷ زمن ملامسة الأرض. كل ما زاد، كانت عضلاتك أسرع في تحويل الهبوط لقفزة. الرياضيين النخبة يتجاوزون ٢٫٠</p>`;
+      ${card('مدة التسجيل', fx(S.dur, 2), 'ث', `${S.frames} إطار • ${fx(S.fps, 0)} إطار/ث • ${PC(S.valid/S.frames*100)} من الوقت الشخص ظاهر`, 'w hl')}
+      ${card('المسافة المقطوعة', fx(S.dist, 2), 'م', 'مسار مركز الثقل')}
+      ${card('أعلى سرعة للجسم', fx(S.maxCom, 2), 'م/ث', `${fx(S.maxCom*3.6, 1)} كم/س`)}
+      ${card('أسرع جزء في الجسم', fx(fv.v, 2), 'م/ث', `${JOINT_NAMES[fj]} عند ${fx(fv.t - BB.T0, 2)} ث`)}
+      ${card('متوسط النشاط', `<span style="color:${energyLevel(S.energyMean)[2]}">${energyLevel(S.energyMean)[1]}</span>`, '', `الذروة: ${energyLevel(S.energyMax)[1]}`)}
+    </div>
+    <div class="sec">🧠 وش سوّا خلال التسجيل</div>
+    <div class="dist">${acts.map(([k, v]) => `<i style="width:${v/tot*100}%;background:${ACTS[k].c}"></i>`).join('')}</div>
+    <div class="legend">${acts.map(([k, v]) => `<span style="--cc:${ACTS[k].c}">${ACTS[k].n} ${ISO(fx(v, 1) + 'ث')} (${PC(v/tot*100)})</span>`).join('')}</div>
+    <div class="sec">🧍 متوسط الوضعية (وهو واقف أو يمشي)</div>
+    <div class="cards">
+      ${card('ميلان الجذع', fx(S.posture.sag, 1), '°', dirTxt(S.posture.sag, 'للأمام', 'للخلف', 3) + ' • جانبي ' + dirTxt(S.posture.lat, 'يمين', 'يسار', 2))}
+      ${card('ميلان الكتفين', fx(S.posture.sh, 1), '°', Math.abs(S.posture.sh) < 2 ? 'متساوية' : `${S.posture.sh > 0 ? 'الأيسر' : 'الأيمن'} أعلى غالباً`)}
+      ${card('ميلان الحوض', fx(S.posture.pel, 1), '°', Math.abs(S.posture.pel) < 2 ? 'مستوي' : `${S.posture.pel > 0 ? 'الأيسر' : 'الأيمن'} أعلى غالباً`)}
+      ${card('تقدّم الراس', fx(S.posture.neck, 0), '°', S.posture.neck > 20 ? 'الراس متقدم (وضعية رقبة الجوال)' : 'طبيعي')}
+    </div>
+    ${S.sway ? `<div class="sec">⚖️ الثبات وهو واقف</div><div class="cards">
+      ${card('تمايل أمام/خلف', fx(S.sway.ant, 1), 'سم', 'انحراف معياري لمركز الثقل')}
+      ${card('تمايل جانبي', fx(S.sway.lat, 1), 'سم', S.sway.lat < 1.5 ? 'ثابت جداً' : S.sway.lat < 3 ? 'ثبات طبيعي' : 'تمايل واضح')}
+      ${card('توزيع الوزن', `${Math.round((1 - S.sway.wR)*100)} / ${Math.round(S.sway.wR*100)}`, '%', 'يسار / يمين', 'w')}</div>` : ''}
+    <div class="sec">🔀 التماثل بين الجهتين</div>
+    <div class="sym"><span style="width:58px">اليدين</span><span>${hT ? Math.round(S.hands.L/hT*100) : 50}%</span><div class="b"><i style="width:${hT ? S.hands.L/hT*100 : 50}%"></i><i style="width:${hT ? S.hands.R/hT*100 : 50}%"></i></div><span>${hT ? Math.round(S.hands.R/hT*100) : 50}%</span></div>
+    <div class="sym"><span style="width:58px">الرجلين</span><span>${fT ? Math.round(S.feet.L/fT*100) : 50}%</span><div class="b"><i style="width:${fT ? S.feet.L/fT*100 : 50}%"></i><i style="width:${fT ? S.feet.R/fT*100 : 50}%"></i></div><span>${fT ? Math.round(S.feet.R/fT*100) : 50}%</span></div>
+    <p class="note">🔵 يسار • 🟣 يمين — نسبة المسافة اللي قطعتها كل يد وكل رجل.</p>
+    ${G ? `<div class="sec">🚶 تحليل المشي</div><div class="cards">
+      ${card('الإيقاع', fx(G.cadence, 0), 'خطوة/د', G.cadence > 125 ? 'مشي سريع' : G.cadence < 90 ? 'مشي بطيء' : 'إيقاع طبيعي')}
+      ${card('طول الخطوة', fx(G.stepLen*100, 0), 'سم', `زمن الخطوة ${fx(G.stepTime*1000, 0)} ms`)}
+      ${card('تماثل المشي', G.asym != null && G.steps >= 6 ? fx(G.asym, 1) : '—', G.asym != null && G.steps >= 6 ? '%' : '', G.asym == null || G.steps < 6 ? 'يحتاج خطوات أكثر' : G.asym > 10 ? '⚠️ فرق واضح بين الرجلين (احتمال عرج)' : '✅ متماثل', 'w')}</div>` : ''}
+    <div class="sec">📐 مدى حركة المفاصل</div>
+    <table class="rom"><tr><th>المفصل</th><th>يسار</th><th></th><th>يمين</th><th></th></tr>
+      ${romRows.map(([n, l, r]) => `<tr><td>${n}</td><td class="n">${S.rom[l] ? `${fx(S.rom[l].min, 0)}–${fx(S.rom[l].max, 0)}°` : '—'}</td><td>${romBar(S.rom[l])}</td><td class="n">${S.rom[r] ? `${fx(S.rom[r].min, 0)}–${fx(S.rom[r].max, 0)}°` : '—'}</td><td>${romBar(S.rom[r])}</td></tr>`).join('')}
+    </table>
+    <p class="note">كل القياسات ثلاثية الأبعاد ومحسوبة بالنسبة للجاذبية الحقيقية (${D.gravSource === 'sensor' ? 'من حساس الجوال' : D.gravSource === 'body' ? 'مقدّرة من وقفة الجسم' : 'تقديرية'}). مركز الثقل محسوب بنموذج كتل أجزاء الجسم العلمي، والسرعات بعد تنعيم رياضي للإشارة.</p>`;
+}
+function buildEvents(){
+  const D = BB.D;
+  $('#p-ev').innerHTML = D.events.length ? D.events.map((e, k) => `<div class="ev" data-k="${k}"><div class="i">${e.i}</div><div class="x">${esc(e.s)}</div><div class="tt">${fx(e.t - BB.T0, 3)}s</div></div>`).join('') : '<div class="empty">ما فيه أحداث</div>';
+  $('#p-ev').querySelectorAll('.ev').forEach(el => el.onclick = () => { const e = D.events[+el.dataset.k]; BB.tc = e.t - BB.T0; BB.playing = false; if (e.j != null){ selectJoint(e.j); } refreshUI(true); });
+}
+function updateEventsPane(){
+  const D = BB.D; let cur = -1; D.events.forEach((e, k) => { if (e.t - BB.T0 <= BB.tc + 1e-3) cur = k; });
+  $('#p-ev').querySelectorAll('.ev').forEach(el => el.classList.toggle('cur', +el.dataset.k === cur));
+}
+async function buildCompare(){
+  const el = $('#p-cmp'), list = (await Store.metas()).filter(m => m.id !== BB.rec.id);
+  if (BB.ghost){
+    const A = BB.D.summary, B = BB.ghost.D.summary, gn = BB.ghost.rec.name;
+    const row = (n, a, b, u = '', d = 1) => `<tr><td>${n}</td><td class="n">${fx(a, d)}${u}</td><td class="n" style="color:var(--o)">${fx(b, d)}${u}</td></tr>`;
+    const topA = Object.entries(A.actDur).sort((a, b) => b[1] - a[1])[0], topB = Object.entries(B.actDur).sort((a, b) => b[1] - a[1])[0];
+    el.innerHTML = `<div class="rec"><div class="x"><b>🟠 مقارن مع: ${esc(gn)}</b><small>الهيكل البرتقالي في المجسم هو التسجيل الثاني</small></div><button class="dl" id="cmpOff">إلغاء</button></div>
+      <div class="seg" id="gMode"><button data-m="overlay">فوق بعض</button><button data-m="side">جنب بعض</button><button data-m="off">إخفاء</button></div>
+      <table class="cmp"><tr><th></th><th>الحالي</th><th style="color:var(--o)">المقارن</th></tr>
+        ${row('المدة', A.dur, B.dur, ' ث')}${row('المسافة', A.dist, B.dist, ' م', 2)}${row('أعلى سرعة للجسم', A.maxCom, B.maxCom, ' م/ث', 2)}
+        ${row('أسرع مفصل', A.fast[A.topJ].v, B.fast[B.topJ].v, ' م/ث', 2)}${row('ميلان الجذع', A.posture.sag, B.posture.sag, '°')}${row('ميلان الكتفين', A.posture.sh, B.posture.sh, '°')}
+        ${row('تقدّم الراس', A.posture.neck, B.posture.neck, '°', 0)}${row('أقصى ثني للركبة اليمين', A.rom.knR && A.rom.knR.min, B.rom.knR && B.rom.knR.min, '°', 0)}
+        ${row('أقصى رفع لليد اليمين', A.rom.shR && A.rom.shR.max, B.rom.shR && B.rom.shR.max, '°', 0)}
+        <tr><td>أكثر نشاط</td><td>${topA ? ACTS[topA[0]].n : '—'}</td><td style="color:var(--o)">${topB ? ACTS[topB[0]].n : '—'}</td></tr>
+      </table><p class="note">رسوم «المفصل» تعرض التسجيلين مع بعض: الأزرق الحالي والبرتقالي المقارن.</p>`;
+    el.querySelectorAll('#gMode button').forEach(b => { b.classList.toggle('on', b.dataset.m === BB.ghost.mode); b.onclick = () => { BB.ghost.mode = b.dataset.m; buildCompare(); drawTimeline(); }; });
+    $('#cmpOff').onclick = () => { BB.ghost = null; buildCompare(); selectJoint(BB.sel); };
+    return;
   }
-  html += `<p class="explain">كيف انحسبت؟ تتبعنا ٣٣ مفصل في جسمك في كل إطار، وثبّتنا اهتزاز يد المصور بتتبع الخلفية. لحظة الإقلاع والهبوط انحسبت بدقة أجزاء من الإطار. وحوّلنا البكسلات لأمتار من طولك (${p.h} سم)، وحسبنا القوة من وزنك (${p.w} كجم) وقوانين نيوتن.</p>`;
-  $('#t-sum').innerHTML = html;
-  setTimeout(() => { const i = $('#mI'); if (i) i.style.left = `calc(${Math.min(100, hcm/80*100)}% - 2px)`; }, 150);
-  $('#t-graph').innerHTML = `
-    <div class="gtitle">ارتفاع مركز الجسم <small>سم • ملوّن حسب المرحلة</small></div><canvas class="plot" id="g1"></canvas>
-    <div class="gtitle">السرعة العمودية <small>م/ث</small></div><canvas class="plot" id="g2"></canvas>
-    <p class="explain">السرعة تنزل تحت الصفر وقت النزول، وبعدها تقفز لأعلى قيمة لحظة الإقلاع. وفي الهواء تنقص بخط مستقيم بسبب الجاذبية.</p>
-    <div class="gtitle">زاوية الركبتين <small>درجة</small></div><canvas class="plot" id="g3"></canvas>`;
-  renderRank();
-  activeTab('sum'); $('#res').classList.add('open');
-  initReplay(R);
-}
-function phaseOf(R, t){ const j = R.best, fr = R.frames; if (t < fr[j.iOn].t) return 0; if (t < fr[j.iLow].t) return 1; if (t < j.tTO) return 2; if (t < j.tLD) return 3; if (t < j.tLD + .4) return 4; return 0; }
-const PHC = ['#888', '#3df5ff', '#ffd23d', '#b6ff3d', '#ff4d5e'], PHN = ['ثبات', 'نزول', 'دفع', 'طيران', 'هبوط'];
-function plot(cvs, series, o = {}){
-  const dpr = Math.min(2, devicePixelRatio || 1), w = cvs.clientWidth || 320, h = o.h || 180;
-  cvs.width = w*dpr; cvs.height = h*dpr; cvs.style.height = h + 'px';
-  const c = cvs.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
-  let xs = [], ys = []; for (const s of series) for (const p of s.pts) if (isFinite(p[1])){ xs.push(p[0]); ys.push(p[1]); }
-  if (!xs.length) return;
-  let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
-  if (y1 - y0 < 1e-6){ y0 -= 1; y1 += 1; } const py = (y1 - y0)*.12; y0 -= py; y1 += py;
-  const L = 40, Rr = 8, T = 20, B = 22, PW = w - L - Rr, PH = h - T - B;
-  const sx = v => L + (v - x0)/((x1 - x0) || 1)*PW, sy = v => T + PH - (v - y0)/(y1 - y0)*PH;
-  if (o.bands) for (const b of o.bands){ c.fillStyle = b.c; c.fillRect(sx(b.a), T, Math.max(1, sx(b.b) - sx(b.a)), PH); }
-  c.font = '10px "JetBrains Mono", monospace'; c.fillStyle = '#b98'; c.strokeStyle = 'rgba(255,107,44,.1)'; c.lineWidth = 1;
-  for (let i = 0; i <= 4; i++){ const xv = x0 + (x1 - x0)*i/4, yv = y0 + (y1 - y0)*i/4;
-    c.beginPath(); c.moveTo(sx(xv), T); c.lineTo(sx(xv), T + PH); c.moveTo(L, sy(yv)); c.lineTo(L + PW, sy(yv)); c.stroke();
-    c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText(xv.toFixed(2), sx(xv), T + PH + 5);
-    c.textAlign = 'right'; c.textBaseline = 'middle'; c.fillText(+yv.toFixed(Math.abs(y1 - y0) < 5 ? 1 : 0), L - 4, sy(yv)); }
-  if (y0 < 0 && y1 > 0){ c.strokeStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.moveTo(L, sy(0)); c.lineTo(L + PW, sy(0)); c.stroke(); }
-  for (const s of series){ c.strokeStyle = s.color; c.lineWidth = s.w || 2; c.beginPath(); let st = false; for (const p of s.pts){ if (!isFinite(p[1])) continue; st ? c.lineTo(sx(p[0]), sy(p[1])) : c.moveTo(sx(p[0]), sy(p[1])); st = true; } c.stroke(); }
-  c.font = '600 11px "IBM Plex Sans Arabic", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'right'; let lx = w - 8;
-  for (const s of series){ if (!s.label) continue; c.fillStyle = '#ffe2d0'; c.fillText(s.label, lx, 9); const tw = c.measureText(s.label).width; c.fillStyle = s.color; c.fillRect(lx - tw - 13, 5, 8, 8); lx -= tw + 24; }
-  c.fillStyle = '#b98'; c.font = '10px "IBM Plex Sans Arabic", sans-serif'; c.textAlign = 'left'; c.textBaseline = 'bottom'; if (o.xl) c.fillText(o.xl, L, h - 1);
-}
-function drawGraphs(R){
-  const fr = R.frames, t0 = fr[0].t, j = R.best, S = R.base.scale;
-  const tt = fr.map(q => q.t - t0);
-  const hh = R.out.hipS.map(y => (R.base.hipY - y)*S*100);
-  const bands = [[fr[j.iOn].t, fr[j.iLow].t, 1], [fr[j.iLow].t, j.tTO, 2], [j.tTO, j.tLD, 3], [j.tLD, j.tLD + .4, 4]].map(([a, b, k]) => ({ a:a - t0, b:b - t0, c:PHC[k] + '22' }));
-  plot($('#g1'), [{ pts:tt.map((t, i) => [t, hh[i]]), color:'#ff6b2c', w:3, label:'ارتفاع الحوض' }], { bands, xl:'الزمن (ث)' });
-  const vv = hh.map((h, i) => i === 0 ? 0 : (h - hh[i-1])/100/((tt[i] - tt[i-1]) || 1e-3));
-  plot($('#g2'), [{ pts:tt.map((t, i) => [t, smooth(vv, 1)[i]]), color:'#3df5ff', w:2.5, label:'vᵧ' }], { bands, xl:'الزمن (ث)' });
-  plot($('#g3'), [{ pts:tt.map((t, i) => [t, R.out.knL[i]]), color:'#ffd23d', label:'يسار' }, { pts:tt.map((t, i) => [t, R.out.knR[i]]), color:'#c38bff', label:'يمين' }], { bands, xl:'الزمن (ث)' });
-}
-function renderRank(){
-  const L = [...P.list].sort((a, b) => (b.best || 0) - (a.best || 0));
-  const md = ['🥇', '🥈', '🥉'];
-  $('#t-rank').innerHTML = `<div class="lb">${L.map((p, i) => `<div class="lbi"><div class="rk">${md[i] || (i + 1)}</div><div class="nm">${p.name}<small>${p.best ? level(p.best) : 'ما قفز للحين'} • ${p.hist.length} قفزة</small></div><canvas class="spark" data-id="${p.id}"></canvas><div class="sc">${p.best ? p.best.toFixed(1) : '—'}</div></div>`).join('')}</div>
-  <p class="explain">أضف كل العائلة من زر «القافز» وشوفوا مين يقفز أعلى. الخط الصغير يوضح تطور قفزات كل واحد.</p>`;
-  document.querySelectorAll('.spark').forEach(cv2 => {
-    const p = P.list.find(q => q.id === cv2.dataset.id); if (!p || p.hist.length < 2) return;
-    const dpr = 2, w = 70, h = 26; cv2.width = w*dpr; cv2.height = h*dpr; const c = cv2.getContext('2d'); c.scale(dpr, dpr);
-    const v = p.hist.map(q => q.h), mn = Math.min(...v), mx = Math.max(...v);
-    c.strokeStyle = '#ff6b2c'; c.lineWidth = 1.6; c.beginPath();
-    v.forEach((y, i) => { const X = i/(v.length - 1)*(w - 4) + 2, Y = h - 3 - (y - mn)/((mx - mn) || 1)*(h - 6); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke();
+  el.innerHTML = list.length ? `<p class="note" style="margin:0 0 8px">اختر تسجيل ثاني، ويطلع هيكله بالبرتقالي جنب أو فوق الهيكل الحالي في نفس اللحظة الزمنية.</p>` + list.map(m => `<div class="rec"><div class="x"><b>${esc(m.name)}</b><small>${new Date(m.date).toLocaleString('ar-SA-u-nu-latn', { dateStyle:'short', timeStyle:'short' })} • ${fx(m.dur, 1)} ث • ${ACTS[m.top] ? ACTS[m.top].n : ''}</small></div><button class="pr" data-id="${m.id}">قارن</button></div>`).join('')
+    : '<div class="empty">سجّل تسجيل ثاني عشان تقدر تقارن بينهم 🆚<br><small>مثلاً: نفس الحركة منك ومن أخوك</small></div>';
+  el.querySelectorAll('button[data-id]').forEach(b => b.onclick = async () => {
+    b.textContent = '…'; const r = await Store.get(b.dataset.id); if (!r){ toast('ما قدرت أفتح التسجيل', true); return; }
+    const D2 = analysed(r); if (D2.error){ toast('التسجيل ما فيه بيانات كافية', true); return; }
+    BB.ghost = { rec:r, D:D2, mode:'overlay' }; BB.ghost.series = seriesFor(D2, BB.sel);
+    buildCompare(); drawTimeline(); refreshUI(true);
   });
 }
-function activeTab(t){
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.id === 't-' + t));
-  if (t === 'graph' && curR) setTimeout(() => drawGraphs(curR), 30);
-  if (t === 'rank') renderRank();
-  rp.playing = t === 'replay'; $('#rpPlay').textContent = rp.playing ? '⏸' : '▶';
-  if (t === 'replay') rpResize();
-}
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => activeTab(b.dataset.t));
-$('#again').onclick = () => { $('#res').classList.remove('open'); rp.playing = false; state = 'settle'; };
 
-/* ---------- replay ---------- */
-const rp = { playing:false, speed:.25, vt:0, strobe:false, R:null, tmp:document.createElement('canvas'), last:0 };
-const rpc = $('#rp'), rctx = rpc.getContext('2d');
-function initReplay(R){ rp.R = R; rp.vt = 0; rp.strobe = false; $('#rpStrobe').classList.remove('on'); rp.tmp.width = R.iw; rp.tmp.height = R.ih; }
-function rpResize(){ const R = rp.R; if (!R) return; const w = rpc.clientWidth || 320, dpr = Math.min(2, devicePixelRatio || 1), h = Math.min(innerHeight*.55, w*R.ih/R.iw); rpc.width = w*dpr; rpc.height = h*dpr; rpc.style.height = h + 'px'; }
-function drawSkel(c, raw, X, Y, col, lw){
-  c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.beginPath();
-  for (const [a, b] of CON){ if (raw[a][2] < .4 || raw[b][2] < .4) continue; c.moveTo(X(raw[a][0]), Y(raw[a][1])); c.lineTo(X(raw[b][0]), Y(raw[b][1])); }
-  c.stroke();
-}
-function rpDraw(){
-  const R = rp.R; if (!R) return;
-  const fr = R.frames, t0 = fr[0].t, tEnd = fr[fr.length - 1].t - t0;
-  let idx = 0; while (idx < fr.length - 1 && fr[idx + 1].t - t0 <= rp.vt) idx++;
-  const j = R.best, showIdx = rp.strobe ? Math.max(0, Math.min(fr.length - 1, j.iPeak)) : idx;
-  rp.tmp.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(fr[showIdx].img), R.iw, R.ih), 0, 0);
-  const cw = rpc.width, ch = rpc.height, k = Math.min(cw/R.iw, ch/R.ih), dx = (cw - R.iw*k)/2, dy = (ch - R.ih*k)/2, dpr = cw/(rpc.clientWidth || cw);
-  rctx.fillStyle = '#000'; rctx.fillRect(0, 0, cw, ch);
-  rctx.save(); if (R.mirror){ rctx.translate(cw, 0); rctx.scale(-1, 1); } rctx.drawImage(rp.tmp, dx, dy, R.iw*k, R.ih*k);
-  rctx.fillStyle = 'rgba(0,0,0,.35)'; rctx.fillRect(dx, dy, R.iw*k, R.ih*k);
-  const X = x => dx + x*R.iw*k, Y = y => dy + y*R.ih*k;
-  if (rp.strobe){
-    const a = Math.max(0, j.iOn - 2), b = Math.min(fr.length - 1, j.iLandMin + 2), step = Math.max(1, Math.round((b - a)/14));
-    for (let i = a; i <= b; i += step) drawSkel(rctx, fr[i].raw, X, Y, PHC[phaseOf(R, fr[i].t)] + 'cc', 2.4*dpr);
-  } else {
-    const ph = phaseOf(R, fr[idx].t);
-    drawSkel(rctx, fr[idx].raw, X, Y, PHC[ph], 3.5*dpr);
-    // hip trail
-    rctx.strokeStyle = '#ff6b2c'; rctx.lineWidth = 2*dpr; rctx.beginPath();
-    for (let i = 0; i <= idx; i++){ const r = fr[i].raw, hx = X((r[23][0] + r[24][0])/2), hy = Y((r[23][1] + r[24][1])/2); i ? rctx.lineTo(hx, hy) : rctx.moveTo(hx, hy); } rctx.stroke();
-  }
-  rctx.restore();
-  const ph = rp.strobe ? 3 : phaseOf(R, fr[idx].t), hNow = (R.base.hipY - R.out.hipS[idx])*R.base.scale*100;
-  rctx.font = `700 ${13*dpr}px "JetBrains Mono", monospace`; rctx.textAlign = 'left'; rctx.textBaseline = 'top';
-  rctx.fillStyle = '#000b'; rctx.fillRect(8*dpr, 8*dpr, 158*dpr, 42*dpr);
-  rctx.fillStyle = '#ffb48f'; rctx.fillText(`t = ${(fr[idx].t - t0).toFixed(3)} s`, 14*dpr, 13*dpr);
-  rctx.fillStyle = '#fff'; rctx.fillText(`h = ${hNow.toFixed(1)} cm`, 14*dpr, 31*dpr);
-  rctx.font = `700 ${14*dpr}px "IBM Plex Sans Arabic", sans-serif`; rctx.textAlign = 'right'; rctx.fillStyle = PHC[ph];
-  rctx.fillText(rp.strobe ? 'ستروب: كل المراحل' : PHN[ph], cw - 12*dpr, 14*dpr);
-  $('#rpSeek').value = Math.round(rp.vt/Math.max(tEnd, 1e-3)*1000);
-  $('#rpInfo').textContent = rp.strobe ? 'كل وضعيات جسمك في صورة وحدة، وكل لون مرحلة: أزرق نزول، أصفر دفع، أخضر طيران، أحمر هبوط.' : `إعادة بطيئة ×${rp.speed} • ${fr.length} إطار • الخط البرتقالي مسار مركز جسمك`;
-}
-function rpLoop(ts){
-  requestAnimationFrame(rpLoop);
-  if (!paused() || !$('#t-replay').classList.contains('on') || !rp.R){ rp.last = ts; return; }
-  const dt = Math.min(.05, (ts - (rp.last || ts))/1000); rp.last = ts;
-  const fr = rp.R.frames, tEnd = fr[fr.length - 1].t - fr[0].t;
-  if (rp.playing && !rp.strobe){ rp.vt += dt*rp.speed; if (rp.vt > tEnd) rp.vt = 0; }
-  rpDraw();
-}
-requestAnimationFrame(rpLoop);
-$('#rpPlay').onclick = () => { rp.playing = !rp.playing; $('#rpPlay').textContent = rp.playing ? '⏸' : '▶'; };
-$('#rpSpd').onclick = () => { rp.speed = rp.speed === .25 ? .1 : rp.speed === .1 ? 1 : .25; $('#rpSpd').textContent = '×' + rp.speed; };
-$('#rpStrobe').onclick = () => { rp.strobe = !rp.strobe; $('#rpStrobe').classList.toggle('on', rp.strobe); };
-$('#rpSeek').oninput = e => { if (!rp.R) return; const fr = rp.R.frames; rp.vt = e.target.value/1000*(fr[fr.length - 1].t - fr[0].t); rp.playing = false; $('#rpPlay').textContent = '▶'; };
-
-/* ---------- profile sheet ---------- */
-function renderPList(){
-  $('#pList').innerHTML = '';
-  for (const p of P.list){
-    const d = document.createElement('div'); d.className = 'pItem' + (p.id === P.cur ? ' on' : '');
-    d.innerHTML = `<div class="nm"></div><div class="best">${p.best ? p.best.toFixed(1) : '—'}</div><button class="del">✕</button>`;
-    d.querySelector('.nm').innerHTML = `${p.name.replace(/</g, '')}<small>${p.h} سم • ${p.w} كجم</small>`;
-    d.onclick = e => { if (e.target.classList.contains('del')) return; P.cur = p.id; saveP(); updWho(); renderPList(); if (base) base.scale = (p.h/100)*.91/base.bodyH; };
-    d.querySelector('.del').onclick = () => { if (P.list.length < 2) { toast('لازم يبقى قافز واحد على الأقل'); return; } P.list = P.list.filter(q => q.id !== p.id); if (P.cur === p.id) P.cur = P.list[0].id; saveP(); updWho(); renderPList(); };
-    $('#pList').appendChild(d);
+/* ---------- main black-box loop ---------- */
+function refreshUI(force){
+  if (!BB.open || !BB.D) return;
+  const D = BB.D, fi = frameAtTime(D, BB.tc), i = Math.round(fi), ni = nearestValid(D, fi);
+  const a = ni >= 0 ? ACTS[D.act[ni]] : ACTS.none;
+  $('#h3t').textContent = `${BB.tc.toFixed(3)} s`;
+  $('#h3a').textContent = `${a.i} ${a.n}`; $('#h3a').style.color = a.c;
+  const dtf = i > 0 ? (D.t[i] - D.t[i - 1])*1000 : 0;
+  $('#h3f').textContent = `FRAME ${i + 1}/${D.n} · Δ${dtf.toFixed(0)}ms`;
+  $('#ctlT').textContent = `${BB.tc.toFixed(3)} / ${BB.dur.toFixed(3)} s`;
+  $('#play').textContent = BB.playing ? '⏸' : '▶';
+  drawTimeline();
+  const now = performance.now();
+  if (force || now - BB.uiT > 110){
+    BB.uiT = now;
+    if (curPane === 'joint') updateJointPane();
+    else if (curPane === 'body') updateBodyPane();
+    else if (curPane === 'ev') updateEventsPane();
   }
 }
-$('#bWho').onclick = () => { renderPList(); $('#pSheet').classList.add('open'); };
-$('#pClose').onclick = () => $('#pSheet').classList.remove('open');
-$('#nAdd').onclick = () => {
-  const n = $('#nName').value.trim(), h = +$('#nH').value, w = +$('#nW').value;
-  if (!n || !(h > 80 && h < 230) || !(w > 15 && w < 250)){ toast('اكتب الاسم والطول (سم) والوزن (كجم) صح'); return; }
-  addProfile(n, h, w); $('#nName').value = $('#nH').value = $('#nW').value = ''; updWho(); renderPList();
-  const p = curP(); if (base) base.scale = (p.h/100)*.91/base.bodyH;
-};
-$('#bRank').onclick = () => { if (lastRes){ showResults(lastRes); activeTab('rank'); } else { curR = null; renderRank(); $('#res').classList.add('open'); activeTab('rank'); } };
-$('#bLast').onclick = () => lastRes && showResults(lastRes);
+function bbLoop(ts){
+  requestAnimationFrame(bbLoop);
+  if (!BB.open || !BB.D) { BB.lastTs = ts; return; }
+  const dt = Math.min(.05, (ts - (BB.lastTs || ts))/1000); BB.lastTs = ts;
+  if (BB.playing){ BB.tc += dt*BB.speed; if (BB.tc >= BB.dur){ BB.tc = BB.dur; BB.playing = false; } }
+  // camera easing / follow
+  const c = curCom();
+  BB.tgt = v3.lerp(BB.tgt, [c[0], c[1], c[2]], 1 - Math.exp(-dt*4));
+  if (BB.view === 'orbit') BB.yaw += dt*.45;
+  if (BB.want){ const k = 1 - Math.exp(-dt*5); BB.yaw += (BB.want.yaw - BB.yaw)*k; BB.pitch += (BB.want.pitch - BB.pitch)*k; BB.dist += (BB.want.dist - BB.dist)*k; if (Math.abs(BB.want.yaw - BB.yaw) + Math.abs(BB.want.pitch - BB.pitch) + Math.abs(BB.want.dist - BB.dist) < .002) BB.want = null; }
+  render3d(); drawPip();
+  refreshUI(false);
+}
+requestAnimationFrame(bbLoop);
 
-/* ---------- camera + boot ---------- */
+/* ======================= ARCHIVE ======================= */
+async function openArchive(){
+  const list = await Store.metas(), el = $('#archList');
+  el.innerHTML = list.length ? list.map(m => `<div class="rec"><div class="x"><b>${esc(m.name)}</b><small>${new Date(m.date).toLocaleString('ar-SA-u-nu-latn', { dateStyle:'medium', timeStyle:'short' })} • ${fx(m.dur, 1)} ث • ${ACTS[m.top] ? ACTS[m.top].i + ' ' + ACTS[m.top].n : ''}</small></div><button class="pr" data-o="${m.id}">فتح</button><button class="dl" data-d="${m.id}">حذف</button></div>`).join('')
+    : '<div class="empty">ما فيه تسجيلات للحين<br>اضغط الزر الأحمر في الشاشة الحية عشان تسجّل</div>';
+  el.querySelectorAll('[data-o]').forEach(b => b.onclick = async () => { b.textContent = '…'; const r = await Store.get(b.dataset.o); $('#arch').classList.remove('open'); if (r){ $('#proc').classList.add('on'); $('#procTxt').textContent = 'أفتح التسجيل…'; $('#procSub').textContent = ''; await new Promise(q => setTimeout(q, 30)); try{ await openBB(r); } finally { $('#proc').classList.remove('on'); } } else toast('ما قدرت أفتح التسجيل', true); });
+  el.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => { if (b.dataset.sure){ await Store.del(b.dataset.d); openArchive(); if (BB.open && BB.rec && BB.rec.id === b.dataset.d) closeBB(); } else { b.dataset.sure = 1; b.textContent = 'متأكد؟'; } });
+  $('#arch').classList.add('open');
+}
+$('#bArch').onclick = openArchive; $('#bbArch').onclick = openArchive; $('#archClose').onclick = () => $('#arch').classList.remove('open');
+$('#bLast').onclick = async () => { const r = Lv.lastId && await Store.get(Lv.lastId); if (r) openBB(r); };
+$('#recBtn').onclick = () => { if (Lv.rec) stopRecording(); else startRecording(); };
+$('#bLayer').onclick = () => { Lv.layer = (Lv.layer + 1) % 3; toast(['🧼 عرض بسيط: الهيكل فقط', '📊 العرض الأساسي: الزوايا والتوازن واللوحة', '🔬 العرض الكامل: كل الزوايا وأسهم السرعة'][Lv.layer]); };
+$('#bCam').onclick = async () => { if (Lv.rec){ toast('أوقف التسجيل أول', true); return; } Lv.facing = Lv.facing === 'user' ? 'environment' : 'user'; Lv.gSign = 0; Lv.sensorDown = null; try{ await startCamera(); resetFilters(); toast(Lv.facing === 'user' ? '🤳 الكاميرا الأمامية' : '📷 الكاميرا الخلفية'); }catch(e){ toast('تعذر تبديل الكاميرا', true); } };
+
+/* ======================= BOOT ======================= */
 async function startCamera(){
   if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
-  const s = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:facing, width:{ ideal:1280 }, height:{ ideal:720 }, frameRate:{ ideal:60, max:60 } } });
+  const s = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:Lv.facing, width:{ ideal:1280 }, height:{ ideal:720 }, frameRate:{ ideal:30 } } });
   video.srcObject = s;
   await new Promise(r => { if (video.readyState >= 1) r(); else video.onloadedmetadata = () => r(); });
-  await video.play(); mirror = facing === 'user'; SH = 0; gPrev = null; camOff = { x:0, y:0 }; buf = []; state = 'none'; base = null;
+  await video.play(); Lv.mirror = Lv.facing === 'user'; layoutLive();
 }
-$('#bCam').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try{ await startCamera(); toast(facing === 'user' ? '🤳 الكاميرا الأمامية: سند الجوال وابعد عنه' : '📷 الكاميرا الخلفية'); }catch(e){ toast('تعذر تبديل الكاميرا'); } };
-(() => { const p = curP(); if (p){ $('#bName').value = p.name; $('#bH').value = p.h; $('#bW').value = p.w; } })();
+async function makePose(kind){
+  const o = d => ({ baseOptions:{ modelAssetPath:MODELS[kind], delegate:d }, runningMode:'VIDEO', numPoses:1, minPoseDetectionConfidence:.5, minPosePresenceConfidence:.5, minTrackingConfidence:.5 });
+  try{ return await Lv.vision.PoseLandmarker.createFromOptions(Lv.fileset, o('GPU')); }
+  catch(e){ return await Lv.vision.PoseLandmarker.createFromOptions(Lv.fileset, o('CPU')); }
+}
+let fpsN = 0, fpsT0 = performance.now(), lastMT = -1;
+function fpsTick(){ fpsN++; const n = performance.now(); if (n - fpsT0 > 1000){ Lv.fps = Math.round(fpsN*1000/(n - fpsT0)); fpsN = 0; fpsT0 = n; } }
+function loopV(now, meta){ video.requestVideoFrameCallback(loopV); if (BB.open && !Lv.rec) return; fpsTick(); try{ onFrame(meta.mediaTime); }catch(e){ Lv.errs++; console.error(e); } }
+function loopR(){ requestAnimationFrame(loopR); if ((BB.open && !Lv.rec) || video.currentTime === lastMT) return; lastMT = video.currentTime; fpsTick(); try{ onFrame(performance.now()/1000); }catch(e){ Lv.errs++; console.error(e); } }
+function bootMsg(t, err){ const e = $('#bootMsg'); e.textContent = t; e.classList.toggle('err', !!err); }
 $('#go').onclick = async () => {
-  const n = $('#bName').value.trim() || 'أنا', h = +$('#bH').value, w = +$('#bW').value;
-  if (!(h > 80 && h < 230) || !(w > 15 && w < 250)){ $('#bootMsg').textContent = 'اكتب الطول بالسنتيمتر والوزن بالكيلو (نحتاجهم لحساب المسافة والقوة)'; return; }
-  const p = curP();
-  if (p && p.name === n){ p.h = h; p.w = w; saveP(); } else { const ex = P.list.find(q => q.name === n); if (ex){ ex.h = h; ex.w = w; P.cur = ex.id; saveP(); } else addProfile(n, h, w); }
-  updWho();
-  $('#go').disabled = true; unlockAudio(); $('#bootMsg').style.color = '#fc9';
+  $('#go').disabled = true; bootMsg('');
+  let motionP = null;
+  try{ if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') motionP = DeviceMotionEvent.requestPermission(); }catch(e){}
+  unlockAudio();
   try{
-    if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
-    $('#bootMsg').textContent = 'تشغيل الكاميرا…'; await startCamera();
-    $('#bootMsg').textContent = 'تحميل نموذج تتبع الجسم (٣٣ مفصل)…';
-    const vision = await import(LIB + '/vision_bundle.mjs');
-    const fs = await vision.FilesetResolver.forVisionTasks(LIB + '/wasm');
-    const opts = d => ({ baseOptions:{ modelAssetPath:POSE_URL, delegate:d }, runningMode:'VIDEO', numPoses:1, minPoseDetectionConfidence:.5, minPosePresenceConfidence:.5, minTrackingConfidence:.5 });
-    try{ pose = await vision.PoseLandmarker.createFromOptions(fs, opts('GPU')); }catch(e){ pose = await vision.PoseLandmarker.createFromOptions(fs, opts('CPU')); }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
+    bootMsg('📷 تشغيل الكاميرا…');
+    await startCamera();
+    if (motionP){ try{ if ((await motionP) === 'granted') addEventListener('devicemotion', onMotion); }catch(e){} } else addEventListener('devicemotion', onMotion);
+    bootMsg('🧠 تحميل نموذج تتبع الجسم ثلاثي الأبعاد (٣٣ مفصل)…');
+    Lv.vision = await import(LIB + '/vision_bundle.mjs');
+    Lv.fileset = await Lv.vision.FilesetResolver.forVisionTasks(LIB + '/wasm');
+    try{ Lv.pose = await makePose('full'); Lv.model = 'full'; }
+    catch(e){ bootMsg('🧠 تحميل النموذج الخفيف…'); Lv.pose = await makePose('lite'); Lv.model = 'lite'; }
     try{ await navigator.wakeLock?.request('screen'); }catch(e){}
     $('#boot').classList.add('hide');
     if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) video.requestVideoFrameCallback(loopV); else requestAnimationFrame(loopR);
+    const metas = await Store.metas(); if (metas.length){ Lv.lastId = metas[0].id; $('#bLast').disabled = false; }
   }catch(e){
-    console.error(e); $('#bootMsg').style.color = '#ff9aa5';
-    $('#bootMsg').textContent = e && e.name === 'NotAllowedError' ? 'تم رفض إذن الكاميرا. افتح الإعدادات ← Safari ← الكاميرا ← اسمح، ثم أعد تحميل الصفحة.' : e && e.message === 'nocam' ? 'افتح الرابط في Safari (لازم يبدأ بـ https).' : 'تعذر التحميل. تأكد من الإنترنت وأعد المحاولة.';
+    console.error(e);
+    bootMsg(e && e.name === 'NotAllowedError' ? 'تم رفض إذن الكاميرا. افتح الإعدادات ← Safari ← الكاميرا ← اسمح، وبعدها حدّث الصفحة.'
+      : e && e.message === 'nocam' ? 'افتح الرابط في Safari (لازم يبدأ بـ https).'
+      : 'تعذر التحميل. تأكد إن النت شغال وجرب مرة ثانية.', true);
     $('#go').disabled = false;
   }
 };
-updWho();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible'){ try{ navigator.wakeLock?.request('screen'); }catch(e){} } });
+
 </script>
 </body>
 </html>

@@ -236,7 +236,7 @@ function baseline(frames){
 }
 // Analyse a recorded session (frames in stabilised video px, y down). base: {floorY, hipY, bodyH, scale (m/px)}, mass kg.
 function analyzeSession(frames, base, mass){
-  const th = Math.max(2, .022*base.bodyH), lvl = base.floorY - th;
+  const th = Math.max(3, .03*base.bodyH), lvl = base.floorY - th;
   const valF = f => footLow(f).F, valL = f => footLow(f).L, valR = f => footLow(f).R;
   const flights = []; let inAir = false, s = 0;
   for (let i = 1; i < frames.length; i++){
@@ -396,6 +396,10 @@ const BUF_N = 240; let buf = [];
 function kpFrom(lm, off){ const o = {}; for (const k in KP){ const p = lm[KP[k]]; o[k] = [p.x*vw - off.x, p.y*vh - off.y, p.visibility ?? 1]; } return o; }
 
 /* ---------- state machine ---------- */
+let settleDbg = '', forceCal = false;
+cv.addEventListener('pointerdown', () => { if (state === 'settle'){ forceCal = true; toast('تمت المعايرة ✓'); } });
+// lowest-foot level smoothed over the last 3 frames (reduces tracker jitter)
+const Fs = () => median(buf.slice(-3).map(q => footLow(q).F));
 let state = 'none', base = null, settleSince = 0, lastAir = 0, landT = 0, sessStart = 0, readySpoken = false, rawLm = null, lastRes = null, jumpNo = 0, fps = 0, liveH = null;
 function feetVisible(lm){ return [27, 28, 29, 30, 31, 32].filter(i => (lm[i].visibility ?? 1) > .5).length >= 4 && (lm[0].visibility ?? 1) > .5 && lm[29].y < 1.02 && lm[30].y < 1.02; }
 
@@ -424,35 +428,40 @@ function onFrame(t){
     liveH = null; render(t); hud(t); return;
   }
   const f = buf[buf.length - 1];
-  const F = footLow(f).F;
+  const F = Fs();
   if (state === 'none'){ state = 'settle'; settleSince = t; base = null; }
 
   if (state === 'settle'){
-    const win = buf.filter(q => t - q.t <= .5);
+    const win = buf.filter(q => t - q.t <= .6);
     const bodyH = median(win.map(q => footLow(q).F - q.nose[1]));
-    const quiet = win.length >= 8 && win[0].t <= t - .4 && std(win.map(hipY)) < .006*bodyH && std(win.map(q => footLow(q).F)) < .007*bodyH;
-    if (quiet){
+    const sH = std(win.map(hipY))/bodyH, sF = std(win.map(q => footLow(q).F))/bodyH;
+    settleDbg = `σh ${(sH*100).toFixed(1)}% σf ${(sF*100).toFixed(1)}%`;
+    const long = t - settleSince;
+    const lim = long < 2 ? 1 : long < 4 ? 1.8 : 3;   // relax progressively
+    const quiet = win.length >= 6 && win[0].t <= t - .35 && bodyH > 40 && sH < .015*lim && sF < .02*lim;
+    if (quiet || forceCal){
+      forceCal = false;
       base = baseline(win); base.scale = (p.h/100)*.91/base.bodyH;
       state = 'ready'; if (!readySpoken){ speak('جاهز. اقفز'); readySpoken = true; }
       beep(880, .07); beep(1320, .1, .08);
     }
-    setStatus(t - settleSince > 6 ? '🧍 وقف ثابت تماماً ثانية وحدة…' : '🧍 خلك ثابت… أعاير المقاسات', '');
+    else setStatus(long > 3 ? '🧍 وقف ثابت… (أو اضغط على الشاشة للمعايرة فوراً)' : '🧍 خلك ثابت… أعاير المقاسات', '');
   }
   if (state === 'ready'){
-    const th = Math.max(2, .022*base.bodyH);
+    const th = Math.max(3, .035*base.bodyH);
     if (F < base.floorY - th){ state = 'air'; lastAir = t; sessStart = t; beep(1600, .05); }
     else {
       setStatus('✅ جاهز! اقفز لفوق بأقصى قوتك', 'ready');
       // slow drift re-baseline when standing still
       const win = buf.filter(q => t - q.t <= .4);
-      if (win.length > 6 && std(win.map(hipY)) < .005*base.bodyH && Math.abs(median(win.map(q => footLow(q).F)) - base.floorY) > .01*base.bodyH){
+      if (win.length > 6 && std(win.map(hipY)) < .012*base.bodyH && Math.abs(median(win.map(q => footLow(q).F)) - base.floorY) > .01*base.bodyH){
         const nb = baseline(win); base.floorY = nb.floorY; base.hipY = nb.hipY;
       }
       if (Math.abs(F - base.floorY) > .2*base.bodyH){ state = 'settle'; settleSince = t; }
     }
   }
   if (state === 'air' || state === 'ground'){
-    const th = Math.max(2, .022*base.bodyH);
+    const th = Math.max(3, .035*base.bodyH);
     if (F < base.floorY - th){
       if (state === 'ground'){ state = 'air'; beep(1600, .05); }
       lastAir = t;
@@ -536,7 +545,7 @@ let lastHud = 0;
 function hud(t){
   if (t - lastHud < .1) return; lastHud = t;
   $('#cLive').textContent = liveH != null ? liveH.toFixed(0) : '—';
-  $('#tele').textContent = `${vw}x${vh} · ${fps} FPS · POSE 33KP · STAB ${stabN}p (${camOff.x.toFixed(0)},${camOff.y.toFixed(0)}) · SCALE ${base ? (base.scale*1000).toFixed(2) + 'mm/px' : '—'} · ${state.toUpperCase()}`;
+  $('#tele').textContent = `${vw}x${vh} · ${fps} FPS · POSE 33KP · STAB ${stabN}p (${camOff.x.toFixed(0)},${camOff.y.toFixed(0)}) · SCALE ${base ? (base.scale*1000).toFixed(2) + 'mm/px' : '—'} · ${state.toUpperCase()} ${state === 'settle' ? settleDbg : ''}`;
 }
 
 /* ---------- loop ---------- */

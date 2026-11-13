@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مختبر الفيزياء">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<title>مختبر الفيزياء</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#3df5ff;--g:#b6ff3d;--r:#ff4d5e;--y:#ffd23d;--p:#c38bff;--bg:#030a10}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#dff;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+.mono{font-family:'JetBrains Mono',monospace;direction:ltr;unicode-bidi:isolate}
+#stage{position:fixed;inset:0}
+#view{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+video{position:absolute;top:0;left:0;width:2px;height:2px;opacity:0;pointer-events:none}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.55))}
+#top{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 16px;background:linear-gradient(#000d,transparent);pointer-events:none;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:700;font-size:17px;color:var(--g);text-shadow:0 0 12px #b6ff3d66}
+.brand small{color:#9fc;font-weight:400;font-size:10px;margin-inline-start:6px;letter-spacing:1px}
+#recInd{font-size:12px;color:#9fc;display:flex;align-items:center;gap:6px}
+#recInd i{width:9px;height:9px;border-radius:50%;background:#456;display:inline-block}
+#recInd.on{color:var(--r)} #recInd.on i{background:var(--r);animation:blink .5s infinite}
+@keyframes blink{50%{opacity:.2}}
+.chips{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:6px}
+.chip{border:1px solid #b6ff3d33;background:#06141acc;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:10px;padding:4px 4px 3px;text-align:center}
+.chip b{display:block;font-family:'JetBrains Mono',monospace;font-size:19px;color:#fff;line-height:1.2}
+.chip.big b{font-size:24px;color:var(--g)}
+.chip span{font-size:10px;color:#9fc}
+#status{align-self:center;background:#06141ae6;border:1px solid #3df5ff66;border-radius:20px;padding:6px 14px;font-size:13px;color:#e6ffff;text-align:center;max-width:94%}
+#status.rec{border-color:var(--r);color:#ffd0d5}
+#toasts{display:flex;flex-direction:column;gap:5px;align-items:center}
+.toast{background:#06141ae6;border:1px solid #ffd23d;color:#ffe9a6;border-radius:18px;padding:4px 12px;font-size:12.5px;animation:tin .25s;transition:opacity .4s;text-align:center;max-width:92%}
+@keyframes tin{from{opacity:0;transform:translateY(-6px)}}
+#bottom{position:absolute;left:0;right:0;bottom:0;padding:22px 8px calc(env(safe-area-inset-bottom) + 10px);background:linear-gradient(transparent,#000e)}
+#tele{font-family:'JetBrains Mono',monospace;font-size:10px;color:#b6ff3d99;direction:ltr;text-align:left;padding:0 4px 6px}
+.btns{display:flex;gap:6px}
+.btn{flex:1;background:#06141acc;border:1px solid #b6ff3d55;color:#eaffd0;border-radius:12px;padding:7px 2px;font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.btn .ic{font-size:18px;line-height:1.25}
+.btn.on{background:#b6ff3d;color:#021}
+.btn:disabled{opacity:.35}
+/* sheets */
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#030b10f7;border-top:1px solid #b6ff3d66;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:5;display:flex;flex-direction:column}
+.sheet.open{transform:none}
+#objSheet{padding:16px 14px calc(env(safe-area-inset-bottom) + 14px)}
+.sheet h3{font-size:16px;color:var(--g);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.sheet h3 button,.xbtn{background:none;border:1px solid #b6ff3d55;color:#eaffd0;border-radius:9px;padding:4px 12px;font:inherit;font-size:12px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.preset{background:#0a1a20;border:1px solid #3df5ff33;border-radius:12px;padding:9px;color:#eff;font:inherit;font-size:13px;text-align:right}
+.preset small{display:block;color:#9fc;font-size:11px}
+.preset.on{border-color:var(--g);box-shadow:0 0 0 1px var(--g) inset}
+.custom{display:flex;gap:8px;align-items:end}
+.custom label{flex:1;font-size:11px;color:#9fc}
+.custom input{width:100%;margin-top:3px;background:#0a1a20;border:1px solid #3df5ff44;border-radius:9px;color:#fff;padding:8px;font:inherit;font-size:15px;text-align:center}
+.custom button{background:var(--g);color:#021;border:none;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700}
+.hintline{font-size:11.5px;color:#9fc;margin-top:12px;line-height:1.6}
+/* results */
+#res{height:92%;padding-top:12px}
+#res header{display:flex;justify-content:space-between;align-items:center;padding:0 14px 8px}
+#res header b{font-size:17px;color:var(--g)}
+#res header div{display:flex;gap:6px}
+.tabs{display:flex;gap:4px;padding:0 10px 8px;border-bottom:1px solid #ffffff12}
+.tabs button{flex:1;background:none;border:1px solid transparent;color:#9fc;border-radius:10px;padding:7px 2px;font:inherit;font-size:12.5px}
+.tabs button.on{background:#b6ff3d1a;border-color:#b6ff3d66;color:#fff}
+.tabBody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(env(safe-area-inset-bottom) + 20px)}
+.tab{display:none}.tab.on{display:block}
+.hero{border:1px solid #b6ff3d55;border-radius:16px;padding:14px;background:radial-gradient(ellipse at top,#16301a,#061014);text-align:center;margin-bottom:12px}
+.hero .lbl{font-size:12px;color:#9fc}
+.hero .val{font-family:'JetBrains Mono',monospace;font-size:44px;color:#fff;font-weight:700;line-height:1.1;text-shadow:0 0 18px #b6ff3d88;direction:ltr}
+.hero .val small{font-size:16px;color:#9fc}
+.hero .cmp{font-size:12.5px;color:#cfe;margin-top:4px}
+.bar{height:8px;border-radius:5px;background:#ffffff14;margin:10px 0 6px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--r),var(--y),var(--g));border-radius:5px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.verdict{font-size:14px;font-weight:700;color:var(--g)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:#0a1a20;border:1px solid #3df5ff26;border-radius:13px;padding:9px 10px}
+.card .k{font-size:11px;color:#9fc}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:21px;color:#fff;direction:ltr;text-align:right}
+.card .v small{font-size:11px;color:#9fc}
+.card .s{font-size:10.5px;color:#7ab}
+.card.wide{grid-column:1/-1}
+.card.hl{border-color:#c38bff88;background:#170d22}
+.gtitle{font-size:13px;color:#eaffd0;margin:14px 0 4px;display:flex;justify-content:space-between}
+.gtitle small{color:#9fc;font-size:11px}
+canvas.plot{width:100%;display:block;background:#06121a;border:1px solid #3df5ff22;border-radius:12px}
+.explain{font-size:11.5px;color:#9fc;line-height:1.7;margin-top:6px}
+#rp{width:100%;display:block;background:#000;border-radius:12px;border:1px solid #3df5ff33}
+.rpc{display:flex;gap:6px;margin-top:8px;align-items:center}
+.rpc button{background:#0a1a20;border:1px solid #b6ff3d55;color:#eaffd0;border-radius:10px;padding:7px 10px;font:inherit;font-size:12px}
+.rpc button.on{background:#b6ff3d;color:#021}
+.rpc input{flex:1;accent-color:#b6ff3d}
+table.pl{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+table.pl th{color:#9fc;font-weight:400;font-size:11px;padding:6px 4px;text-align:right;border-bottom:1px solid #ffffff1a}
+table.pl td{padding:8px 4px;border-bottom:1px solid #ffffff0d}
+table.pl td.n{font-family:'JetBrains Mono',monospace;direction:ltr;text-align:right}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px}
+/* boot */
+#boot{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 25%,#0f2a14,#000 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;z-index:9;transition:opacity .5s}
+#boot.hide{opacity:0;pointer-events:none}
+#bootArt{width:260px;height:130px}
+#boot h1{font-size:38px;color:#fff;text-shadow:0 0 22px var(--g);margin-top:4px}
+#boot .sub{color:#9fc;font-size:13.5px;margin:4px 0 16px}
+.steps{max-width:340px;width:100%;text-align:right;display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.steps div{background:#06141acc;border:1px solid #b6ff3d2a;border-radius:11px;padding:8px 10px;font-size:12.5px;color:#eaffd0;display:flex;gap:9px;align-items:center}
+.steps b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--g);color:#021;display:flex;align-items:center;justify-content:center;font-size:12px}
+#go{background:var(--g);color:#021;border:none;border-radius:14px;padding:14px 44px;font:inherit;font-weight:700;font-size:18px;box-shadow:0 0 30px #b6ff3d77}
+#go:disabled{opacity:.5}
+#bootMsg{margin-top:12px;font-size:12.5px;color:#ff9aa5;min-height:18px;max-width:340px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="video" playsinline muted autoplay></video>
+  <canvas id="view"></canvas>
+  <div class="vig"></div>
+  <div id="top">
+    <div class="row">
+      <div class="brand">مختبر الفيزياء<small>MOTION LAB</small></div>
+      <div id="recInd"><i></i><span>جاهز</span></div>
+    </div>
+    <div class="chips">
+      <div class="chip big"><b id="cKmh">0.0</b><span>السرعة كم/س</span></div>
+      <div class="chip"><b id="cMs">0.00</b><span>م/ث</span></div>
+      <div class="chip"><b id="cH">—</b><span>الارتفاع سم</span></div>
+      <div class="chip"><b id="cA">—</b><span>التسارع م/ث²</span></div>
+    </div>
+    <div id="status">اضغط على الكرة في الشاشة لتحديدها</div>
+    <div id="toasts"></div>
+  </div>
+  <div id="bottom">
+    <div id="tele">INIT</div>
+    <div class="btns">
+      <button class="btn" id="bSel"><span class="ic">🎯</span>تحديد جديد</button>
+      <button class="btn" id="bFloor"><span class="ic">📏</span>الأرض</button>
+      <button class="btn" id="bObj"><span class="ic">⚪</span><span id="objName">كرة تنس</span></button>
+      <button class="btn" id="bLast" disabled><span class="ic">📊</span>آخر نتيجة</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="objSheet">
+  <h3><span>وش الجسم اللي بترميه؟</span><button id="objClose">تم</button></h3>
+  <div class="presets" id="presets"></div>
+  <div class="custom">
+    <label>القطر (سم)<input id="cD" type="number" inputmode="decimal" step="0.1"></label>
+    <label>الوزن (جرام)<input id="cM" type="number" inputmode="decimal" step="1"></label>
+    <button id="cApply">اعتماد</button>
+  </div>
+  <p class="hintline">المختبر يحوّل البكسلات إلى أمتار باستخدام قطر الجسم الحقيقي، فكل ما كان القطر أدق، كانت النتائج أدق. والوزن يُستخدم لحساب الطاقة بالجول.</p>
+</div>
+
+<div class="sheet" id="res">
+  <header><b id="resTitle">نتائج التجربة</b><div><button class="xbtn" id="again">تجربة جديدة ↺</button></div></header>
+  <div class="tabs">
+    <button data-t="sum" class="on">الملخص</button>
+    <button data-t="graph">الرسوم</button>
+    <button data-t="replay">الإعادة</button>
+    <button data-t="planet">الكواكب</button>
+  </div>
+  <div class="tabBody">
+    <div class="tab on" id="t-sum"></div>
+    <div class="tab" id="t-graph"></div>
+    <div class="tab" id="t-replay">
+      <canvas id="rp"></canvas>
+      <div class="rpc">
+        <button id="rpPlay">⏸</button>
+        <button id="rpSpd">×0.25</button>
+        <button id="rpStrobe">ستروب</button>
+        <input type="range" id="rpSeek" min="0" max="1000" value="0">
+      </div>
+      <p class="explain" id="rpInfo"></p>
+    </div>
+    <div class="tab" id="t-planet"></div>
+  </div>
+</div>
+
+<div id="boot">
+  <svg id="bootArt" viewBox="0 0 260 130">
+    <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#3df5ff"/><stop offset="1" stop-color="#b6ff3d"/></linearGradient></defs>
+    <line x1="10" y1="118" x2="250" y2="118" stroke="#b6ff3d55" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <path d="M20 112 Q 130 -40 240 112" fill="none" stroke="url(#lg)" stroke-width="2" stroke-dasharray="3 6"/>
+    <g fill="#b6ff3d"><circle cx="20" cy="112" r="3" opacity=".25"/><circle cx="50" cy="66" r="3.5" opacity=".35"/><circle cx="85" cy="40" r="4" opacity=".5"/><circle cx="130" cy="34" r="4.5" opacity=".65"/><circle cx="175" cy="40" r="5" opacity=".8"/><circle cx="210" cy="66" r="5.5" opacity=".9"/></g>
+    <circle cx="240" cy="112" r="6" fill="#fff"><animate attributeName="r" values="6;9;6" dur="1.4s" repeatCount="indefinite"/></circle>
+    <text x="130" y="22" fill="#9fc" font-size="11" text-anchor="middle" font-family="monospace">y = y₀ + v₀t − ½gt²</text>
+  </svg>
+  <h1>مختبر الفيزياء</h1>
+  <p class="sub">يقيس الجاذبية الأرضية من رمية كرة وحدة</p>
+  <div class="steps">
+    <div><b>1</b>ثبّت الجوال على شي (مسنود على كتب أو كوب) والكاميرا الخلفية تطالع المكان</div>
+    <div><b>2</b>اضغط على الكرة في الشاشة عشان يقفل عليها</div>
+    <div><b>3</b>ارمِ الكرة لفوق وبالعرض قدام الكاميرا</div>
+    <div><b>4</b>المختبر يحلل الرمية ويطلع النتائج تلقائياً</div>
+  </div>
+  <button id="go">تشغيل المختبر</button>
+  <div id="bootMsg"></div>
+</div>
+
+<script>
+/*CORE-START*/
+function solve(A, b){
+  const n = b.length;
+  for (let i = 0; i < n; i++){
+    let p = i;
+    for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+    [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
+    const d = A[i][i] || 1e-12;
+    for (let r = i + 1; r < n; r++){ const f = A[r][i]/d; for (let c = i; c < n; c++) A[r][c] -= f*A[i][c]; b[r] -= f*b[i]; }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--){ let s = b[i]; for (let c = i + 1; c < n; c++) s -= A[i][c]*x[c]; x[i] = s/(A[i][i] || 1e-12); }
+  return x;
+}
+function polyfit(ts, ys, deg){
+  const n = deg + 1, m = ts.length;
+  let t0 = 0; for (const t of ts) t0 += t; t0 /= m;
+  const A = Array.from({ length:n }, () => new Array(n).fill(0)), b = new Array(n).fill(0);
+  for (let i = 0; i < m; i++){
+    const t = ts[i] - t0, p = [1];
+    for (let k = 1; k < 2*n; k++) p[k] = p[k-1]*t;
+    for (let r = 0; r < n; r++){ b[r] += ys[i]*p[r]; for (let c = 0; c < n; c++) A[r][c] += p[r+c]; }
+  }
+  const c = solve(A, b);
+  const f = {
+    c, t0, deg,
+    at(t){ const u = t - t0; let v = 0, pw = 1; for (const k of c){ v += k*pw; pw *= u; } return v; },
+    d1(t){ const u = t - t0; return (c[1] || 0) + 2*(c[2] || 0)*u; },
+    d2(){ return 2*(c[2] || 0); }
+  };
+  let ss = 0, st = 0, mean = 0;
+  for (const y of ys) mean += y; mean /= m;
+  for (let i = 0; i < m; i++){ const e = ys[i] - f.at(ts[i]); ss += e*e; st += (ys[i] - mean)**2; }
+  f.rms = Math.sqrt(ss/m); f.r2 = st > 0 ? 1 - ss/st : 1;
+  return f;
+}
+// Trim a segment to its longest free-flight (parabolic) core.
+function trimFree(T, Y, tol){
+  let s = 0, e = T.length - 1;
+  while (e - s + 1 >= 6){
+    const f = polyfit(T.slice(s, e + 1), Y.slice(s, e + 1), 2);
+    if (f.rms <= tol) return { s, e, f };
+    const rs = Math.abs(Y[s] - f.at(T[s])), re = Math.abs(Y[e] - f.at(T[e]));
+    if (rs > re) s++; else e--;
+  }
+  return null;
+}
+// Learn the object's colour from a tap: flood fill in chromaticity space.
+function makeModel(D, pw, ph, sx, sy){
+  sx = Math.max(0, Math.min(pw - 1, Math.round(sx))); sy = Math.max(0, Math.min(ph - 1, Math.round(sy)));
+  // seed = average of 3x3 around tap
+  let sr = 0, sg = 0, ss = 0, k = 0;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+    const x = sx + dx, y = sy + dy; if (x < 0 || y < 0 || x >= pw || y >= ph) continue;
+    const i = (y*pw + x)*4, sum = D[i] + D[i+1] + D[i+2] + 1;
+    sr += D[i]/sum; sg += D[i+1]/sum; ss += sum; k++;
+  }
+  sr /= k; sg /= k; ss /= k;
+  const seen = new Uint8Array(pw*ph), q = new Int32Array(pw*ph);
+  let qh = 0, qt = 0, cnt = 0, mr = 0, mg = 0, vr = 0, vg = 0, msum = 0, cx = 0, cy = 0;
+  const cap = pw*ph*.2;
+  const ok = j => { const i = j*4, sum = D[i] + D[i+1] + D[i+2] + 1, r = D[i]/sum, g = D[i+1]/sum;
+    return Math.abs(r - sr) < .045 && Math.abs(g - sg) < .045 && sum > ss*.45 && sum < ss*1.9; };
+  const s0 = sy*pw + sx; seen[s0] = 1; q[qt++] = s0;
+  while (qh < qt && cnt < cap){
+    const j = q[qh++];
+    if (!ok(j)) continue;
+    const i = j*4, sum = D[i] + D[i+1] + D[i+2] + 1, r = D[i]/sum, g = D[i+1]/sum;
+    cnt++; mr += r; mg += g; vr += r*r; vg += g*g; msum += sum;
+    const x = j % pw, y = (j/pw) | 0; cx += x; cy += y;
+    if (x > 0 && !seen[j-1]){ seen[j-1] = 1; q[qt++] = j - 1; }
+    if (x < pw - 1 && !seen[j+1]){ seen[j+1] = 1; q[qt++] = j + 1; }
+    if (y > 0 && !seen[j-pw]){ seen[j-pw] = 1; q[qt++] = j - pw; }
+    if (y < ph - 1 && !seen[j+pw]){ seen[j+pw] = 1; q[qt++] = j + pw; }
+  }
+  if (cnt < 6) return null;
+  mr /= cnt; mg /= cnt; msum /= cnt;
+  const sdr = Math.sqrt(Math.max(0, vr/cnt - mr*mr)), sdg = Math.sqrt(Math.max(0, vg/cnt - mg*mg));
+  return {
+    mr, mg, tr: Math.max(3*sdr, .018) + .012, tg: Math.max(3*sdg, .018) + .012,
+    smin: msum*.38, smax: Math.min(800, msum*2.3),
+    area: cnt, d: 2*Math.sqrt(cnt/Math.PI), x: cx/cnt, y: cy/cnt,
+    gray: Math.hypot(mr - 1/3, mg - 1/3) < .03, big: cnt >= cap
+  };
+}
+function isFg(D, i, M){
+  const sum = D[i] + D[i+1] + D[i+2] + 1;
+  if (sum < M.smin || sum > M.smax) return false;
+  return Math.abs(D[i]/sum - M.mr) < M.tr && Math.abs(D[i+1]/sum - M.mg) < M.tg;
+}
+// Find the best blob of the model's colour inside a search window.
+function detect(D, pw, ph, M, px, py, R, expArea, stamp, fid, q){
+  const x0 = Math.max(0, Math.floor(px - R)), x1 = Math.min(pw - 1, Math.ceil(px + R));
+  const y0 = Math.max(0, Math.floor(py - R)), y1 = Math.min(ph - 1, Math.ceil(py + R));
+  let best = null, bestScore = 1e9;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++){
+    const s = y*pw + x;
+    if (stamp[s] === fid) continue;
+    stamp[s] = fid;
+    if (!isFg(D, s*4, M)) continue;
+    let qh = 0, qt = 0, cnt = 0, sx = 0, sy = 0;
+    q[qt++] = s;
+    while (qh < qt){
+      const j = q[qh++], jx = j % pw, jy = (j/pw) | 0;
+      cnt++; sx += jx; sy += jy;
+      const nb = [jx > x0 ? j - 1 : -1, jx < x1 ? j + 1 : -1, jy > y0 ? j - pw : -1, jy < y1 ? j + pw : -1];
+      for (const n of nb){
+        if (n < 0 || stamp[n] === fid) continue;
+        stamp[n] = fid;
+        if (isFg(D, n*4, M)) q[qt++] = n;
+      }
+    }
+    if (cnt < 3) continue;
+    const cx = sx/cnt, cy = sy/cnt;
+    const dist = Math.hypot(cx - px, cy - py)/Math.max(R, 1);
+    const sizePen = expArea ? Math.abs(Math.log(cnt/expArea)) : 0;
+    const score = dist + .45*sizePen;
+    if (score < bestScore){ bestScore = score; best = { x:cx, y:cy, area:cnt, d:2*Math.sqrt(cnt/Math.PI), score }; }
+  }
+  return best;
+}
+const G0 = 9.80665;
+// Full physical analysis of a recorded throw. samples: {t (s), x, y (proc px)}; s: metres per px.
+function analyze(samples, s, floorPx){
+  if (!samples || samples.length < 8) return { err:'short' };
+  const t0 = samples[0].t, x0 = samples[0].x, y0 = samples[0].y;
+  const T = samples.map(p => p.t - t0), X = samples.map(p => (p.x - x0)*s), Y = samples.map(p => (y0 - p.y)*s);
+  const n = T.length, VX = [], VY = [], SP = [];
+  for (let i = 0; i < n; i++){
+    const a = Math.max(0, i - 2), b = Math.min(n, i + 3);
+    const fx = polyfit(T.slice(a, b), X.slice(a, b), 1), fy = polyfit(T.slice(a, b), Y.slice(a, b), 1);
+    VX[i] = fx.c[1]; VY[i] = fy.c[1]; SP[i] = Math.hypot(VX[i], VY[i]);
+  }
+  const tol = Math.max(.005, .8*s);
+  const cuts = [];
+  for (let i = 2; i < n - 2; i++){
+    if (Y[i] <= Math.min(Y[i-1], Y[i-2], Y[i+1], Y[i+2]) && Y[i-2] - Y[i] > 3*tol && Y[i+2] - Y[i] > 3*tol){
+      if (!cuts.length || i - cuts[cuts.length - 1] > 3) cuts.push(i);
+    }
+  }
+  const bounds = [0, ...cuts, n - 1], segs = [];
+  for (let k = 0; k < bounds.length - 1; k++){
+    const a = bounds[k], b = bounds[k+1];
+    if (b - a + 1 < 6) continue;
+    const Ts = T.slice(a, b + 1), Ys = Y.slice(a, b + 1);
+    const tf = trimFree(Ts, Ys, tol) || trimFree(Ts, Ys, tol*2);
+    if (!tf) continue;
+    const g = -tf.f.d2();
+    if (!(g > 2 && g < 30)) continue;
+    segs.push({ a:a + tf.s, b:a + tf.e, fy:tf.f, g, cutBefore: k > 0 ? a : null, cutAfter: k < bounds.length - 2 ? b : null });
+  }
+  if (!segs.length) return { err:'nofree', T, X, Y, SP };
+  const main = segs.reduce((p, c) => (T[c.b] - T[c.a]) > (T[p.b] - T[p.a]) ? c : p);
+  const Ts = T.slice(main.a, main.b + 1), Xs = X.slice(main.a, main.b + 1);
+  const fx1 = polyfit(Ts, Xs, 1), fx2 = Ts.length >= 10 ? polyfit(Ts, Xs, 2) : null;
+  const g = main.g, fy = main.fy, ta = Ts[0], tb = Ts[Ts.length - 1];
+  const vx = fx1.c[1], vy0 = fy.d1(ta), v0 = Math.hypot(vx, vy0);
+  const ang = Math.atan2(vy0, Math.abs(vx))*180/Math.PI;
+  const apexH = vy0 > 0 ? vy0*vy0/(2*g) : 0, apexT = vy0 > 0 ? vy0/g : 0;
+  const flight = tb - ta, range = Math.abs(vx)*flight;
+  let vmax = 0; for (let i = 0; i < n; i++) vmax = Math.max(vmax, SP[i]);
+  const drag = fx2 && Math.abs(vx) > .3 ? -Math.sign(vx)*fx2.d2() : null;
+  const bounces = [];
+  for (let i = 0; i < segs.length - 1; i++){
+    const A = segs[i], B = segs[i+1];
+    if (A.cutAfter != null && A.cutAfter === B.cutBefore){
+      const tbn = T[A.cutAfter], va = A.fy.d1(tbn), vb = B.fy.d1(tbn);
+      if (va < 0 && vb > 0) bounces.push({ t:tbn, e:vb/(-va), vin:-va, vout:vb });
+    }
+  }
+  const floorY = floorPx != null ? (y0 - floorPx)*s : null;
+  const h0 = floorY != null ? fy.at(ta) - floorY : null;
+  return { T, X, Y, VX, VY, SP, segs, main, g, errPct:Math.abs(g - G0)/G0*100, r2:fy.r2, rms:fy.rms,
+           v0, vx, vy0, ang, apexH, apexT, flight, range, vmax, drag, bounces, h0, floorY, fy, fx1, ta, tb, n, s };
+}
+function simPlanet(vx, vy, h0, g){
+  const disc = vy*vy + 2*g*h0;
+  if (disc < 0) return null;
+  const tEnd = (vy + Math.sqrt(disc))/g;
+  if (!(tEnd > 0)) return null;
+  const pts = [];
+  for (let i = 0; i <= 80; i++){ const t = tEnd*i/80; pts.push([Math.abs(vx)*t, h0 + vy*t - .5*g*t*t]); }
+  return { pts, tEnd, maxH: h0 + (vy > 0 ? vy*vy/(2*g) : 0), range: Math.abs(vx)*tEnd };
+}
+/*CORE-END*/
+</script>
+
+<script>
+const $ = s => document.querySelector(s);
+const video = $('#video'), cv = $('#view'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+function resize(){ DPR = Math.min(2, devicePixelRatio || 1); W = cv.width = Math.round(innerWidth*DPR); H = cv.height = Math.round(innerHeight*DPR); }
+addEventListener('resize', resize); resize();
+
+/* processing buffers */
+const pc = document.createElement('canvas'), pctx = pc.getContext('2d', { willReadFrequently:true });
+let pw = 0, ph = 0, D = null, stamp = null, queue = null, fid = 0, ring = [], ringIdx = 0, lastVW = 0, lastVH = 0;
+function setupProc(){
+  const vw = video.videoWidth, vh = video.videoHeight, k = 320/Math.max(vw, vh);
+  pw = Math.round(vw*k); ph = Math.round(vh*k); pc.width = pw; pc.height = ph;
+  stamp = new Int32Array(pw*ph); queue = new Int32Array(pw*ph);
+  ring = Array.from({ length:12 }, () => new Uint8ClampedArray(pw*ph*4)); ringIdx = 0;
+  lastVW = vw; lastVH = vh;
+}
+/* mapping (cover) */
+let vw = 1, vh = 1, sc = 1, ox = 0, oy = 0;
+function layout(){ vw = video.videoWidth || 1; vh = video.videoHeight || 1; sc = Math.max(W/vw, H/vh); ox = (W - vw*sc)/2; oy = (H - vh*sc)/2; }
+const SX = px => ox + (px/pw)*vw*sc, SY = py => oy + (py/ph)*vh*sc;
+const toProc = (cx, cy) => [((cx*DPR - ox)/(vw*sc))*pw, ((cy*DPR - oy)/(vh*sc))*ph];
+
+/* objects */
+const PRESETS = [
+  { name:'كرة تنس', d:6.7, m:58 }, { name:'كرة قدم', d:22, m:430 },
+  { name:'كرة سلة', d:24, m:620 }, { name:'كرة طائرة', d:21, m:270 },
+  { name:'برتقالة', d:8, m:150 }, { name:'كرة بلاستيك صغيرة', d:6, m:20 },
+  { name:'تفاحة', d:7.5, m:180 }, { name:'كرة بينج بونج', d:4, m:2.7 }
+];
+let OBJ = { name:'كرة تنس', d:.067, m:.058 };
+try{ const sv = JSON.parse(localStorage.getItem('lab.obj')); if (sv && sv.d > 0) OBJ = sv; }catch(e){}
+
+/* state */
+let state = 'select', M = null, tr = null, hist = [], rec = null, diams = [], scale = null;
+let floorPx = null, pickFloor = false, lastRes = null, expNo = 0, fps = 0;
+let msgT = 0;
+
+/* audio */
+let ac = null, arVoice = null;
+function pickVoice(){ try{ const v = speechSynthesis.getVoices(); arVoice = v.find(x => /^ar[-_]SA/i.test(x.lang)) || v.find(x => /^ar/i.test(x.lang)) || null; }catch(e){} }
+if ('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); }
+function unlockAudio(){
+  try{ ac = new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); g.gain.value = 0; o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + .05); }catch(e){}
+  try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){}
+}
+function beep(f, d = .1, t0 = 0, type = 'sine', vol = .2){
+  if (!ac) return;
+  try{ const t = ac.currentTime + t0, o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d + .02); }catch(e){}
+}
+function speak(t){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'ar-SA'; if (arVoice) u.voice = arVoice; speechSynthesis.speak(u); }catch(e){} }
+
+/* ui helpers */
+function toast(t){ const b = $('#toasts'), e = document.createElement('div'); e.className = 'toast'; e.textContent = t; b.prepend(e); while (b.children.length > 2) b.lastChild.remove(); setTimeout(() => { e.style.opacity = 0; setTimeout(() => e.remove(), 450); }, 3500); }
+function setStatus(t, cls){ const s = $('#status'); if (s.textContent !== t) s.textContent = t; s.className = cls || ''; }
+const median = a => { const b = [...a].sort((x, y) => x - y); return b[b.length >> 1]; };
+const fmtN = (v, d = 2) => (v == null || !isFinite(v)) ? '—' : v.toFixed(d);
+
+/* ---------- tracking ---------- */
+function curScale(){ return scale || (M ? OBJ.d/M.d : null); }
+function speedM(){ const s = curScale(); return tr && s ? Math.hypot(tr.vx, tr.vy)*s : 0; }
+function resetSelection(){ state = 'select'; M = null; tr = null; hist = []; rec = null; diams = []; scale = null; }
+
+function updateTrack(meas, t){
+  const arr = state === 'rec' ? rec.samples : hist;
+  const smp = { t, x:meas.x, y:meas.y, d:meas.d, a:meas.area };
+  if (state === 'rec') smp.buf = new Uint8ClampedArray(D);
+  else { const b = ring[ringIdx]; b.set(D); smp.buf = b; ringIdx = (ringIdx + 1) % ring.length; }
+  arr.push(smp);
+  if (state !== 'rec' && hist.length > ring.length - 1) hist.shift();
+  const rec6 = arr.filter(p => t - p.t <= .1).slice(-6);
+  let vx = 0, vy = 0, ay = null;
+  if (rec6.length >= 3){
+    vx = polyfit(rec6.map(p => p.t), rec6.map(p => p.x), 1).c[1];
+    vy = polyfit(rec6.map(p => p.t), rec6.map(p => p.y), 1).c[1];
+  }
+  const r10 = arr.slice(-10);
+  if (r10.length >= 7 && r10[r10.length-1].t - r10[0].t < .3) ay = polyfit(r10.map(p => p.t), r10.map(p => p.y), 2).d2();
+  tr = { x:meas.x, y:meas.y, d:meas.d, t, vx, vy, ay, area: tr && tr.area ? tr.area*.8 + meas.area*.2 : meas.area };
+}
+
+function startRec(t){
+  rec = { t0:t, samples: hist.slice(-8).map(p => ({ ...p, buf:new Uint8ClampedArray(p.buf) })), slowSince:0 };
+  scale = curScale();
+  hist = []; state = 'rec';
+  beep(880, .08); beep(1320, .08, .09);
+}
+function finishRec(){
+  const r = rec; rec = null; state = 'armed'; hist = [];
+  const res = analyze(r.samples, scale, floorPx);
+  if (res.err === 'short'){ toast('الحركة كانت قصيرة جداً… جرب رمية أطول قدام الكاميرا'); return; }
+  if (res.err === 'nofree'){ toast('ما لقيت طيران حر. ارمِ الكرة في الهواء (مو تحركها بيدك)'); return; }
+  expNo++; res.samples = r.samples; res.model = M; res.obj = { ...OBJ }; res.pw = pw; res.ph = ph; res.fps = fps;
+  lastRes = res; $('#bLast').disabled = false;
+  for (let i = 0; i < 4; i++) beep(660 + i*220, .12, i*.09, 'triangle', .18);
+  showResults(res);
+  speak(`الجاذبية المقاسة ${res.g.toFixed(2)} متر لكل ثانية تربيع`);
+}
+
+function onFrame(t){
+  if (!video.videoWidth) return;
+  if (video.videoWidth !== lastVW || video.videoHeight !== lastVH){ setupProc(); resetSelection(); }
+  layout();
+  pctx.drawImage(video, 0, 0, pw, ph);
+  D = pctx.getImageData(0, 0, pw, ph).data; fid++;
+  let meas = null;
+  if (M && state !== 'select'){
+    const lostFor = tr ? t - tr.t : 99;
+    let px, py, R, full = false;
+    if (tr && lostFor < .5){
+      const dt = t - tr.t;
+      px = tr.x + tr.vx*dt; py = tr.y + tr.vy*dt + (tr.ay ? .5*tr.ay*dt*dt : 0);
+      R = Math.max(3*tr.d, 16, Math.hypot(tr.vx, tr.vy)*dt*2.5 + 2*tr.d);
+    } else { px = pw/2; py = ph/2; R = Math.max(pw, ph); full = true; }
+    const exp = tr && tr.area ? tr.area : M.area;
+    meas = detect(D, pw, ph, M, px, py, R, exp, stamp, fid, queue);
+    if (meas && full){ const r = meas.area/M.area; if (r < .2 || r > 5) meas = null; }
+  }
+  if (meas) updateTrack(meas, t);
+
+  if (state === 'armed'){
+    if (meas){
+      const sp = speedM();
+      if (sp < .25){ diams.push(meas.d); if (diams.length > 25) diams.shift(); scale = OBJ.d/median(diams); }
+      if (sp > 1.0 && hist.length >= 4) startRec(t);
+    }
+    const lost = tr ? t - tr.t : 99;
+    if (lost > 1) setStatus('🔍 أدور على الجسم… خله قدام الكاميرا');
+    else setStatus('✅ مقفل على الجسم • ارمِه قدام الكاميرا');
+  } else if (state === 'rec'){
+    const lost = meas ? 0 : t - (tr ? tr.t : rec.t0), dur = t - rec.t0;
+    if (meas){ if (speedM() < .3){ if (!rec.slowSince) rec.slowSince = t; } else rec.slowSince = 0; }
+    setStatus(`● جاري التسجيل… ${rec.samples.length} قياس`, 'rec');
+    if (lost > .25 || (rec.slowSince && t - rec.slowSince > .35 && dur > .4) || dur > 3.5 || rec.samples.length >= 220) finishRec();
+  } else if (state === 'select'){
+    setStatus(pickFloor ? '📏 اضغط على مستوى الأرض في الشاشة' : '👆 اضغط على الكرة في الشاشة لتحديدها');
+  }
+  if (pickFloor && state !== 'select') setStatus('📏 اضغط على مستوى الأرض في الشاشة');
+  render(t);
+  updateHUD(t);
+}
+
+/* ---------- live rendering ---------- */
+function speedColor(v){ const k = Math.max(0, Math.min(1, v/8)); const h = 190 - k*190; return `hsl(${h},100%,60%)`; }
+function arrow(x0, y0, x1, y1, col, w){
+  const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0); if (L < 4*DPR) return;
+  const hl = Math.min(12*DPR, L*.4);
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(a)*hl*.6, y1 - Math.sin(a)*hl*.6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - Math.cos(a - .45)*hl, y1 - Math.sin(a - .45)*hl); ctx.lineTo(x1 - Math.cos(a + .45)*hl, y1 - Math.sin(a + .45)*hl); ctx.closePath(); ctx.fill();
+}
+function txt(s, x, y, col, size = 12, align = 'center'){
+  ctx.font = `600 ${size*DPR}px "IBM Plex Sans Arabic", sans-serif`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 3*DPR; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText(s, x, y); ctx.fillStyle = col; ctx.fillText(s, x, y);
+}
+function render(t){
+  ctx.drawImage(video, ox, oy, vw*sc, vh*sc);
+  ctx.fillStyle = 'rgba(0,15,10,.16)'; ctx.fillRect(0, 0, W, H);
+  // lab grid
+  ctx.strokeStyle = 'rgba(182,255,61,.06)'; ctx.lineWidth = 1; ctx.beginPath();
+  const gs = 40*DPR; for (let x = W % gs/2; x < W; x += gs){ ctx.moveTo(x, 0); ctx.lineTo(x, H); } for (let y = H % gs/2; y < H; y += gs){ ctx.moveTo(0, y); ctx.lineTo(W, y); } ctx.stroke();
+
+  if (floorPx != null){
+    const fy = SY(floorPx);
+    ctx.setLineDash([10*DPR, 8*DPR]); ctx.strokeStyle = '#b6ff3dcc'; ctx.lineWidth = 2*DPR;
+    ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(W, fy); ctx.stroke(); ctx.setLineDash([]);
+    txt('الأرض • h = 0', W - 12*DPR, fy - 12*DPR, '#b6ff3d', 11, 'right');
+  }
+  if (state === 'select' && !pickFloor){
+    const r = (40 + 8*Math.sin(t*4))*DPR;
+    ctx.strokeStyle = '#3df5ff99'; ctx.lineWidth = 2*DPR; ctx.beginPath(); ctx.arc(W/2, H/2, r, 0, Math.PI*2); ctx.stroke();
+    txt('اضغط على الكرة', W/2, H/2 + r + 16*DPR, '#e6ffff', 13);
+  }
+  const s = curScale();
+  const arr = state === 'rec' ? rec.samples : hist;
+  if (arr.length > 1){
+    ctx.lineCap = 'round';
+    for (let i = 1; i < arr.length; i++){
+      const a = arr[i-1], b = arr[i], v = s ? Math.hypot(b.x - a.x, b.y - a.y)/Math.max(1e-3, b.t - a.t)*s : 0;
+      ctx.strokeStyle = speedColor(v); ctx.lineWidth = (state === 'rec' ? 4 : 2)*DPR;
+      ctx.beginPath(); ctx.moveTo(SX(a.x), SY(a.y)); ctx.lineTo(SX(b.x), SY(b.y)); ctx.stroke();
+      if (state === 'rec' && i % 3 === 0){ ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(SX(b.x), SY(b.y), 2.5*DPR, 0, Math.PI*2); ctx.fill(); }
+    }
+  }
+  // live prediction during flight
+  if (state === 'rec' && s && rec.samples.length >= 6){
+    const r = rec.samples.filter(p => t - p.t < .3).slice(-14);
+    if (r.length >= 6){
+      const ts = r.map(p => p.t), fx = polyfit(ts, r.map(p => p.x), 1), fy = polyfit(ts, r.map(p => p.y), 2);
+      const gpx = fy.d2(), gm = gpx*s;
+      if (gm > 4 && gm < 20 && fy.rms < 2.5){
+        ctx.setLineDash([3*DPR, 7*DPR]); ctx.strokeStyle = '#ffffffcc'; ctx.lineWidth = 2.5*DPR; ctx.beginPath();
+        let land = null;
+        for (let k = 0; k <= 60; k++){
+          const tt = t + k*(1.2/60), x = fx.at(tt), y = fy.at(tt);
+          if (k === 0) ctx.moveTo(SX(x), SY(y)); else ctx.lineTo(SX(x), SY(y));
+          if (floorPx != null && y >= floorPx && fy.d1(tt) > 0){ land = { x, y:floorPx, dt:tt - t }; break; }
+          if (y > ph*1.2 || x < -pw*.2 || x > pw*1.2) break;
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+        if (land){
+          const lx = SX(land.x), ly = SY(land.y), rr = (14 + 4*Math.sin(t*12))*DPR;
+          ctx.strokeStyle = '#ff4d5e'; ctx.lineWidth = 3*DPR; ctx.beginPath(); ctx.arc(lx, ly, rr, 0, Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(lx - rr*1.5, ly); ctx.lineTo(lx + rr*1.5, ly); ctx.moveTo(lx, ly - rr*1.5); ctx.lineTo(lx, ly + rr*1.5); ctx.stroke();
+          txt(`هبوط متوقع بعد ${land.dt.toFixed(2)} ث`, lx, ly - rr - 14*DPR, '#ff8a95', 12);
+        }
+        txt(`g ≈ ${gm.toFixed(2)}`, SX(tr ? tr.x : fx.at(t)), SY(tr ? tr.y : fy.at(t)) + 34*DPR, '#c38bff', 12);
+      }
+    }
+  }
+  // lock reticle + vectors
+  if (tr && t - tr.t < .3){
+    const cx = SX(tr.x), cy = SY(tr.y), rr = Math.max(14*DPR, tr.d/2*(vw*sc/pw) + 8*DPR);
+    const col = state === 'rec' ? '#ff4d5e' : '#b6ff3d';
+    ctx.strokeStyle = col; ctx.lineWidth = 2*DPR;
+    for (let k = 0; k < 4; k++){ const a = t*2 + k*Math.PI/2; ctx.beginPath(); ctx.arc(cx, cy, rr, a, a + .9); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(cx - rr - 6*DPR, cy); ctx.lineTo(cx - rr + 4*DPR, cy); ctx.moveTo(cx + rr - 4*DPR, cy); ctx.lineTo(cx + rr + 6*DPR, cy); ctx.stroke();
+    if (s){
+      const k = .12, ex = SX(tr.x + tr.vx*k), ey = SY(tr.y + tr.vy*k);
+      if (Math.hypot(tr.vx, tr.vy)*s > .3) arrow(cx, cy, ex, ey, '#3df5ff', 3*DPR);
+      if (state === 'rec' && tr.ay && Math.abs(tr.ay*s) > 2) arrow(cx, cy, cx, cy + Math.min(70*DPR, tr.ay*.012*DPR), '#ff4d5e', 3*DPR);
+      if (state !== 'rec') txt(`مقفل • ⌀ ${(OBJ.d*100).toFixed(1)} سم`, cx, cy - rr - 14*DPR, col, 11);
+    }
+  }
+}
+
+let lastHud = 0;
+function updateHUD(t){
+  if (t - lastHud < .1) return; lastHud = t;
+  const s = curScale(), sp = speedM();
+  $('#cKmh').textContent = (sp*3.6).toFixed(1);
+  $('#cMs').textContent = sp.toFixed(2);
+  $('#cH').textContent = (tr && s && floorPx != null) ? Math.max(0, (floorPx - tr.y)*s*100).toFixed(0) : '—';
+  $('#cA').textContent = (tr && s && tr.ay != null && state === 'rec') ? Math.abs(tr.ay*s).toFixed(1) : '—';
+  const ri = $('#recInd'); ri.classList.toggle('on', state === 'rec');
+  ri.querySelector('span').textContent = state === 'rec' ? 'تسجيل' : state === 'armed' ? 'مقفل' : 'انتظار';
+  $('#tele').textContent = `${pw}x${ph} PROC · ${fps} FPS · SCALE ${s ? (s*1000).toFixed(2) + ' mm/px' : '—'} · TRACK ${tr && t - tr.t < .3 ? 'LOCK' : '—'} · EXP #${expNo}`;
+}
+
+/* ---------- frame loop ---------- */
+let fpsN = 0, fpsT = performance.now(), lastMT = -1;
+function frameStats(){ fpsN++; const n = performance.now(); if (n - fpsT > 1000){ fps = Math.round(fpsN*1000/(n - fpsT)); fpsN = 0; fpsT = n; } }
+function loopRVFC(now, meta){
+  video.requestVideoFrameCallback(loopRVFC);
+  if ($('#res').classList.contains('open')) return;
+  frameStats(); try{ onFrame(meta.mediaTime); }catch(e){ console.error(e); }
+}
+function loopRAF(){
+  requestAnimationFrame(loopRAF);
+  if ($('#res').classList.contains('open')) return;
+  if (video.currentTime === lastMT) return; lastMT = video.currentTime;
+  frameStats(); try{ onFrame(performance.now()/1000); }catch(e){ console.error(e); }
+}
+
+/* ---------- input ---------- */
+cv.addEventListener('pointerdown', e => {
+  if (!pw || !D) return;
+  const [px, py] = toProc(e.clientX, e.clientY);
+  if (pickFloor){
+    floorPx = Math.max(0, Math.min(ph - 1, py)); pickFloor = false; $('#bFloor').classList.remove('on');
+    toast('تم تحديد الأرض ✓ الحين يقدر يتنبأ وين بتطيح الكرة'); beep(1000, .06); return;
+  }
+  if (state === 'rec') return;
+  const m = makeModel(D, pw, ph, px, py);
+  if (!m){ toast('ما قدرت أميز الجسم. اضغط على وسطه بالضبط'); return; }
+  if (m.big){ toast('اللون منتشر في الخلفية كثير. استخدم كرة لونها مختلف عن المكان'); return; }
+  if (m.gray) toast('تنبيه: الأجسام الملونة (أحمر، أصفر، أخضر) تتتبع أفضل من الأبيض والرمادي');
+  M = m; state = 'armed'; tr = null; hist = []; diams = [m.d]; scale = OBJ.d/m.d;
+  beep(1200, .06); beep(1600, .08, .07);
+  toast(`تم القفل على الجسم 🎯 (${Math.round(m.d)} بكسل)`);
+});
+$('#bSel').onclick = () => { resetSelection(); pickFloor = false; $('#bFloor').classList.remove('on'); };
+$('#bFloor').onclick = () => {
+  if (floorPx != null && !pickFloor){ floorPx = null; toast('تم إلغاء الأرض'); return; }
+  pickFloor = !pickFloor; $('#bFloor').classList.toggle('on', pickFloor);
+};
+$('#bLast').onclick = () => lastRes && showResults(lastRes);
+
+/* object sheet */
+function renderPresets(){
+  const box = $('#presets'); box.innerHTML = '';
+  for (const p of PRESETS){
+    const b = document.createElement('button'); b.className = 'preset' + (OBJ.name === p.name ? ' on' : '');
+    b.innerHTML = `${p.name}<small>⌀ ${p.d} سم • ${p.m} جم</small>`;
+    b.onclick = () => { setObj(p.name, p.d, p.m); renderPresets(); };
+    box.appendChild(b);
+  }
+  $('#cD').value = (OBJ.d*100).toFixed(1); $('#cM').value = Math.round(OBJ.m*1000*10)/10;
+}
+function setObj(name, dcm, mg){
+  OBJ = { name, d:dcm/100, m:mg/1000 }; $('#objName').textContent = name;
+  if (M) scale = OBJ.d/median(diams.length ? diams : [M.d]);
+  try{ localStorage.setItem('lab.obj', JSON.stringify(OBJ)); }catch(e){}
+}
+$('#bObj').onclick = () => { renderPresets(); $('#objSheet').classList.add('open'); };
+$('#objClose').onclick = () => $('#objSheet').classList.remove('open');
+$('#cApply').onclick = () => {
+  const d = parseFloat($('#cD').value), m = parseFloat($('#cM').value);
+  if (!(d > 0.5 && d < 100)) { toast('اكتب قطر صحيح بالسنتيمتر'); return; }
+  setObj('جسم مخصص', d, m > 0 ? m : 100); renderPresets(); $('#objSheet').classList.remove('open');
+};
+
+/* ---------- results ---------- */
+function plot(cvs, series, o = {}){
+  const dpr = Math.min(2, devicePixelRatio || 1), w = cvs.clientWidth || 320, h = o.h || 190;
+  cvs.width = w*dpr; cvs.height = h*dpr; cvs.style.height = h + 'px';
+  const c = cvs.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  let xs = [], ys = [];
+  for (const s of series) for (const p of s.pts){ if (isFinite(p[0]) && isFinite(p[1])){ xs.push(p[0]); ys.push(p[1]); } }
+  if (!xs.length) return;
+  let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  if (o.y0 != null) y0 = Math.min(y0, o.y0);
+  if (x1 - x0 < 1e-6){ x0 -= .5; x1 += .5; } if (y1 - y0 < 1e-6){ y0 -= .5; y1 += .5; }
+  const pxp = (x1 - x0)*.06, pyp = (y1 - y0)*.12; x0 -= pxp; x1 += pxp; y0 -= pyp; y1 += pyp;
+  const L = 42, R = 10, T = 22, B = 26, PW = w - L - R, PH = h - T - B;
+  if (o.equal){
+    const k = Math.min(PW/(x1 - x0), PH/(y1 - y0)), cxm = (x0 + x1)/2, cym = (y0 + y1)/2;
+    x0 = cxm - PW/k/2; x1 = cxm + PW/k/2; y0 = cym - PH/k/2; y1 = cym + PH/k/2;
+  }
+  const sx = v => L + (v - x0)/(x1 - x0)*PW, sy = v => T + PH - (v - y0)/(y1 - y0)*PH;
+  c.font = '10px "JetBrains Mono", monospace'; c.fillStyle = '#7ab'; c.strokeStyle = 'rgba(61,245,255,.09)'; c.lineWidth = 1;
+  for (let i = 0; i <= 4; i++){
+    const xv = x0 + (x1 - x0)*i/4, yv = y0 + (y1 - y0)*i/4;
+    c.beginPath(); c.moveTo(sx(xv), T); c.lineTo(sx(xv), T + PH); c.moveTo(L, sy(yv)); c.lineTo(L + PW, sy(yv)); c.stroke();
+    c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText(+xv.toFixed(Math.abs(x1 - x0) < 2 ? 2 : 1), sx(xv), T + PH + 5);
+    c.textAlign = 'right'; c.textBaseline = 'middle'; c.fillText(+yv.toFixed(Math.abs(y1 - y0) < 2 ? 2 : 1), L - 5, sy(yv));
+  }
+  if (y0 < 0 && y1 > 0){ c.strokeStyle = 'rgba(255,255,255,.25)'; c.beginPath(); c.moveTo(L, sy(0)); c.lineTo(L + PW, sy(0)); c.stroke(); }
+  for (const s of series){
+    c.strokeStyle = s.color; c.fillStyle = s.color; c.lineWidth = s.w || 2;
+    if (s.dash) c.setLineDash(s.dash); else c.setLineDash([]);
+    if (s.type === 'dot'){ for (const p of s.pts){ c.globalAlpha = s.alpha || .9; c.beginPath(); c.arc(sx(p[0]), sy(p[1]), s.r || 2.6, 0, Math.PI*2); c.fill(); } c.globalAlpha = 1; }
+    else { c.beginPath(); s.pts.forEach((p, i) => i ? c.lineTo(sx(p[0]), sy(p[1])) : c.moveTo(sx(p[0]), sy(p[1]))); c.stroke(); }
+  }
+  c.setLineDash([]);
+  c.font = '600 11px "IBM Plex Sans Arabic", sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'right';
+  let lx = w - 8;
+  for (const s of series){ if (!s.label) continue; c.fillStyle = '#dff'; c.fillText(s.label, lx, 10); const tw = c.measureText(s.label).width; c.fillStyle = s.color; c.fillRect(lx - tw - 14, 6, 9, 9); lx -= tw + 26; }
+  c.fillStyle = '#7ab'; c.font = '10px "IBM Plex Sans Arabic", sans-serif';
+  if (o.xl){ c.textAlign = 'left'; c.textBaseline = 'bottom'; c.fillText(o.xl, L, h - 1); }
+  if (o.yl){ c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(o.yl, 4, 10); }
+}
+
+const PLANETS = [
+  { n:'القمر', g:1.62, c:'#d6d6d6' }, { n:'المريخ', g:3.72, c:'#ff7a4d' },
+  { n:'الأرض (نظري)', g:G0, c:'#3df5ff' }, { n:'المشتري', g:24.79, c:'#ffd23d' }
+];
+let curRes = null;
+function card(k, v, u, s, cls){ return `<div class="card ${cls || ''}"><div class="k">${k}</div><div class="v">${v} <small>${u || ''}</small></div>${s ? `<div class="s">${s}</div>` : ''}</div>`; }
+function showResults(r){
+  curRes = r;
+  $('#resTitle').textContent = `نتائج التجربة #${expNo}`;
+  const acc = Math.max(0, 100 - r.errPct);
+  const verdict = r.errPct < 3 ? 'دقة مختبرات! 🎯' : r.errPct < 8 ? 'نتيجة ممتازة 🔬' : r.errPct < 20 ? 'نتيجة جيدة • جرب رمية أوضح وإضاءة أقوى' : 'القياس بعيد • تأكد من قطر الجسم وثبات الجوال';
+  const m = r.obj.m, ke = .5*m*r.v0*r.v0;
+  let html = `<div class="hero"><div class="lbl">تسارع الجاذبية الأرضية المقاس من رميتك</div>
+    <div class="val">${r.g.toFixed(2)} <small>m/s²</small></div>
+    <div class="cmp">القيمة العلمية الحقيقية 9.81 • الفرق ${r.errPct.toFixed(1)}%</div>
+    <div class="bar"><i id="accBar" style="width:0"></i></div><div class="verdict">${verdict}</div></div>
+    <div class="cards">
+    ${card('سرعة الإطلاق', fmtN(r.v0), 'م/ث', `${(r.v0*3.6).toFixed(1)} كم/س`)}
+    ${card('زاوية الإطلاق', fmtN(r.ang, 1), '°', r.ang > 0 ? 'فوق الأفق' : 'تحت الأفق')}
+    ${card('أقصى ارتفاع', fmtN(r.apexH*100, 1), 'سم', `فوق نقطة الإطلاق • بعد ${fmtN(r.apexT)} ث`)}
+    ${card('زمن الطيران الحر', fmtN(r.flight, 3), 'ث', `${r.main.b - r.main.a + 1} قياس في هالفترة`)}
+    ${card('المسافة الأفقية', fmtN(r.range*100, 1), 'سم', `السرعة الأفقية ${fmtN(Math.abs(r.vx))} م/ث`)}
+    ${card('أعلى سرعة مسجلة', fmtN(r.vmax*3.6, 1), 'كم/س', `${fmtN(r.vmax)} م/ث`)}
+    ${card('طاقة الحركة عند الإطلاق', ke < 1 ? fmtN(ke*1000, 0) : fmtN(ke), ke < 1 ? 'ملي جول' : 'جول', `لجسم وزنه ${Math.round(m*1000)} جم`)}
+    ${card('مقاومة الهواء', r.drag == null ? '—' : fmtN(Math.max(0, r.drag)), r.drag == null ? '' : 'م/ث²', 'تباطؤ أفقي بسبب الهواء')}
+    ${card('مطابقة النموذج الفيزيائي', fmtN(r.r2*100, 2), '%', `الانحراف عن المعادلة ${fmtN(r.rms*1000, 1)} ملم فقط`)}
+    ${card('دقة القياس', fmtN(r.s*1000, 2), 'ملم/بكسل', `${r.n} قياس • ${r.fps || '—'} إطار/ث`)}`;
+  r.bounces.forEach((b, i) => {
+    html += card(`الارتداد ${i + 1} • معامل الارتداد`, fmtN(b.e), '', `رجعت بـ ${Math.round(b.e*100)}% من سرعتها، واحتفظت بـ ${Math.round(b.e*b.e*100)}% من طاقتها`, 'hl');
+  });
+  if (r.h0 != null) html += card('ارتفاع الإطلاق عن الأرض', fmtN(r.h0*100, 1), 'سم', '', 'wide');
+  html += `</div><p class="explain">كيف انحسبت؟ المختبر تتبع مركز الجسم في كل إطار، وحوّل البكسلات لأمتار من قطر الجسم الحقيقي (${(r.obj.d*100).toFixed(1)} سم). بعدها طابق المسار على معادلة الحركة y = y₀ + v₀t − ½gt² بطريقة المربعات الصغرى، واستخرج g من انحناء القطع المكافئ.</p>`;
+  $('#t-sum').innerHTML = html;
+  setTimeout(() => { const b = $('#accBar'); if (b) b.style.width = acc + '%'; }, 120);
+
+  $('#t-graph').innerHTML = `
+    <div class="gtitle">مسار الجسم <small>نقاط = قياس • خط = معادلة الفيزياء</small></div><canvas class="plot" id="g1"></canvas>
+    <div class="gtitle">السرعة العمودية مع الزمن <small>ميل الخط = −g</small></div><canvas class="plot" id="g2"></canvas>
+    <p class="explain">في الطيران الحر، السرعة العمودية تنقص بمعدل ثابت. الخط المستقيم هذا هو الجاذبية نفسها، وميله ${r.g.toFixed(2)} م/ث² كل ثانية.</p>
+    <div class="gtitle">السرعة الكلية <small>كم/س</small></div><canvas class="plot" id="g3"></canvas>
+    <div class="gtitle">الطاقة <small>حركية + وضع = ثابتة تقريباً</small></div><canvas class="plot" id="g4"></canvas>
+    <p class="explain">قانون حفظ الطاقة: لما ترتفع الكرة تتحول طاقة الحركة (الأزرق) إلى طاقة وضع (البنفسجي)، والمجموع (الأخضر) يبقى تقريباً ثابت إلا اللي يضيع بسبب الهواء والارتداد.</p>`;
+  activeTab('sum');
+  $('#res').classList.add('open');
+  setTimeout(() => drawGraphs(r), 60);
+  initReplay(r); buildPlanets(r);
+}
+function drawGraphs(r){
+  const a = r.main.a, b = r.main.b;
+  const fitPts = []; for (let k = 0; k <= 60; k++){ const t = r.ta + (r.tb - r.ta)*k/60; fitPts.push([r.fx1.at(t), r.fy.at(t)]); }
+  const raw = r.T.map((t, i) => [r.X[i], r.Y[i]]);
+  plot($('#g1'), [{ pts:raw, type:'dot', color:'#3df5ff', label:'القياس' }, { pts:fitPts, color:'#b6ff3d', w:2.5, label:'المعادلة' }], { equal:true, xl:'أفقي (م)', yl:'عمودي (م)', h:220 });
+  const vyPts = r.T.map((t, i) => [t, r.VY[i]]);
+  const vyFit = [[r.ta, r.fy.d1(r.ta)], [r.tb, r.fy.d1(r.tb)]];
+  plot($('#g2'), [{ pts:vyPts, type:'dot', color:'#3df5ff', label:'vᵧ' }, { pts:vyFit, color:'#ff4d5e', w:3, label:`−g = −${r.g.toFixed(2)}` }], { xl:'الزمن (ث)', yl:'م/ث' });
+  plot($('#g3'), [{ pts:r.T.map((t, i) => [t, r.SP[i]*3.6]), color:'#ffd23d', w:2.5, label:'السرعة' }], { xl:'الزمن (ث)', yl:'كم/س', y0:0 });
+  const m = r.obj.m, minY = Math.min(...r.Y.slice(a, b + 1));
+  const KE = [], PE = [], TE = [];
+  for (let i = a; i <= b; i++){
+    const t = r.T[i], vy = r.fy.d1(t), v2 = r.vx*r.vx + vy*vy, h = r.fy.at(t) - minY;
+    const k = .5*m*v2, p = m*G0*h; KE.push([t, k]); PE.push([t, p]); TE.push([t, k + p]);
+  }
+  plot($('#g4'), [{ pts:KE, color:'#3df5ff', label:'حركية' }, { pts:PE, color:'#c38bff', label:'وضع' }, { pts:TE, color:'#b6ff3d', w:3, label:'المجموع' }], { xl:'الزمن (ث)', yl:'جول', y0:0 });
+}
+function buildPlanets(r){
+  const h0 = r.h0 != null ? Math.max(0, r.h0) : 0;
+  const sims = PLANETS.map(p => ({ ...p, s:simPlanet(r.vx, r.vy0, h0, p.g) }));
+  if (sims.every(x => !x.s)){ $('#t-planet').innerHTML = '<p class="explain">ارمِ الكرة لفوق عشان نقدر نقارن رميتك على الكواكب الثانية.</p>'; return; }
+  let rows = sims.map(x => x.s ? `<tr><td><span class="dot" style="background:${x.c}"></span>${x.n}</td><td class="n">${x.g.toFixed(2)}</td><td class="n">${(x.s.maxH*100).toFixed(0)} سم</td><td class="n">${x.s.range < 1 ? (x.s.range*100).toFixed(0) + ' سم' : x.s.range.toFixed(2) + ' م'}</td><td class="n">${x.s.tEnd.toFixed(2)} ث</td></tr>` : '').join('');
+  const moon = sims[0].s, earth = sims[2].s;
+  $('#t-planet').innerHTML = `<div class="gtitle">نفس رميتك بالضبط… على كواكب ثانية <small>نفس السرعة والزاوية</small></div>
+    <canvas class="plot" id="g5"></canvas>
+    <table class="pl"><tr><th>المكان</th><th>الجاذبية</th><th>أقصى ارتفاع</th><th>المسافة</th><th>زمن الطيران</th></tr>${rows}</table>
+    <p class="explain">${moon && earth ? `لو رميت نفس الرمية على القمر، بتطير الكرة ${(moon.tEnd/earth.tEnd).toFixed(1)} مرات أطول وترتفع ${(moon.maxH/Math.max(earth.maxH, 1e-3)).toFixed(1)} مرات أعلى. وعلى المشتري بالكاد تنرفع.` : ''} الحسبة مبنية على سرعة الإطلاق (${r.v0.toFixed(2)} م/ث) والزاوية (${r.ang.toFixed(1)}°) اللي قاسها المختبر من رميتك${r.h0 != null ? `، وارتفاع الإطلاق ${(h0*100).toFixed(0)} سم عن الأرض` : '، مع الهبوط على نفس مستوى الإطلاق (حدد الأرض عشان تكون أدق)'}.</p>`;
+  window._planetSims = sims;
+}
+function drawPlanets(){
+  const sims = window._planetSims; if (!sims || !$('#g5')) return;
+  plot($('#g5'), sims.filter(x => x.s).map(x => ({ pts:x.s.pts, color:x.c, w:2.5, label:x.n })), { equal:true, xl:'المسافة (م)', yl:'الارتفاع (م)', h:230, y0:0 });
+}
+function activeTab(t){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.id === 't-' + t));
+  if (t === 'graph' && curRes) drawGraphs(curRes);
+  if (t === 'planet') drawPlanets();
+  rp.playing = t === 'replay'; $('#rpPlay').textContent = rp.playing ? '⏸' : '▶';
+  if (t === 'replay') rpResize();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => activeTab(b.dataset.t));
+$('#again').onclick = () => { $('#res').classList.remove('open'); rp.playing = false; };
+
+/* ---------- replay + stroboscope ---------- */
+const rp = { playing:false, speed:.25, vt:0, strobe:false, r:null, img:null, tmp:document.createElement('canvas'), strobeImg:null, last:0 };
+const rpc = $('#rp'), rctx = rpc.getContext('2d');
+function initReplay(r){
+  rp.r = r; rp.vt = 0; rp.strobeImg = null; rp.strobe = false; $('#rpStrobe').classList.remove('on');
+  rp.tmp.width = r.pw; rp.tmp.height = r.ph;
+}
+function rpResize(){
+  const r = rp.r; if (!r) return;
+  const w = rpc.clientWidth || 320, dpr = Math.min(2, devicePixelRatio || 1);
+  const h = Math.min(innerHeight*.5, w*r.ph/r.pw);
+  rpc.width = w*dpr; rpc.height = h*dpr; rpc.style.height = h + 'px';
+}
+function buildStrobe(r){
+  const base = new Uint8ClampedArray(r.samples[0].buf), M = r.model, step = Math.max(1, Math.round(r.samples.length/16));
+  for (let k = 0; k < r.samples.length; k += step){
+    const smp = r.samples[k], src = smp.buf, rad = smp.d*.9 + 3;
+    const x0 = Math.max(0, Math.floor(smp.x - rad)), x1 = Math.min(r.pw - 1, Math.ceil(smp.x + rad));
+    const y0 = Math.max(0, Math.floor(smp.y - rad)), y1 = Math.min(r.ph - 1, Math.ceil(smp.y + rad));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++){
+      if ((x - smp.x)**2 + (y - smp.y)**2 > rad*rad) continue;
+      const i = (y*r.pw + x)*4; if (isFg(src, i, M)){ base[i] = src[i]; base[i+1] = src[i+1]; base[i+2] = src[i+2]; }
+    }
+  }
+  return new ImageData(base, r.pw, r.ph);
+}
+function rpDraw(){
+  const r = rp.r; if (!r) return;
+  const S = r.samples, tEnd = S[S.length-1].t - S[0].t;
+  let idx = 0; while (idx < S.length - 1 && S[idx+1].t - S[0].t <= rp.vt) idx++;
+  const tctx = rp.tmp.getContext('2d');
+  if (rp.strobe){ if (!rp.strobeImg) rp.strobeImg = buildStrobe(r); tctx.putImageData(rp.strobeImg, 0, 0); }
+  else tctx.putImageData(new ImageData(new Uint8ClampedArray(S[idx].buf), r.pw, r.ph), 0, 0);
+  const cw = rpc.width, ch = rpc.height, k = Math.min(cw/r.pw, ch/r.ph), dx = (cw - r.pw*k)/2, dy = (ch - r.ph*k)/2;
+  rctx.fillStyle = '#000'; rctx.fillRect(0, 0, cw, ch);
+  rctx.imageSmoothingEnabled = true; rctx.drawImage(rp.tmp, dx, dy, r.pw*k, r.ph*k);
+  const X = x => dx + x*k, Y = y => dy + y*k, dpr = cw/(rpc.clientWidth || cw);
+  // fitted path
+  rctx.setLineDash([4*dpr, 5*dpr]); rctx.strokeStyle = '#b6ff3daa'; rctx.lineWidth = 2*dpr; rctx.beginPath();
+  for (let q = 0; q <= 50; q++){ const t = r.ta + (r.tb - r.ta)*q/50, mx = r.fx1.at(t)/r.s + S[0].x, my = S[0].y - r.fy.at(t)/r.s; q ? rctx.lineTo(X(mx), Y(my)) : rctx.moveTo(X(mx), Y(my)); }
+  rctx.stroke(); rctx.setLineDash([]);
+  const upto = rp.strobe ? S.length - 1 : idx;
+  for (let i = 1; i <= upto; i++){ rctx.strokeStyle = speedColor(r.SP[i]); rctx.lineWidth = 3*dpr; rctx.beginPath(); rctx.moveTo(X(S[i-1].x), Y(S[i-1].y)); rctx.lineTo(X(S[i].x), Y(S[i].y)); rctx.stroke(); }
+  if (!rp.strobe){
+    const p = S[idx], vx = r.VX[idx]/r.s, vy = -r.VY[idx]/r.s, kk = .1;
+    rctx.strokeStyle = '#3df5ff'; rctx.lineWidth = 3*dpr; rctx.beginPath(); rctx.moveTo(X(p.x), Y(p.y)); rctx.lineTo(X(p.x + vx*kk), Y(p.y + vy*kk)); rctx.stroke();
+    rctx.strokeStyle = '#fff'; rctx.lineWidth = 2*dpr; rctx.beginPath(); rctx.arc(X(p.x), Y(p.y), Math.max(8*dpr, p.d/2*k + 4*dpr), 0, Math.PI*2); rctx.stroke();
+  }
+  rctx.font = `700 ${13*dpr}px "JetBrains Mono", monospace`; rctx.textAlign = 'left'; rctx.textBaseline = 'top';
+  rctx.fillStyle = '#000a'; rctx.fillRect(8*dpr, 8*dpr, 150*dpr, 40*dpr); rctx.fillStyle = '#b6ff3d';
+  rctx.fillText(`t = ${(S[idx].t - S[0].t).toFixed(3)} s`, 14*dpr, 13*dpr);
+  rctx.fillStyle = '#fff'; rctx.fillText(`v = ${(r.SP[idx]*3.6).toFixed(1)} km/h`, 14*dpr, 30*dpr);
+  $('#rpSeek').value = Math.round(rp.vt/Math.max(tEnd, 1e-3)*1000);
+  $('#rpInfo').textContent = rp.strobe
+    ? 'صورة ستروب: كل مواضع الكرة في صورة وحدة. لاحظ إن المسافة بين النقاط تقل عند القمة لأن الكرة تبطئ، وتزيد وهي نازلة.'
+    : `إعادة بطيئة ×${rp.speed} • ${S.length} إطار مسجل • الخط المنقط = المعادلة الفيزيائية`;
+}
+function rpLoop(ts){
+  requestAnimationFrame(rpLoop);
+  if (!$('#res').classList.contains('open') || !$('#t-replay').classList.contains('on') || !rp.r) { rp.last = ts; return; }
+  const dt = Math.min(.05, (ts - (rp.last || ts))/1000); rp.last = ts;
+  const S = rp.r.samples, tEnd = S[S.length-1].t - S[0].t;
+  if (rp.playing && !rp.strobe){ rp.vt += dt*rp.speed; if (rp.vt > tEnd + .3) rp.vt = 0; }
+  rpDraw();
+}
+requestAnimationFrame(rpLoop);
+$('#rpPlay').onclick = () => { rp.playing = !rp.playing; $('#rpPlay').textContent = rp.playing ? '⏸' : '▶'; };
+$('#rpSpd').onclick = () => { rp.speed = rp.speed === .25 ? .1 : rp.speed === .1 ? 1 : .25; $('#rpSpd').textContent = '×' + rp.speed; };
+$('#rpStrobe').onclick = () => { rp.strobe = !rp.strobe; $('#rpStrobe').classList.toggle('on', rp.strobe); };
+$('#rpSeek').oninput = e => { if (!rp.r) return; const S = rp.r.samples; rp.vt = e.target.value/1000*(S[S.length-1].t - S[0].t); rp.playing = false; $('#rpPlay').textContent = '▶'; };
+
+/* ---------- boot ---------- */
+async function startCamera(){
+  const s = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:'environment', width:{ ideal:1280 }, height:{ ideal:720 }, frameRate:{ ideal:60, max:60 } } });
+  video.srcObject = s;
+  await new Promise(r => { if (video.readyState >= 1) r(); else video.onloadedmetadata = () => r(); });
+  await video.play();
+}
+$('#objName').textContent = OBJ.name;
+$('#go').onclick = async () => {
+  $('#go').disabled = true; unlockAudio();
+  try{
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
+    await startCamera(); setupProc(); layout();
+    try{ await navigator.wakeLock?.request('screen'); }catch(e){}
+    $('#boot').classList.add('hide');
+    if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) video.requestVideoFrameCallback(loopRVFC); else requestAnimationFrame(loopRAF);
+    toast(`الجسم الحالي: ${OBJ.name} (⌀ ${(OBJ.d*100).toFixed(1)} سم) • غيّره من زر الجسم`);
+  }catch(e){
+    console.error(e);
+    $('#bootMsg').textContent = e && e.name === 'NotAllowedError' ? 'تم رفض إذن الكاميرا. افتح الإعدادات ← Safari ← الكاميرا ← اسمح، ثم أعد تحميل الصفحة.'
+      : e && e.message === 'nocam' ? 'افتح الرابط في Safari (لازم يبدأ بـ https).' : 'تعذر تشغيل الكاميرا. أعد المحاولة.';
+    $('#go').disabled = false;
+  }
+};
+</script>
+</body>
+</html>
